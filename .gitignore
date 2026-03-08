@@ -1,0 +1,29 @@
+# Python environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Secrets & credentials
+.env
+*.env
+data_md/untitled.txt
+
+# HuggingFace model cache
+.cache/
+
+# Test artifacts
+.pytest_cache/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
