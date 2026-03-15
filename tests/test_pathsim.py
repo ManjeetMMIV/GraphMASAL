@@ -1,9 +1,9 @@
 """
 Phase 5.2: Programmatic Validation - PathSim Metric
-Computes Jaccard similarity between AI-generated paths and hand-crafted expert paths
-to quantify how close the system is to the optimal ground-truth.
-
-PathSim(generated, expert) = |nodes(generated) ∩ nodes(expert)| / |nodes(generated) ∪ nodes(expert)|
+Evaluates AI-generated paths against expert paths using a weighted combination of:
+1. Node overlap
+2. Edge overlap
+3. Sequence similarity via normalized Levenshtein distance
 """
 import os
 import sys
@@ -17,6 +17,7 @@ from src.graph.student import StudentManager
 from src.pathing.graph_adapter import GraphAdapter
 from src.pathing.state import StateModeler
 from src.pathing.msms import MSMSOptimizer
+from src.evaluation.pathsim import compute_pathsim
 
 # -------------------------------------------------------
 # Expert-defined "ground truth" paths for each scenario.
@@ -42,14 +43,6 @@ EXPERT_PATHS = {
         "expert_path": ["processes", "concurrency", "threads", "locks"]
     }
 }
-
-def jaccard_similarity(set_a: set, set_b: set) -> float:
-    """Computes Jaccard similarity (set intersection / set union)."""
-    if not set_a and not set_b:
-        return 1.0
-    intersection = len(set_a.intersection(set_b))
-    union = len(set_a.union(set_b))
-    return intersection / union
 
 def run_pathsim_evaluation():
     uri = os.getenv("NEO4J_URI", "")
@@ -88,20 +81,21 @@ def run_pathsim_evaluation():
         optimizer = MSMSOptimizer(G, sources, sinks, mastery)
         optimal_paths = optimizer.greedy_set_cover()
         
-        # Compute PathSim
-        expert_set = set(scenario["expert_path"])
-        
         if optimal_paths:
-            generated_set = set(optimal_paths[0])
             generated_names = [G.nodes[n]['name'] for n in optimal_paths[0]]
             expert_names = [G.nodes[n]['name'] for n in scenario["expert_path"]]
-            
-            sim = jaccard_similarity(generated_set, expert_set)
+            breakdown = compute_pathsim(optimal_paths[0], scenario["expert_path"])
             
             print(f"  Expert Path:    {' -> '.join(expert_names)}")
             print(f"  Generated Path: {' -> '.join(generated_names)}")
-            print(f"  PathSim Score:  {sim:.4f} {'✓' if sim >= 0.8 else '✗ (below threshold)'}\n")
-            results.append(sim)
+            print(
+                f"  PathSim Score:  {breakdown.total_score:.4f} "
+                f"{'✓' if breakdown.total_score >= 0.8 else '✗ (below threshold)'}"
+            )
+            print(f"  Node Overlap:   {breakdown.node_similarity:.4f}")
+            print(f"  Edge Overlap:   {breakdown.edge_similarity:.4f}")
+            print(f"  Sequence Sim:   {breakdown.sequence_similarity:.4f}\n")
+            results.append(breakdown.total_score)
         else:
             print(f"  No path generated!\n")
             results.append(0.0)

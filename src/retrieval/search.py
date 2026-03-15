@@ -1,17 +1,53 @@
 import os
+import logging
+from contextlib import redirect_stderr
+from contextlib import redirect_stdout
+from functools import lru_cache
+from io import StringIO
+
 from dotenv import load_dotenv
-from src.graph.db import Neo4jConnection
 from sentence_transformers import SentenceTransformer
 
-class SemanticSearch:
-    def __init__(self, conn: Neo4jConnection, model_name: str = 'all-MiniLM-L6-v2'):
-        self.conn = conn
-        print("Loading HuggingFace model for search...")
-        self.model = SentenceTransformer(model_name)
+from src.graph.db import Neo4jConnection
+from src.retrieval.reranker import StructureAwareReranker
+
+
+def _verbose_retrieval() -> bool:
+    return os.getenv("GRAPHMASAL_VERBOSE_RETRIEVAL", "0").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _quiet_hf_load_noise() -> None:
+    logging.getLogger("transformers").setLevel(logging.ERROR)
+    logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+
+
+@lru_cache(maxsize=2)
+def _get_sentence_transformer(model_name: str) -> SentenceTransformer:
+    verbose = _verbose_retrieval()
+    if verbose:
+        print(f"Loading HuggingFace model for search: {model_name}...")
+
+    # Keep first-load model diagnostics quiet unless explicitly requested.
+    if verbose:
+        model = SentenceTransformer(model_name)
+    else:
+        _quiet_hf_load_noise()
+        with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
+            model = SentenceTransformer(model_name)
+
+    if verbose:
         print("Model loaded successfully.")
+    return model
+
+class SemanticSearch:
+    def __init__(self, conn: Neo4jConnection, model_name: str = 'all-MiniLM-L6-v2', use_cross_encoder: bool = False):
+        self.conn = conn
+        self.model = _get_sentence_transformer(model_name)
+        self.reranker = StructureAwareReranker(conn, use_cross_encoder=use_cross_encoder)
     
     def search_and_personalize(self, query_text: str, student_id: str, top_k: int = 3):
-        print(f"Embedding query: '{query_text}'")
+        if _verbose_retrieval():
+            print(f"Embedding query: '{query_text}'")
         query_embedding = self.model.encode(query_text).tolist()
         
         # We query the vector index and simultaneously match the student's mastery IF it exists
@@ -34,15 +70,23 @@ class SemanticSearch:
         
         results = self.conn.query(cypher_query, parameters)
         
-        final_results = []
-        for record in results:
-            final_results.append({
-                "concept": record["name"],
-                "similarity": record["similarity"],
-                "mastery": record["mastery_score"]
-            })
-            
-        return final_results
+        candidates = []
+        if results:
+            for record in results:
+                candidates.append({
+                    "concept_id": record["concept_id"],
+                    "concept": record["name"],
+                    "name": record["name"],
+                    "description": record["description"],
+                    "similarity": record["similarity"],
+                    "mastery": record["mastery_score"]
+                })
+
+        if not candidates:
+            return []
+
+        reranked = self.reranker.rerank(query_text, student_id, candidates)
+        return reranked[:top_k]
 
 if __name__ == "__main__":
     load_dotenv()

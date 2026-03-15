@@ -1,8 +1,8 @@
-from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
+from src.agents.llm import get_chat_model
 from src.agents.state import AgentState
-from src.agents.tools import update_mastery_tool, semantic_search_tool
+from src.agents.tools import update_mastery_tool, hybrid_retrieval_tool
 
 def diagnoser_node(state: AgentState):
     """
@@ -15,12 +15,14 @@ def diagnoser_node(state: AgentState):
     
     # We use a tool-calling LLM to automate the process
     # binding the search and update tools directly to it.
-    llm = ChatOllama(model="llama3.1", temperature=0)
-    llm_with_tools = llm.bind_tools([semantic_search_tool, update_mastery_tool])
+    llm = get_chat_model(temperature=0)
+    llm_with_tools = llm.bind_tools([hybrid_retrieval_tool, update_mastery_tool])
     
     system_prompt = f"""
     You are the Diagnostic Engine of an AI Tutor.
     The current student's ID is: {state['student_id']}.
+    Prior long-term memory for this student:
+    {state.get('long_term_memory', 'No relevant long-term memory found.')}
     
     Your job is to analyze the student's input. 
     If the student demonstrates a severe misunderstanding of a concept, or explicitly states they failed on a topic (e.g., "Paging", "File Systems", "Locks"), you MUST invoke the `update_mastery_tool`.

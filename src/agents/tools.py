@@ -4,8 +4,10 @@ from langchain_core.tools import tool
 
 from src.graph.db import Neo4jConnection
 from src.graph.student import StudentManager
+from src.retrieval.hybrid import HybridRetriever
 from src.retrieval.search import SemanticSearch
 from src.pathing.graph_adapter import GraphAdapter
+from src.pathing.roadmap import compute_student_roadmap, format_roadmap_lines
 from src.pathing.state import StateModeler
 from src.pathing.msms import MSMSOptimizer
 
@@ -53,8 +55,75 @@ def semantic_search_tool(query: str, student_id: str) -> str:
     
     summary = "Found the following related concepts:\n"
     for r in results:
-        summary += f"- {r['concept']} (Similarity: {r['similarity']:.2f}, Student Mastery: {r['mastery']:.2f})\n"
+        graph_context = r.get("graph_context", {})
+        prerequisites = ", ".join(graph_context.get("prerequisites", [])) or "None"
+        unlocks = ", ".join(graph_context.get("unlocks", [])) or "None"
+        summary += (
+            f"- {r['concept']} (Similarity: {r['similarity']:.2f}, Student Mastery: {r['mastery']:.2f}, "
+            f"Rerank: {r.get('rerank_score', 0.0):.2f}, Prerequisites: {prerequisites}, Unlocks: {unlocks})\n"
+        )
     return summary
+
+
+@tool
+def hybrid_retrieval_tool(query: str, student_id: str) -> str:
+    """
+    Runs hybrid retrieval by combining vector search with graph neighborhood expansion and reranking.
+    """
+    conn = get_connection()
+    searcher = HybridRetriever(conn)
+    results = searcher.retrieve(query, student_id, top_k=3)
+    conn.close()
+
+    if not results:
+        return "No relevant concepts found."
+
+    lines = ["Hybrid retrieval results:"]
+    for result in results:
+        neighborhood = result.get("graph_neighborhood", {})
+        prerequisites = ", ".join(neighborhood.get("prerequisites", [])) or "None"
+        downstream = ", ".join(neighborhood.get("downstream", [])) or "None"
+        lines.append(
+            f"- {result['concept']} (Hybrid: {result.get('hybrid_score', 0.0):.2f}, "
+            f"Similarity: {result['similarity']:.2f}, Mastery: {result['mastery']:.2f}, "
+            f"Prerequisites: {prerequisites}, Related Next Concepts: {downstream})"
+        )
+    return "\n".join(lines)
+
+
+@tool
+def recall_memory_tool(query: str, student_id: str) -> str:
+    """
+    Recalls relevant long-term memory for the student so the tutor can maintain context across sessions.
+    """
+    conn = get_connection()
+    manager = StudentManager(conn)
+    memories = manager.recall_memories(student_id, query, limit=3)
+    conn.close()
+
+    if not memories:
+        return "No relevant long-term memory found."
+
+    lines = ["Relevant long-term memory:"]
+    for memory in memories:
+        topics = ", ".join(memory.get("topics", [])) or "None"
+        lines.append(
+            f"- [{memory['memory_type']}] {memory['content']} (Topics: {topics}, Score: {memory['score']:.2f})"
+        )
+    return "\n".join(lines)
+
+
+@tool
+def store_memory_tool(student_id: str, memory_type: str, content: str, topics: str = "", importance: float = 0.5) -> str:
+    """
+    Stores a durable memory entry for the student so future turns can reuse context.
+    """
+    conn = get_connection()
+    manager = StudentManager(conn)
+    parsed_topics = [topic.strip() for topic in topics.split(",") if topic.strip()]
+    manager.store_memory(student_id, memory_type, content, parsed_topics, importance)
+    conn.close()
+    return "Memory stored successfully."
 
 
 @tool
@@ -65,28 +134,14 @@ def generate_paths_tool(student_id: str) -> str:
     """
     conn = get_connection()
     try:
-        # Load Graph
-        adapter = GraphAdapter(conn)
-        nx_graph = adapter.get_networkx_graph()
-        
-        # Load State
-        manager = StudentManager(conn)
-        modeler = StateModeler(manager)
-        mastery = manager.get_student_mastery(student_id)
-        sources, sinks = modeler.get_sources_and_sinks(student_id, list(nx_graph.nodes()))
-        
-        # Calculate Paths
-        optimizer = MSMSOptimizer(nx_graph, sources, sinks, mastery)
-        paths = optimizer.greedy_set_cover()
-        
-        if not paths:
+        roadmap = compute_student_roadmap(conn, student_id)
+        if not roadmap["paths"]:
             return "No valid learning paths could be generated."
-            
+
         result = "Calculated Optimal Paths:\n"
-        for i, path in enumerate(paths, 1):
-            names = [nx_graph.nodes[n]['name'] for n in path]
-            result += f"{i}. {' -> '.join(names)}\n"
-            
+        for line in format_roadmap_lines(roadmap):
+            result += f"{line}\n"
+
         return result
     finally:
         conn.close()

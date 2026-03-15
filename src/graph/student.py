@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from src.graph.db import Neo4jConnection
 from src.graph.models import Student
@@ -19,6 +20,9 @@ class StudentManager:
         }
         self.conn.query(query, parameters)
         print(f"Created/Updated Student Profile: {student.name}")
+
+    def ensure_student(self, student_id: str, name: str | None = None):
+        self.create_student(Student(id=student_id, name=name or student_id, mastery_levels={}))
 
     def create_student_from_dict(self, student_id: str, name: str, mastery_levels: dict):
         """Convenience method to create a student directly from primitives."""
@@ -59,6 +63,64 @@ class StudentManager:
         for record in results:
             mastery[record["concept_id"]] = record["score"]
         return mastery
+
+    def store_memory(self, student_id: str, memory_type: str, content: str, topics: list[str] | None = None, importance: float = 0.5):
+        self.ensure_student(student_id)
+        query = """
+        MATCH (s:Student {id: $student_id})
+        CREATE (m:Memory {
+            id: randomUUID(),
+            memory_type: $memory_type,
+            content: $content,
+            topics: $topics,
+            importance: $importance,
+            created_at: datetime(),
+            last_accessed: datetime()
+        })
+        MERGE (s)-[:REMEMBERS]->(m)
+        """
+        parameters = {
+            "student_id": student_id,
+            "memory_type": memory_type,
+            "content": content,
+            "topics": topics or [],
+            "importance": float(max(0.0, min(1.0, importance))),
+        }
+        self.conn.query(query, parameters)
+
+    def recall_memories(self, student_id: str, query_text: str, limit: int = 3) -> list[dict]:
+        tokens = [token.lower() for token in re.findall(r"[A-Za-z0-9_-]+", query_text) if len(token) > 2][:8]
+        query = """
+        MATCH (:Student {id: $student_id})-[:REMEMBERS]->(m:Memory)
+        WITH m,
+             CASE WHEN toLower(m.content) CONTAINS toLower($query_text) THEN 1.0 ELSE 0.0 END AS content_hit,
+             size([token IN $tokens WHERE toLower(m.content) CONTAINS token]) AS token_hits,
+             size([topic IN coalesce(m.topics, []) WHERE any(token IN $tokens WHERE toLower(topic) CONTAINS token OR token CONTAINS toLower(topic))]) AS topic_hits
+        WITH m,
+             content_hit + (0.25 * token_hits) + (0.35 * topic_hits) + (0.4 * coalesce(m.importance, 0.0)) AS memory_score
+        RETURN m.content AS content,
+               m.memory_type AS memory_type,
+               coalesce(m.topics, []) AS topics,
+               memory_score
+        ORDER BY memory_score DESC, m.created_at DESC
+        LIMIT $limit
+        """
+        parameters = {
+            "student_id": student_id,
+            "query_text": query_text,
+            "tokens": tokens,
+            "limit": limit,
+        }
+        records = self.conn.query(query, parameters)
+        return [
+            {
+                "content": record["content"],
+                "memory_type": record["memory_type"],
+                "topics": record["topics"],
+                "score": record["memory_score"],
+            }
+            for record in records
+        ]
 
 if __name__ == "__main__":
     load_dotenv()
