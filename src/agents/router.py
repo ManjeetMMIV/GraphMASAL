@@ -1,4 +1,4 @@
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from src.agents.llm import get_chat_model
 from src.agents.state import AgentState
@@ -59,12 +59,16 @@ def router_node(state: AgentState):
     REASON: <short reason>
     """
 
-    response = llm.invoke(
-        [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=state["user_input"]),
-        ]
-    ).content
+    # Build messages with full conversation history so routing is context-aware
+    messages = [SystemMessage(content=system_prompt)]
+    for turn in state.get("chat_history", []):
+        if turn.get("role") == "user":
+            messages.append(HumanMessage(content=turn["content"]))
+        elif turn.get("role") == "assistant":
+            messages.append(AIMessage(content=turn["content"]))
+    messages.append(HumanMessage(content=state["user_input"]))
+
+    response = llm.invoke(messages).content
 
     route = "retrieve"
     reason = "Defaulted to retrieval-oriented tutoring."

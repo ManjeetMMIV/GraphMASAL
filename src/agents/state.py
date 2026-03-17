@@ -33,3 +33,9 @@ class AgentState(TypedDict):
     
     # The final natural language response constructed by the Tutor
     final_response: str
+
+    # The topic the student wants to learn
+    topic: str
+
+    # The student's selected learning plan (ordered list of concept IDs)
+    active_plan: List[str]

@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from src.agents.llm import get_chat_model
 from src.agents.state import AgentState
@@ -31,11 +31,15 @@ def diagnoser_node(state: AgentState):
     DO NOT just search for the concept. You MUST invoke `update_mastery_tool`.
     """
     
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=state["user_input"])
-    ]
-    
+    # Include prior conversation so diagnoser can detect misconceptions in context
+    messages = [SystemMessage(content=system_prompt)]
+    for turn in state.get("chat_history", []):
+        if turn.get("role") == "user":
+            messages.append(HumanMessage(content=turn["content"]))
+        elif turn.get("role") == "assistant":
+            messages.append(AIMessage(content=turn["content"]))
+    messages.append(HumanMessage(content=state["user_input"]))
+
     response = llm_with_tools.invoke(messages)
     
     misconception_detected = False

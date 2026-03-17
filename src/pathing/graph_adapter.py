@@ -5,20 +5,32 @@ class GraphAdapter:
     def __init__(self, conn: Neo4jConnection):
         self.conn = conn
 
-    def get_networkx_graph(self) -> nx.DiGraph:
+    def get_networkx_graph(self, student_id: str = None) -> nx.DiGraph:
         """
-        Retrieves all Concepts and IS_PREREQUISITE_FOR relationships
-        from Neo4j and builds a directed NetworkX graph.
+        Retrieves Concepts and IS_PREREQUISITE_FOR relationships
+        from Neo4j. If student_id is provided, only retrieves concepts
+        extracted by that student.
         """
         G = nx.DiGraph()
 
-        # 1. Fetch all concept nodes
-        query_nodes = "MATCH (c:Concept) RETURN c.id AS id, c.name AS name, c.description AS desc"
-        nodes = self.conn.query(query_nodes)
+        # 1. Fetch concept nodes
+        if student_id:
+            query_nodes = """
+            MATCH (s:Student {id: $student_id})-[:HAS_EXTRACTED]->(c:Concept)
+            RETURN c.id AS id, c.name AS name, c.description AS desc
+            """
+            params = {"student_id": student_id}
+        else:
+            query_nodes = "MATCH (c:Concept) RETURN c.id AS id, c.name AS name, c.description AS desc"
+            params = {}
+            
+        nodes = self.conn.query(query_nodes, params)
         
-        for record in nodes:
-            # We add nodes with their attributes
+        # Track valid IDs for this student to filter edges later
+        valid_ids = set()
+        for record in (nodes or []):
             G.add_node(record["id"], name=record["name"], description=record["desc"])
+            valid_ids.add(record["id"])
 
         # 2. Fetch all prerequisite edges
         query_edges = """
@@ -27,10 +39,12 @@ class GraphAdapter:
         """
         edges = self.conn.query(query_edges)
         
-        for record in edges:
-            G.add_edge(record["source_id"], record["target_id"])
+        for record in (edges or []):
+            # Only add edges where both endpoints are in our subset (if filtering)
+            if not student_id or (record["source_id"] in valid_ids and record["target_id"] in valid_ids):
+                G.add_edge(record["source_id"], record["target_id"])
 
-        print(f"Built NetworkX graph with {G.number_of_nodes()} concepts and {G.number_of_edges()} prerequisites.")
+        print(f"Built NetworkX graph for student {student_id} with {G.number_of_nodes()} concepts and {G.number_of_edges()} prerequisites.")
         return G
 
 if __name__ == "__main__":

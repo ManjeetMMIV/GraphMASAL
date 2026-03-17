@@ -63,14 +63,16 @@ def build_graph():
     graph_builder.add_node("Tutor", tutor_node)
     
     # 2. Define the workflow order
-    # START -> Router -> (Diagnoser -> Planner -> Tutor) or Tutor -> END
+    # START -> Router
+    # Router -> "diagnose" -> Diagnoser -> Planner -> Tutor
+    # Router -> "retrieve" -> Planner -> Tutor
     graph_builder.add_edge(START, "Router")
     graph_builder.add_conditional_edges(
         "Router",
         route_after_router,
         {
             "diagnose": "Diagnoser",
-            "retrieve": "Tutor",
+            "retrieve": "Planner",
         },
     )
     graph_builder.add_edge("Diagnoser", "Planner")

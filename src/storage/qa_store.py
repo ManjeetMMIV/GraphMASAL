@@ -1,70 +1,119 @@
 """
-QA Session Store — persists every query/answer turn to a SQLite database
+QA Session Store — persists every query/answer turn to a MongoDB database
 alongside structured analysis fields from the LangGraph agent state.
 """
 
-import json
 import os
-import sqlite3
-import time
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Optional
-
-# Default DB path — can be overridden via GRAPHMASAL_QA_DB env var
-_DEFAULT_DB = Path(__file__).resolve().parents[2] / "data" / "qa_sessions.db"
+from typing import Optional, List, Dict, Any
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
 
-def _db_path() -> Path:
-    custom = os.getenv("GRAPHMASAL_QA_DB")
-    path = Path(custom) if custom else _DEFAULT_DB
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return path
+def _get_db():
+    uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    client = MongoClient(uri)
+    return client.graphmasal
 
 
-def _get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(str(_db_path()))
-    conn.row_factory = sqlite3.Row
-    return conn
+def _sessions_coll():
+    return _get_db().sessions
+
+
+def _turns_coll():
+    return _get_db().qa_sessions
+
+
+def get_db():
+    """Public accessor for the database (used by server.py for plan selection)."""
+    return _get_db()
 
 
 def init_db() -> None:
-    """Create the qa_sessions table and indexes if they don't already exist."""
-    conn = _get_conn()
+    """Create indexes for the MongoDB collections."""
     try:
-        conn.executescript("""
-            CREATE TABLE IF NOT EXISTS qa_sessions (
-                id               INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id       TEXT    NOT NULL,
-                student_id       TEXT    NOT NULL,
-                timestamp        TEXT    NOT NULL,
-                user_input       TEXT    NOT NULL,
-                final_response   TEXT    NOT NULL,
-                route            TEXT,
-                route_reason     TEXT,
-                misconception    INTEGER NOT NULL DEFAULT 0,
-                affected_concepts TEXT,
-                learning_paths   TEXT,
-                retrieved_context TEXT,
-                response_time_ms INTEGER,
-                model_used       TEXT,
-                langsmith_run_id TEXT
-            );
+        sessions = _sessions_coll()
+        sessions.create_index("student_id")
+        sessions.create_index("session_id", unique=True)
+        sessions.create_index([("student_id", ASCENDING), ("created_at", DESCENDING)])
 
-            CREATE INDEX IF NOT EXISTS idx_qs_student   ON qa_sessions(student_id);
-            CREATE INDEX IF NOT EXISTS idx_qs_session   ON qa_sessions(session_id);
-            CREATE INDEX IF NOT EXISTS idx_qs_timestamp ON qa_sessions(timestamp);
-        """)
-        conn.commit()
-    finally:
-        conn.close()
+        turns = _turns_coll()
+        turns.create_index("student_id")
+        turns.create_index("session_id")
+        turns.create_index("timestamp")
+    except Exception as e:
+        print(f"Failed to initialize MongoDB: {e}")
 
+
+# --------------------------------------------------------------------------- #
+# Session Management
+# --------------------------------------------------------------------------- #
+
+def create_session(*, student_id: str, topic: str) -> Dict[str, Any]:
+    """Create a new chat session document. Returns the session dict."""
+    sessions = _sessions_coll()
+    session_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "session_id": session_id,
+        "student_id": student_id,
+        "topic": topic,
+        "created_at": now,
+        "updated_at": now,
+    }
+    sessions.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+def get_sessions_summary(student_id: str) -> List[Dict[str, Any]]:
+    """Return a list of all sessions for a student, sorted newest-first."""
+    sessions = _sessions_coll()
+    turns = _turns_coll()
+
+    session_docs = list(
+        sessions.find(
+            {"student_id": student_id},
+            {"_id": 0, "session_id": 1, "topic": 1, "created_at": 1, "updated_at": 1},
+        ).sort("created_at", DESCENDING)
+    )
+
+    # Attach turn count to each session
+    for s in session_docs:
+        s["turn_count"] = turns.count_documents({"session_id": s["session_id"]})
+
+    return session_docs
+
+
+def get_session_history(session_id: str) -> List[Dict[str, Any]]:
+    """Return the full message history for a specific session as [{role, content}]."""
+    turns = _turns_coll()
+    docs = turns.find({"session_id": session_id}).sort("timestamp", ASCENDING)
+
+    history = []
+    for d in docs:
+        history.append({"role": "user", "content": d.get("user_input", "")})
+        history.append({"role": "assistant", "content": d.get("final_response", "")})
+
+    return history
+
+
+def get_session_info(session_id: str) -> Optional[Dict[str, Any]]:
+    """Return the metadata for a single session (topic, student, timestamps)."""
+    sessions = _sessions_coll()
+    doc = sessions.find_one({"session_id": session_id}, {"_id": 0})
+    return doc
+
+
+# --------------------------------------------------------------------------- #
+# Turn Persistence
+# --------------------------------------------------------------------------- #
 
 def log_qa_turn(
     *,
     session_id: str,
     student_id: str,
+    topic: str = "",
     user_input: str,
     final_response: str,
     route: str = "",
@@ -76,163 +125,48 @@ def log_qa_turn(
     response_time_ms: Optional[int] = None,
     model_used: str = "",
     langsmith_run_id: str = "",
-) -> int:
-    """
-    Insert one Q&A turn record.  Returns the new row id.
-    """
-    conn = _get_conn()
-    try:
-        cur = conn.execute(
-            """
-            INSERT INTO qa_sessions (
-                session_id, student_id, timestamp,
-                user_input, final_response,
-                route, route_reason, misconception,
-                affected_concepts, learning_paths, retrieved_context,
-                response_time_ms, model_used, langsmith_run_id
-            ) VALUES (?,?,?, ?,?, ?,?,?, ?,?,?, ?,?,?)
-            """,
-            (
-                session_id,
-                student_id,
-                datetime.now(timezone.utc).isoformat(),
-                user_input,
-                final_response,
-                route,
-                route_reason,
-                int(misconception_detected),
-                json.dumps(affected_concepts or []),
-                json.dumps(learning_paths or []),
-                retrieved_context,
-                response_time_ms,
-                model_used,
-                langsmith_run_id,
-            ),
-        )
-        conn.commit()
-        return cur.lastrowid
-    finally:
-        conn.close()
+) -> str:
+    """Insert one Q&A turn into MongoDB. Returns the inserted ID string."""
+    turns = _turns_coll()
+    now = datetime.now(timezone.utc).isoformat()
+
+    doc = {
+        "session_id": session_id,
+        "student_id": student_id,
+        "topic": topic,
+        "timestamp": now,
+        "user_input": user_input,
+        "final_response": final_response,
+        "route": route,
+        "route_reason": route_reason,
+        "misconception": int(misconception_detected),
+        "affected_concepts": affected_concepts or [],
+        "learning_paths": learning_paths or [],
+        "retrieved_context": retrieved_context,
+        "response_time_ms": response_time_ms,
+        "model_used": model_used,
+        "langsmith_run_id": langsmith_run_id,
+    }
+
+    result = turns.insert_one(doc)
+
+    # Also bump the session's updated_at timestamp
+    _sessions_coll().update_one(
+        {"session_id": session_id},
+        {"$set": {"updated_at": now}},
+    )
+
+    return str(result.inserted_id)
 
 
-# ---------------------------------------------------------------------------
-# Analytics helpers
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------- #
+# Cleanup
+# --------------------------------------------------------------------------- #
 
-def get_session_stats(session_id: str) -> dict:
-    """Return aggregate stats for a single chat session."""
-    conn = _get_conn()
-    try:
-        row = conn.execute(
-            """
-            SELECT
-                COUNT(*)                                              AS turns,
-                SUM(misconception)                                    AS misconception_turns,
-                AVG(response_time_ms)                                 AS avg_response_ms,
-                MIN(timestamp)                                        AS started_at,
-                MAX(timestamp)                                        AS last_at
-            FROM qa_sessions
-            WHERE session_id = ?
-            """,
-            (session_id,),
-        ).fetchone()
-        return dict(row) if row else {}
-    finally:
-        conn.close()
-
-
-def get_student_summary(student_id: str) -> dict:
-    """Return aggregate stats for a student across all sessions."""
-    conn = _get_conn()
-    try:
-        row = conn.execute(
-            """
-            SELECT
-                COUNT(*)                     AS total_turns,
-                COUNT(DISTINCT session_id)   AS total_sessions,
-                SUM(misconception)           AS total_misconceptions,
-                AVG(response_time_ms)        AS avg_response_ms,
-                MIN(timestamp)               AS first_interaction,
-                MAX(timestamp)               AS last_interaction
-            FROM qa_sessions
-            WHERE student_id = ?
-            """,
-            (student_id,),
-        ).fetchone()
-        return dict(row) if row else {}
-    finally:
-        conn.close()
-
-
-def get_route_distribution(student_id: str | None = None) -> list[dict]:
-    """
-    Count how many turns went through each route.
-    Optionally filter by student_id.
-    """
-    conn = _get_conn()
-    try:
-        if student_id:
-            rows = conn.execute(
-                "SELECT route, COUNT(*) AS count FROM qa_sessions WHERE student_id = ? GROUP BY route",
-                (student_id,),
-            ).fetchall()
-        else:
-            rows = conn.execute(
-                "SELECT route, COUNT(*) AS count FROM qa_sessions GROUP BY route"
-            ).fetchall()
-        return [dict(r) for r in rows]
-    finally:
-        conn.close()
-
-
-def get_recent_turns(student_id: str, limit: int = 10) -> list[dict]:
-    """Return the most recent Q&A turns for a student."""
-    conn = _get_conn()
-    try:
-        rows = conn.execute(
-            """
-            SELECT
-                session_id, timestamp, user_input, final_response,
-                route, misconception, affected_concepts, response_time_ms
-            FROM qa_sessions
-            WHERE student_id = ?
-            ORDER BY timestamp DESC
-            LIMIT ?
-            """,
-            (student_id, limit),
-        ).fetchall()
-        results = []
-        for row in rows:
-            d = dict(row)
-            d["affected_concepts"] = json.loads(d["affected_concepts"] or "[]")
-            results.append(d)
-        return results
-    finally:
-        conn.close()
-
-
-def get_misconception_analysis(student_id: str) -> list[dict]:
-    """
-    Return all turns where a misconception was detected,
-    decoded with full concept and path detail.
-    """
-    conn = _get_conn()
-    try:
-        rows = conn.execute(
-            """
-            SELECT timestamp, user_input, affected_concepts, learning_paths, route_reason
-            FROM qa_sessions
-            WHERE student_id = ? AND misconception = 1
-            ORDER BY timestamp DESC
-            """,
-            (student_id,),
-        ).fetchall()
-        results = []
-        for row in rows:
-            d = dict(row)
-            d["affected_concepts"] = json.loads(d["affected_concepts"] or "[]")
-            d["learning_paths"] = json.loads(d["learning_paths"] or "[]")
-            results.append(d)
-        return results
-    finally:
-        conn.close()
+def delete_student_history(student_id: str) -> int:
+    """Deletes all sessions and turns for a specific student."""
+    turns = _turns_coll()
+    sessions = _sessions_coll()
+    turns_deleted = turns.delete_many({"student_id": student_id}).deleted_count
+    sessions.delete_many({"student_id": student_id})
+    return turns_deleted
