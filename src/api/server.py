@@ -168,6 +168,111 @@ async def get_roadmap(student_id: str, session_id: str = ""):
 
 
 # --------------------------------------------------------------------------- #
+# Video Recommendations Endpoint
+# --------------------------------------------------------------------------- #
+
+@app.get("/api/videos")
+async def get_video_recommendations(student_id: str, session_id: str = ""):
+    """
+    Return topic-wise YouTube search links for every concept in the student's
+    active learning plan, enriched with mastery scores.
+    """
+    import urllib.parse
+
+    if not session_id:
+        return {"topics": []}
+
+    try:
+        from src.storage.qa_store import get_db as _qa_get_db
+        session_doc = _qa_get_db()["sessions"].find_one({"session_id": session_id})
+        if not session_doc:
+            return {"topics": []}
+
+        active_plan = session_doc.get("active_plan", [])
+        if not active_plan:
+            return {"topics": []}
+
+        conn = _get_neo4j_connection()
+        if not conn:
+            return {"topics": []}
+
+        try:
+            # Fetch concept names, descriptions, and mastery scores in one query
+            rows = conn.query(
+                """
+                UNWIND $ids AS cid
+                MATCH (c:Concept {id: cid})
+                OPTIONAL MATCH (s:Student {id: $sid})-[r:HAS_MASTERY_OF]->(c)
+                RETURN c.id AS id, c.name AS name, c.description AS desc,
+                       coalesce(r.score, 0.0) AS mastery
+                """,
+                {"ids": active_plan, "sid": student_id}
+            )
+        finally:
+            conn.close()
+
+        # Index rows by concept id to preserve Active Plan ordering
+        row_map = {r["id"]: r for r in (rows or [])}
+
+        topics = []
+        for idx, cid in enumerate(active_plan):
+            row = row_map.get(cid)
+            if not row:
+                continue
+
+            name = row["name"]
+            mastery = row.get("mastery", 0.0)
+            enc = urllib.parse.quote_plus(name)
+
+            # Build a rich set of search links per topic
+            videos = [
+                {
+                    "label": f"📖 {name} — Introduction",
+                    "url": f"https://www.youtube.com/results?search_query={enc}+introduction+explained"
+                },
+                {
+                    "label": f"🎥 {name} — Full Tutorial",
+                    "url": f"https://www.youtube.com/results?search_query={enc}+tutorial"
+                },
+                {
+                    "label": f"🎬 {name} — Visual / Animation",
+                    "url": f"https://www.youtube.com/results?search_query={enc}+visual+explanation+animation"
+                },
+                {
+                    "label": f"🧪 {name} — Examples & Problems",
+                    "url": f"https://www.youtube.com/results?search_query={enc}+examples+problems+solved"
+                },
+            ]
+
+            # Status for UI colouring
+            if mastery >= 0.8:
+                status = "mastered"
+            elif idx == next(
+                (i for i, c in enumerate(active_plan)
+                 if row_map.get(c, {}).get("mastery", 0.0) < 0.8), None
+            ):
+                status = "current"
+            else:
+                status = "upcoming"
+
+            topics.append({
+                "id": cid,
+                "name": name,
+                "desc": row.get("desc", ""),
+                "mastery": mastery,
+                "mastery_pct": round(mastery * 100),
+                "status": status,
+                "step": idx + 1,
+                "videos": videos,
+            })
+
+        return {"topics": topics}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# --------------------------------------------------------------------------- #
 # Knowledge Graph Endpoint (for vis.js visualization)
 # --------------------------------------------------------------------------- #
 
@@ -175,7 +280,7 @@ async def get_roadmap(student_id: str, session_id: str = ""):
 async def get_knowledge_graph(student_id: str, session_id: str = ""):
     """
     Return all concept nodes and IS_PREREQUISITE_FOR edges for this student,
-    plus the active plan path (for highlighting in the UI).
+    plus the active plan path and per-node mastery scores (for visualization).
     """
     conn = _get_neo4j_connection()
     if not conn:
@@ -184,9 +289,24 @@ async def get_knowledge_graph(student_id: str, session_id: str = ""):
         from src.pathing.graph_adapter import GraphAdapter
         adapter = GraphAdapter(conn)
         nx_graph = adapter.get_networkx_graph(student_id=student_id)
-        
+
+        # Fetch mastery scores for ALL concepts this student has a relationship with
+        mastery_rows = conn.query(
+            """
+            MATCH (s:Student {id: $sid})-[r:HAS_MASTERY_OF]->(c:Concept)
+            RETURN c.id AS id, coalesce(r.score, 0.0) AS score
+            """,
+            {"sid": student_id}
+        )
+        mastery_map = {row["id"]: row["score"] for row in (mastery_rows or [])}
+
         nodes = [
-            {"id": n, "name": nx_graph.nodes[n].get("name", n), "desc": nx_graph.nodes[n].get("description", "")}
+            {
+                "id": n,
+                "name": nx_graph.nodes[n].get("name", n),
+                "desc": nx_graph.nodes[n].get("description", ""),
+                "mastery": mastery_map.get(n, 0.0),
+            }
             for n in nx_graph.nodes()
         ]
         edges = [
@@ -205,11 +325,45 @@ async def get_knowledge_graph(student_id: str, session_id: str = ""):
             except Exception:
                 pass
 
-        return {"nodes": nodes, "edges": edges, "active_plan": active_plan}
+        # Compute the current concept = first concept in active_plan with mastery < 0.8
+        current_concept = None
+        mastered_in_plan = []
+        upcoming_in_plan = []
+        for cid in active_plan:
+            score = mastery_map.get(cid, 0.0)
+            if score >= 0.8:
+                mastered_in_plan.append(cid)
+            elif current_concept is None:
+                current_concept = cid
+            else:
+                upcoming_in_plan.append(cid)
+
+        # Build the justification object explaining what changed and why
+        justification = {
+            "mastered_count": len(mastered_in_plan),
+            "mastered_concepts": mastered_in_plan,
+            "current_concept": current_concept,
+            "upcoming_count": len(upcoming_in_plan),
+            "reason": (
+                f"{len(mastered_in_plan)} concept(s) already mastered and skipped. "
+                f"Now focusing on: '{mastery_map and next((n['name'] for n in nodes if n['id'] == current_concept), current_concept) or 'N/A'}'."
+                if current_concept else
+                "All concepts in the learning plan have been mastered! 🎉"
+            )
+        }
+
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "active_plan": active_plan,
+            "current_concept": current_concept,
+            "justification": justification,
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
+
 
 # --------------------------------------------------------------------------- #
 # Documents Endpoint

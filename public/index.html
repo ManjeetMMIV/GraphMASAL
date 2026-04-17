@@ -259,6 +259,10 @@
                         class="w-full py-2 bg-indigo-900/30 text-indigo-400 hover:bg-indigo-900/50 border border-indigo-900/50 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-diagram-project"></i> Learning Roadmap
                     </button>
+                    <button id="showVideosBtn"
+                        class="w-full py-2 bg-red-900/20 text-red-400 hover:bg-red-900/30 border border-red-900/40 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1.5">
+                        <i class="fa-brands fa-youtube"></i> Video Library
+                    </button>
                     <button id="clearDocsBtn"
                         class="w-full py-2 bg-orange-900/20 text-orange-400 hover:bg-orange-900/30 border border-orange-900/40 rounded-xl text-xs font-medium transition-all">
                         <i class="fa-solid fa-file-circle-xmark mr-1"></i> Clear All Documents
@@ -293,6 +297,52 @@
             <div class="flex-1 overflow-auto p-4 bg-white rounded-b-2xl" id="mermaidContainer">
                 <div class="w-full h-full flex items-center justify-center text-gray-400">
                     <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- VIDEO LIBRARY MODAL -->
+    <!-- ================================================================ -->
+    <div id="videoLibraryModal"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="bg-card border border-border rounded-2xl w-[92vw] max-w-4xl h-[85vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-5 border-b border-border">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-red-900/40 border border-red-700/40 flex items-center justify-center">
+                        <i class="fa-brands fa-youtube text-red-400 text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Video Library</h2>
+                        <p class="text-xs text-gray-400 mt-0.5" id="videoLibraryMeta">Topic-wise video recommendations for your learning plan</p>
+                    </div>
+                </div>
+                <button id="closeVideoLibraryModal"
+                    class="w-8 h-8 rounded-full bg-surface hover:bg-border flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <!-- Search / Filter bar -->
+            <div class="px-5 py-3 border-b border-border flex items-center gap-3">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <input id="videoSearchInput" type="text" placeholder="Filter topics…"
+                        class="w-full bg-surface border border-border rounded-lg pl-8 pr-4 py-2 text-xs focus:outline-none focus:border-primary/50 text-gray-200 placeholder-gray-600">
+                </div>
+                <div class="flex items-center gap-1.5 text-xs">
+                    <button class="video-filter-btn active px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="all">All</button>
+                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="current">🎯 Current</button>
+                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="upcoming">🔵 Upcoming</button>
+                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="mastered">✅ Mastered</button>
+                </div>
+            </div>
+            <!-- Topic Cards -->
+            <div id="videoLibraryContent" class="flex-1 overflow-y-auto custom-scrollbar p-5">
+                <div class="flex items-center justify-center h-full text-gray-500">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-red-400"></i>
                 </div>
             </div>
         </div>

@@ -807,6 +807,8 @@ function showRoadmap() {
             const allNodes = data.nodes || [];
             const allEdges = data.edges || [];
             const activePlan = data.active_plan || [];
+            const currentConcept = data.current_concept || null;
+            const justification = data.justification || null;
 
             if (allNodes.length === 0) {
                 roadmapMeta.textContent = 'No concepts extracted yet.';
@@ -822,53 +824,56 @@ function showRoadmap() {
             const activeIndex = {};
             activePlan.forEach((id, i) => { activeIndex[id] = i; });
 
-            // Color palette for active path: gradient from cyan → indigo → purple
-            const pathColors = [
-                '#06b6d4','#0ea5e9','#6366f1','#8b5cf6','#a855f7',
-                '#d946ef','#ec4899','#f43f5e','#f97316','#eab308'
-            ];
+            // --- 4-State Node Coloring ---
+            // MASTERED  (score >= 0.8): Green — done ✅
+            // CURRENT   (first unmastered in plan): Amber/Gold — learning now 🎯
+            // UPCOMING  (in plan, after current): Indigo — queued 🔵
+            // OFF-PLAN  (not in active plan): Light gray ⚪
+            const stateColors = {
+                mastered:  { bg: '#d1fae5', border: '#10b981', font: '#065f46', shadow: '#10b98144' },
+                current:   { bg: '#fef3c7', border: '#f59e0b', font: '#92400e', shadow: '#f59e0b55' },
+                upcoming:  { bg: '#ede9fe', border: '#6366f1', font: '#3730a3', shadow: '#6366f144' },
+                offplan:   { bg: '#f8fafc', border: '#cbd5e1', font: '#64748b', shadow: null },
+            };
 
-            // Build vis dataset nodes
+            function getNodeState(n) {
+                if (!activeSet.has(n.id)) return 'offplan';
+                if (n.mastery >= 0.8) return 'mastered';
+                if (n.id === currentConcept) return 'current';
+                return 'upcoming';
+            }
+
             const visNodes = allNodes.map(n => {
-                const isActive = activeSet.has(n.id);
+                const nodeState = getNodeState(n);
+                const c = stateColors[nodeState];
                 const idx = activeIndex[n.id] ?? -1;
-                const baseColor = isActive
-                    ? (pathColors[idx % pathColors.length])
-                    : '#cbd5e1';  // Light gray for inactive nodes
-                    
-                const bgColor = isActive ? (baseColor + '22') : '#ffffff';
-                const borderColor = isActive ? baseColor : '#94a3b8';
-                const labelTextColor = isActive ? '#1e293b' : '#64748b'; // Darker text for white backgrounds
-                
                 const label = n.name.length > 22 ? n.name.slice(0, 20) + '…' : n.name;
-                const stepLabel = isActive ? `\n#${idx + 1}` : '';
-                
-                // Native titles must be plain text in basic vis.js setup without custom CSS tooltip wrapping
-                const plainTitle = isActive 
-                    ? `[ Step #${idx + 1} ]\n${n.name}\n\n${n.desc || 'No description available.'}`
-                    : `${n.name}\n\n${n.desc || 'No description available.'}`;
+                const stepLabel = idx >= 0 ? `\n#${idx + 1}` : '';
+
+                const masteryPct = Math.round((n.mastery || 0) * 100);
+                const stateLabel = nodeState === 'mastered' ? '✅ Mastered'
+                    : nodeState === 'current'  ? '🎯 Currently Learning'
+                    : nodeState === 'upcoming' ? '🔵 Upcoming'
+                    : '⚪ Related';
+
+                const plainTitle = `${n.name}\n${stateLabel} · Mastery: ${masteryPct}%\n\n${n.desc || 'No description available.'}`;
 
                 return {
                     id: n.id,
-                    label: label + stepLabel,
+                    label: label + (idx >= 0 ? stepLabel : ''),
                     title: plainTitle,
                     color: {
-                        background: bgColor,
-                        border: borderColor,
-                        highlight: { background: isActive ? baseColor + '44' : '#f1f5f9', border: baseColor },
-                        hover: { background: isActive ? baseColor + '33' : '#f8fafc', border: baseColor }
+                        background: c.bg,
+                        border: c.border,
+                        highlight: { background: c.bg, border: c.border },
+                        hover:      { background: c.bg, border: c.border }
                     },
-                    font: {
-                        color: labelTextColor,
-                        size: isActive ? 14 : 12,
-                        bold: isActive ? { color: '#0f172a', size: 14 } : false,
-                        multi: 'html',
-                    },
-                    borderWidth: isActive ? 2.5 : 1,
-                    size: isActive ? 28 : 20,
+                    font: { color: c.font, size: nodeState === 'current' ? 15 : 12, bold: nodeState === 'current' },
+                    borderWidth: nodeState === 'current' ? 3 : (nodeState !== 'offplan' ? 2 : 1),
+                    size: nodeState === 'current' ? 32 : (nodeState !== 'offplan' ? 26 : 20),
                     shape: 'box',
                     margin: 10,
-                    shadow: isActive ? { enabled: true, color: baseColor + '66', size: 12 } : false,
+                    shadow: c.shadow ? { enabled: true, color: c.shadow, size: 14 } : false,
                 };
             });
 
@@ -880,18 +885,18 @@ function showRoadmap() {
                     from: e.source,
                     to: e.target,
                     color: {
-                        color: bothActive ? '#6366f1' : '#cbd5e1',
+                        color: bothActive ? '#6366f1' : '#e2e8f0',
                         highlight: '#6366f1',
-                        opacity: bothActive ? 0.9 : 0.6,
+                        opacity: bothActive ? 1 : 0.5,
                     },
                     width: bothActive ? 2.5 : 1,
                     arrows: { to: { enabled: true, scaleFactor: bothActive ? 0.8 : 0.5 } },
                     smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.4 },
-                    shadow: bothActive ? { enabled: true, color: '#6366f144', size: 6 } : false,
+                    shadow: bothActive ? { enabled: true, color: '#6366f133', size: 6 } : false,
                 };
             });
 
-            // Add sequential edges along the active plan path if they don't already exist
+            // Add sequential dashed edges along path for gaps not in prerequisite list
             const edgeKeys = new Set(allEdges.map(e => `${e.source}→${e.target}`));
             activePlan.forEach((id, i) => {
                 if (i < activePlan.length - 1) {
@@ -901,33 +906,50 @@ function showRoadmap() {
                             id: `path_${i}`,
                             from: id,
                             to: activePlan[i + 1],
-                            color: { color: '#6366f1', highlight: '#a5b4fc', opacity: 0.9 },
-                            width: 2.5,
+                            color: { color: '#a5b4fc', highlight: '#6366f1', opacity: 0.8 },
+                            width: 2,
                             dashes: [8, 4],
                             arrows: { to: { enabled: true, scaleFactor: 0.8 } },
                             smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.4 },
-                            shadow: { enabled: true, color: '#6366f144', size: 6 },
                         });
                     }
                 }
             });
 
-            // Clear container and add legend + graph
+            // --- Build justification banner HTML ---
+            const masteredCount = justification?.mastered_count ?? 0;
+            const upcomingCount = justification?.upcoming_count ?? 0;
+            const reason = justification?.reason ?? '';
+            const justificationBanner = activePlan.length > 0 ? `
+                <div style="padding:10px 16px;background:#fafafa;border-bottom:1px solid #e2e8f0;font-size:12.5px;color:#475569;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+                    <span style="font-weight:600;color:#1e293b;">📋 Path Justification:</span>
+                    <span>${reason}</span>
+                    <span style="margin-left:auto;display:flex;gap:12px;">
+                        <span style="color:#10b981;font-weight:600;">✅ ${masteredCount} mastered</span>
+                        <span style="color:#f59e0b;font-weight:600;">🎯 1 current</span>
+                        <span style="color:#6366f1;font-weight:600;">🔵 ${upcomingCount} upcoming</span>
+                    </span>
+                </div>` : '';
+
             roadmapMeta.textContent = `${activePlan.length > 0 ? `Learning Path: ${activePlan.length} steps · ` : ''}${allNodes.length} concepts · ${allEdges.length} prerequisites`;
             mermaidContainer.innerHTML = `
-                <div style="display:flex;gap:16px;padding:10px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;align-items:center;">
+                ${justificationBanner}
+                <div style="display:flex;gap:16px;padding:8px 16px;background:#ffffff;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;align-items:center;">
                     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
-                        <div style="width:14px;height:14px;border-radius:3px;background:#6366f122;border:2px solid #6366f1;"></div> Your learning path
+                        <div style="width:14px;height:14px;border-radius:3px;background:#d1fae5;border:2px solid #10b981;"></div> Mastered
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
-                        <div style="width:14px;height:14px;border-radius:3px;background:#ffffff;border:1px solid #94a3b8;"></div> Related knowledge
+                        <div style="width:14px;height:14px;border-radius:3px;background:#fef3c7;border:2px solid #f59e0b;"></div> Currently Learning
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
-                        <div style="width:24px;height:2px;background:#6366f1;"></div> Prerequisite / Path edge
+                        <div style="width:14px;height:14px;border-radius:3px;background:#ede9fe;border:2px solid #6366f1;"></div> Upcoming
                     </div>
-                    <div style="margin-left:auto;font-size:11px;color:#64748b;">Drag to explore · Scroll to zoom · Hover for details</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
+                        <div style="width:14px;height:14px;border-radius:3px;background:#f8fafc;border:1px solid #cbd5e1;"></div> Related Knowledge
+                    </div>
+                    <div style="margin-left:auto;font-size:11px;color:#94a3b8;">Drag · Scroll to zoom · Hover for details</div>
                 </div>
-                <div id="visGraphContainer" style="width:100%;height:calc(100% - 44px);background-color:#f8fafc;"></div>
+                <div id="visGraphContainer" style="width:100%;height:calc(100% - ${activePlan.length > 0 ? 88 : 44}px);background-color:#f8fafc;"></div>
             `;
 
             // Render vis.js graph
@@ -983,3 +1005,142 @@ function hideRoadmap() {
 showRoadmapBtn.addEventListener('click', showRoadmap);
 closeRoadmapModal.addEventListener('click', hideRoadmap);
 roadmapModal.addEventListener('click', e => { if (e.target === roadmapModal) hideRoadmap(); });
+
+// ------------------------------------------------------------------ //
+// Video Library
+// ------------------------------------------------------------------ //
+const videoLibraryModal   = document.getElementById('videoLibraryModal');
+const closeVideoLibraryModal = document.getElementById('closeVideoLibraryModal');
+const videoLibraryContent = document.getElementById('videoLibraryContent');
+const videoLibraryMeta    = document.getElementById('videoLibraryMeta');
+const videoSearchInput    = document.getElementById('videoSearchInput');
+const showVideosBtn       = document.getElementById('showVideosBtn');
+
+let _allVideoTopics = [];  // cache for filter/search
+
+const STATUS_CONFIG = {
+    mastered:  { label: '✅ Mastered',           badge: 'bg-emerald-900/50 text-emerald-400 border-emerald-700/40', bar: '#10b981' },
+    current:   { label: '🎯 Currently Learning', badge: 'bg-amber-900/50  text-amber-400  border-amber-700/40',  bar: '#f59e0b' },
+    upcoming:  { label: '🔵 Upcoming',           badge: 'bg-indigo-900/50 text-indigo-400 border-indigo-700/40', bar: '#6366f1' },
+};
+
+function renderVideoTopics(topics) {
+    if (!topics.length) {
+        videoLibraryContent.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-3">
+                <i class="fa-brands fa-youtube text-4xl text-red-900/60"></i>
+                <p class="text-sm">No topics match your filter.</p>
+            </div>`;
+        return;
+    }
+
+    videoLibraryContent.innerHTML = topics.map(t => {
+        const sc = STATUS_CONFIG[t.status] || STATUS_CONFIG.upcoming;
+        const videoLinks = t.videos.map(v => `
+            <a href="${v.url}" target="_blank" rel="noopener"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface/60 hover:bg-surface border border-border hover:border-red-700/40 transition-all group text-xs text-gray-400 hover:text-white">
+                <i class="fa-brands fa-youtube text-red-500 text-base flex-shrink-0 group-hover:scale-110 transition-transform"></i>
+                <span class="truncate">${v.label}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-auto opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"></i>
+            </a>`).join('');
+
+        return `
+        <div class="video-topic-card mb-4 bg-surface/60 border border-border rounded-xl overflow-hidden" data-status="${t.status}" data-name="${t.name.toLowerCase()}">
+            <!-- Mastery progress bar (top accent) -->
+            <div class="h-1 w-full" style="background:linear-gradient(to right, ${sc.bar} ${t.mastery_pct}%, #1e1e2e ${t.mastery_pct}%);"></div>
+            
+            <div class="p-4">
+                <!-- Topic Header -->
+                <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="flex-shrink-0 w-6 h-6 rounded-md bg-card border border-border text-[10px] font-bold text-gray-500 flex items-center justify-center">${t.step}</span>
+                        <h3 class="font-semibold text-sm text-gray-100 truncate">${t.name}</h3>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-[10px] px-2 py-0.5 rounded-full border ${sc.badge}">${sc.label}</span>
+                        <span class="text-[10px] text-gray-500">${t.mastery_pct}%</span>
+                    </div>
+                </div>
+                ${t.desc ? `<p class="text-[11px] text-gray-500 mb-3 line-clamp-2">${t.desc}</p>` : ''}
+                <!-- Video Links -->
+                <div class="space-y-1.5">
+                    ${videoLinks}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function applyVideoFilters() {
+    const searchTerm = videoSearchInput.value.toLowerCase().trim();
+    const activeFilter = document.querySelector('.video-filter-btn.active')?.dataset.filter || 'all';
+
+    const filtered = _allVideoTopics.filter(t => {
+        const matchSearch = !searchTerm || t.name.toLowerCase().includes(searchTerm);
+        const matchFilter = activeFilter === 'all' || t.status === activeFilter;
+        return matchSearch && matchFilter;
+    });
+
+    renderVideoTopics(filtered);
+}
+
+function showVideoLibrary() {
+    videoLibraryModal.classList.remove('opacity-0', 'pointer-events-none');
+    videoLibraryModal.firstElementChild.classList.remove('scale-95');
+
+    if (!state.studentId || !state.sessionId) {
+        videoLibraryContent.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500 gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-600"></i>
+            <p class="text-sm">Please start a learning session first.</p>
+        </div>`;
+        return;
+    }
+
+    // Show spinner while loading
+    videoLibraryContent.innerHTML = `<div class="flex items-center justify-center h-full">
+        <i class="fa-solid fa-circle-notch fa-spin text-3xl text-red-400"></i>
+    </div>`;
+    videoLibraryMeta.textContent = 'Loading…';
+
+    fetch(`/api/videos?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`)
+        .then(r => r.json())
+        .then(data => {
+            _allVideoTopics = data.topics || [];
+            const mastered  = _allVideoTopics.filter(t => t.status === 'mastered').length;
+            const current   = _allVideoTopics.filter(t => t.status === 'current').length;
+            const upcoming  = _allVideoTopics.filter(t => t.status === 'upcoming').length;
+            videoLibraryMeta.textContent = `${_allVideoTopics.length} topics · ✅ ${mastered} mastered · 🎯 ${current} current · 🔵 ${upcoming} upcoming`;
+
+            // Reset filters
+            videoSearchInput.value = '';
+            document.querySelectorAll('.video-filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.video-filter-btn[data-filter="all"]').classList.add('active');
+
+            renderVideoTopics(_allVideoTopics);
+        })
+        .catch(() => {
+            videoLibraryContent.innerHTML = `<div class="text-center text-red-400 py-12">Failed to load video library.</div>`;
+        });
+}
+
+function hideVideoLibrary() {
+    videoLibraryModal.classList.add('opacity-0', 'pointer-events-none');
+    videoLibraryModal.firstElementChild.classList.add('scale-95');
+}
+
+// Filter button clicks
+document.querySelectorAll('.video-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.video-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyVideoFilters();
+    });
+});
+
+// Live search
+videoSearchInput.addEventListener('input', applyVideoFilters);
+
+// Open / close
+showVideosBtn.addEventListener('click', showVideoLibrary);
+closeVideoLibraryModal.addEventListener('click', hideVideoLibrary);
+videoLibraryModal.addEventListener('click', e => { if (e.target === videoLibraryModal) hideVideoLibrary(); });

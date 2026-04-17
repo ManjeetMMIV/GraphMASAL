@@ -1,8 +1,28 @@
+import urllib.parse
+
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from src.agents.llm import get_chat_model
 from src.agents.state import AgentState
 from src.agents.tools import hybrid_retrieval_tool, store_memory_tool
+
+
+def _make_youtube_links(concept_name: str) -> str:
+    """
+    Build a small markdown block with 2 YouTube search links for `concept_name`.
+    Uses YouTube search URLs so no API key is needed.
+    """
+    encoded = urllib.parse.quote_plus(concept_name)
+    links = [
+        f"[🎥 {concept_name} — Tutorial](https://www.youtube.com/results?search_query={encoded}+tutorial+explained)",
+        f"[🎬 {concept_name} — Visual Explanation](https://www.youtube.com/results?search_query={encoded}+visual+explanation+animation)",
+    ]
+    block = (
+        "\n\n---\n"
+        "**📺 Suggested Videos** *(click to search on YouTube)*\n"
+        + "\n".join(f"- {l}" for l in links)
+    )
+    return block
 
 
 def _build_messages_with_history(system_prompt: str, chat_history: list, current_input: str) -> list:
@@ -149,7 +169,8 @@ TEACHING RULES — follow these strictly at ALL TIMES:
    *Quick Check:* [Ask ONE specific question to verify the student understood]
 5. After the student answers your check question, evaluate their answer, correct any errors, then move on to the NEXT sub-topic.
 6. NEVER say "feel free to ask questions", "let me know if you need help", or any other passive phrases. You are always driving the lesson forward.
-7. If the student asks a specific question, answer it directly and concisely with an example, then ask a follow-up check question."""
+7. If the student asks a specific question, answer it directly and concisely with an example, then ask a follow-up check question.
+8. Do NOT include any YouTube or video links yourself — the system handles that automatically."""
 
     # ------------------------------------------------------------------ #
     # Invoke LLM with full conversation history and tools
@@ -180,6 +201,31 @@ TEACHING RULES — follow these strictly at ALL TIMES:
             print("Tutor generating follow-up response after tool call...")
             followup = llm_with_tools.invoke(messages)
             final_content = followup.content
+
+    # ------------------------------------------------------------------ #
+    # Append YouTube suggestions when a new concept is introduced
+    # We detect a concept introduction if the response contains a markdown
+    # heading (### ...) — which the tutor always generates for new concepts.
+    # We track the concept name from learning_paths[0] or fall back to the
+    # heading extracted from the response itself.
+    # ------------------------------------------------------------------ #
+    is_new_concept_turn = final_content and "### " in final_content
+    if is_new_concept_turn:
+        # Try to use the current planned concept name for precision
+        concept_for_video = (
+            state.get("learning_paths", [None])[0]  # planner-resolved name
+            or next_concept_name                    # looked up earlier
+        )
+        if not concept_for_video:
+            # Fall back: extract the first ### heading from the response
+            for line in final_content.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("### "):
+                    concept_for_video = stripped[4:].strip()
+                    break
+        if concept_for_video:
+            print(f"Tutor: appending YouTube suggestions for '{concept_for_video}'")
+            final_content = final_content + _make_youtube_links(concept_for_video)
 
     # ------------------------------------------------------------------ #
     # Update state
