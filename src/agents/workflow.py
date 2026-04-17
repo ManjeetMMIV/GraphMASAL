@@ -42,10 +42,10 @@ from langgraph.graph import StateGraph, START, END
 
 from src.agents.llm import describe_chat_model
 from src.agents.state import AgentState
-from src.agents.router import router_node
-from src.agents.diagnoser import diagnoser_node
-from src.agents.planner import planner_node
-from src.agents.tutor import tutor_node
+from src.agents.router_agent import router_node
+from src.agents.diagnoser_agent import diagnoser_node
+from src.agents.planner_agent import planner_node
+from src.agents.tutor_agent import tutor_node
 from src.storage.qa_store import init_db, log_qa_turn
 
 
