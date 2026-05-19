@@ -1,9 +1,21 @@
+import time
 import networkx as nx
 from src.graph.db import Neo4jConnection
 
 class GraphAdapter:
+    _graph_cache = {}  # Class-level cache: {student_id: (timestamp, nx.DiGraph)}
+    CACHE_TTL = 300    # Cache valid for 5 minutes
+
     def __init__(self, conn: Neo4jConnection):
         self.conn = conn
+
+    @classmethod
+    def invalidate_cache(cls, student_id: str = None):
+        """Invalidate the cached graph for a specific student, or all if None."""
+        if student_id and student_id in cls._graph_cache:
+            del cls._graph_cache[student_id]
+        elif not student_id:
+            cls._graph_cache.clear()
 
     def get_networkx_graph(self, student_id: str = None) -> nx.DiGraph:
         """
@@ -11,9 +23,15 @@ class GraphAdapter:
         from Neo4j. If student_id is provided, only retrieves concepts
         extracted by that student.
         """
+        # 1. Check cache first
+        if student_id in self._graph_cache:
+            cached_time, cached_graph = self._graph_cache[student_id]
+            if time.time() - cached_time < self.CACHE_TTL:
+                return cached_graph.copy()
+
         G = nx.DiGraph()
 
-        # 1. Fetch concept nodes
+        # 2. Fetch concept nodes
         if student_id:
             query_nodes = """
             MATCH (s:Student {id: $student_id})-[:HAS_EXTRACTED]->(c:Concept)
@@ -45,7 +63,10 @@ class GraphAdapter:
                 G.add_edge(record["source_id"], record["target_id"])
 
         print(f"Built NetworkX graph for student {student_id} with {G.number_of_nodes()} concepts and {G.number_of_edges()} prerequisites.")
-        return G
+        
+        # Save to cache
+        self._graph_cache[student_id] = (time.time(), G)
+        return G.copy()
 
 if __name__ == "__main__":
     import os

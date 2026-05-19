@@ -170,3 +170,11 @@ def delete_student_history(student_id: str) -> int:
     turns_deleted = turns.delete_many({"student_id": student_id}).deleted_count
     sessions.delete_many({"student_id": student_id})
     return turns_deleted
+
+def delete_session(session_id: str) -> bool:
+    """Deletes a specific session and its chat turns. Returns True if successful."""
+    turns = _turns_coll()
+    sessions = _sessions_coll()
+    turns.delete_many({"session_id": session_id})
+    result = sessions.delete_one({"session_id": session_id})
+    return result.deleted_count > 0

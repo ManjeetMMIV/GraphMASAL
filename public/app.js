@@ -346,11 +346,16 @@ function renderSessionList(sessions) {
     }
 
     sessionList.innerHTML = sessions.map(s => `
-        <div class="session-item ${s.session_id === state.sessionId ? 'active' : ''}"
+        <div class="session-item group ${s.session_id === state.sessionId ? 'active' : ''}"
              data-id="${s.session_id}" onclick="loadSession('${s.session_id}','${escapeHtml(s.topic || '')}')">
-            <div class="flex items-center gap-1.5 mb-0.5">
-                <i class="fa-solid fa-book text-indigo-500 text-[9px]"></i>
-                <span class="session-topic">${escapeHtml(s.topic || 'Untitled')}</span>
+            <div class="flex items-center justify-between gap-2 mb-0.5">
+                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                    <i class="fa-solid fa-book text-indigo-500 text-[9px] flex-shrink-0"></i>
+                    <span class="session-topic truncate">${escapeHtml(s.topic || 'Untitled')}</span>
+                </div>
+                <button onclick="event.stopPropagation(); deleteSession('${s.session_id}')" class="delete-session-btn opacity-60 hover:opacity-100 text-red-500 hover:text-red-400 px-2 py-1 rounded flex-shrink-0 transition-all hover:bg-red-950/30" title="Delete conversation">
+                    <i class="fa-solid fa-trash-can text-sm"></i>
+                </button>
             </div>
             <div class="session-meta flex gap-2">
                 <span>${s.turn_count || 0} turns</span>
@@ -359,6 +364,29 @@ function renderSessionList(sessions) {
             </div>
         </div>
     `).join('');
+}
+
+async function deleteSession(sessionId) {
+    if (!confirm('Are you sure you want to delete this conversation? This cannot be undone.')) return;
+
+
+    try {
+        const res = await fetch(`/api/session/${sessionId}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete session');
+
+        if (state.sessionId === sessionId) {
+            state.sessionId = null;
+            state.topic = '';
+            state.chatHistory = [];
+            document.getElementById('headerTopic').textContent = 'No active session';
+            clearChat();
+        }
+        
+        loadSessions();
+    } catch (err) {
+        console.error(err);
+        alert('Failed to delete session.');
+    }
 }
 
 async function loadSession(sessionId, topic) {

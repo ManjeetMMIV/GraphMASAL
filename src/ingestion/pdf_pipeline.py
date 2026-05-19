@@ -148,8 +148,8 @@ class PdfEmbeddingPipeline:
             return 0
 
         # Store each concept with an embedding
-        stored = 0
-        concept_ids: list[str] = []
+        # Pre-calculate valid concepts and their embeddings
+        valid_concepts = []
         for concept in concepts:
             c_id = concept.get("id", "").strip()
             c_name = concept.get("name", "").strip()
@@ -158,43 +158,60 @@ class PdfEmbeddingPipeline:
                 continue
 
             embedding = self.model.encode(f"{c_name}. {c_desc}").tolist()
+            valid_concepts.append({
+                "id": c_id,
+                "name": c_name,
+                "desc": c_desc,
+                "embedding": embedding
+            })
+
+        if not valid_concepts:
+            return 0
+
+        # 1. Bulk merge all Concept nodes
+        self.conn.query(
+            """
+            UNWIND $concepts AS c
+            MERGE (node:Concept {id: c.id})
+            SET node.name = c.name,
+                node.description = c.desc,
+                node.source_document = $doc_id,
+                node.embedding = c.embedding,
+                node.updated_at = datetime(),
+                node.created_at = coalesce(node.created_at, datetime())
+            """,
+            {"concepts": valid_concepts, "doc_id": document_id}
+        )
+
+        # 2. Bulk link concepts to the student
+        if self.student_id:
             self.conn.query(
                 """
-                MERGE (c:Concept {id: $id})
-                SET c.name = $name,
-                    c.description = $desc,
-                    c.source_document = $doc_id,
-                    c.embedding = $embedding,
-                    c.updated_at = datetime(),
-                    c.created_at = coalesce(c.created_at, datetime())
+                MERGE (s:Student {id: $student_id})
+                WITH s
+                UNWIND $concepts AS c
+                MATCH (node:Concept {id: c.id})
+                MERGE (s)-[:HAS_EXTRACTED]->(node)
                 """,
-                {"id": c_id, "name": c_name, "desc": c_desc, "doc_id": document_id, "embedding": embedding},
+                {"student_id": self.student_id, "concepts": valid_concepts}
             )
-            
-            if self.student_id:
-                self.conn.query(
-                    """
-                    MERGE (s:Student {id: $student_id})
-                    WITH s
-                    MATCH (c:Concept {id: $concept_id})
-                    MERGE (s)-[:HAS_EXTRACTED]->(c)
-                    """,
-                    {"student_id": self.student_id, "concept_id": c_id}
-                )
 
-            concept_ids.append(c_id)
-            stored += 1
-
-        # Create IS_PREREQUISITE_FOR edges between consecutive concepts (document order)
-        for i in range(len(concept_ids) - 1):
+        # 3. Bulk create prerequisite edges between consecutive concepts
+        edges = [
+            {"from_id": valid_concepts[i]["id"], "to_id": valid_concepts[i+1]["id"]}
+            for i in range(len(valid_concepts) - 1)
+        ]
+        if edges:
             self.conn.query(
                 """
-                MATCH (a:Concept {id: $from_id}), (b:Concept {id: $to_id})
+                UNWIND $edges AS edge
+                MATCH (a:Concept {id: edge.from_id}), (b:Concept {id: edge.to_id})
                 MERGE (a)-[:IS_PREREQUISITE_FOR]->(b)
                 """,
-                {"from_id": concept_ids[i], "to_id": concept_ids[i + 1]},
+                {"edges": edges}
             )
 
+        stored = len(valid_concepts)
         logging.info(f"Extracted and stored {stored} concepts from '{file_name}'.")
         return stored
 

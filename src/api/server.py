@@ -128,6 +128,15 @@ async def get_session(session_id: str):
     history = get_session_history(session_id)
     return {"info": info, "history": history}
 
+@app.delete("/api/session/{session_id}")
+async def delete_session_endpoint(session_id: str):
+    """Delete a specific session and its history."""
+    from src.storage.qa_store import delete_session
+    success = delete_session(session_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return {"status": "ok", "message": "Session deleted"}
+
 
 # --------------------------------------------------------------------------- #
 # Roadmap Endpoint
@@ -430,6 +439,9 @@ async def extract_concepts_from_existing_pdfs(req: ExtractConceptsRequest):
             total_concepts += count
             results.append({"file": file_name, "concepts_extracted": count})
 
+        from src.pathing.graph_adapter import GraphAdapter
+        GraphAdapter.invalidate_cache(req.student_id)
+
         return {"status": "ok", "total_concepts": total_concepts, "documents": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -455,6 +467,8 @@ async def upload_pdf(student_id: str = Form(...), file: UploadFile = File(...)):
         pipeline = PdfEmbeddingPipeline(conn, student_id=student_id)
         pipeline.initialize_concept_schema()
         result = pipeline.ingest_pdf_bytes(file.filename, bytes_data)
+        from src.pathing.graph_adapter import GraphAdapter
+        GraphAdapter.invalidate_cache(student_id)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -521,21 +535,29 @@ async def compute_path(req: ComputePathRequest):
         valid_sources = [nid for nid in req.source_ids if nid in all_nodes]
         valid_sinks   = [nid for nid in req.sink_ids   if nid in all_nodes]
 
-        # If no sources, use all nodes with no incoming edges as default
-        if not valid_sources:
-            valid_sources = [n for n in all_nodes if nx_graph.in_degree(n) == 0]
+        # Track which sources were explicitly provided by the user
+        explicit_sources = set(valid_sources)
+
+        # ALWAYS include all nodes with no incoming edges as potential starting points,
+        # in addition to any explicit sources the user provided. This ensures disconnected
+        # target components are always reachable.
+        implicit_sources = [n for n in all_nodes if nx_graph.in_degree(n) == 0]
+        for n in implicit_sources:
+            if n not in valid_sources:
+                valid_sources.append(n)
 
         # If no sinks, use all left nodes (no outgoing edges)
         if not valid_sinks:
             valid_sinks = [n for n in all_nodes if nx_graph.out_degree(n) == 0]
 
-        # Remove sinks that are already sources (nothing to learn)
-        valid_sinks = [s for s in valid_sinks if s not in valid_sources]
+        # Remove sinks that are explicitly known sources (nothing to learn)
+        valid_sinks = [s for s in valid_sinks if s not in explicit_sources]
 
         if not valid_sinks:
             return {"path": [], "path_names": [], "message": "Nothing left to learn — all target concepts are already marked as known."}
 
-        mastery = {nid: 1.0 for nid in valid_sources}  # sources count as mastered
+        # Mastery is 1.0 ONLY for explicitly known sources
+        mastery = {nid: 1.0 for nid in explicit_sources}
 
         optimizer = MSMSOptimizer(nx_graph, valid_sources, valid_sinks, mastery)
         paths = optimizer.greedy_set_cover()
@@ -545,7 +567,9 @@ async def compute_path(req: ComputePathRequest):
         seen: set[str] = set()
         for path in paths:
             for node in path:
-                if node not in seen and node not in valid_sources:
+                # We ONLY filter out EXPLICIT sources. Implicit sources (like foundational concepts)
+                # MUST be learned, so they should be included in the path!
+                if node not in seen and node not in explicit_sources:
                     flat_path.append(node)
                     seen.add(node)
 
@@ -725,6 +749,9 @@ async def delete_all_documents(student_id: str):
             {"student_id": student_id}
         )
         
+        from src.pathing.graph_adapter import GraphAdapter
+        GraphAdapter.invalidate_cache(student_id)
+        
         deleted = result[0]["deleted"] if result else 0
         return {"status": "success", "documents_deleted": deleted}
     except Exception as e:
@@ -747,6 +774,10 @@ async def reset_data(request: ResetRequest):
         conn.query("MATCH (d:PDFDocument) DETACH DELETE d")
         # Clear MongoDB sessions + turns
         docs_deleted = delete_student_history(request.student_id)
+        
+        from src.pathing.graph_adapter import GraphAdapter
+        GraphAdapter.invalidate_cache(request.student_id)
+        
         return {"status": "success", "message": f"All data cleared: memories, mastery, PDFs, and {docs_deleted} chat turns."}
     finally:
         conn.close()

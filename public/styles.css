@@ -113,6 +113,21 @@
     color: #4b5563;
 }
 
+/* Delete button in session items - make it always visible */
+.delete-session-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.delete-session-btn i {
+    pointer-events: none;
+}
+
 /* Document list items */
 .doc-item {
     display: flex;

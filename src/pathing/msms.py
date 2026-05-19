@@ -70,20 +70,21 @@ class MSMSOptimizer:
 
     def compute_all_shortest_paths(self) -> Dict[str, Dict[str, List[str]]]:
         """
-        Runs optimal Dijkstra from every source to every sink.
+        Runs optimal Dijkstra from every source to all nodes, then filters for sinks.
         Returns paths: dict[source] -> dict[sink] -> [path_nodes]
         """
         paths = {}
         for source in self.sources:
             paths[source] = {}
-            for sink in self.sinks:
-                try:
-                    # networkx dijkstra
-                    path = nx.dijkstra_path(self.G, source, sink, weight=self._cost_function)
-                    paths[source][sink] = path
-                except nx.NetworkXNoPath:
-                    # Not all nodes are connected in DAGs
-                    pass
+            try:
+                # Compute shortest paths from 'source' to all reachable nodes
+                _, all_paths = nx.single_source_dijkstra(self.G, source, weight=self._cost_function)
+                # Keep only paths that end in our target sinks
+                for sink in self.sinks:
+                    if sink in all_paths:
+                        paths[source][sink] = all_paths[sink]
+            except Exception:
+                pass
         return paths
 
     def greedy_set_cover(self) -> List[List[str]]:
