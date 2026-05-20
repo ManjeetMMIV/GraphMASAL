@@ -220,8 +220,13 @@
     padding: 0;
     color: #334155;
 }
-.chat-bubble p { margin-bottom: 0.5rem; }
+.chat-bubble p { 
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+}
 .chat-bubble strong { color: #0f172a; }
+.chat-bubble a { color: #4f46e5; text-decoration: underline; }
+.chat-bubble { color: #1e293b; }
 
 /* Teacher Console Student List Items */
 .student-item {
