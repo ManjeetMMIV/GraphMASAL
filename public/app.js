@@ -12,6 +12,9 @@ const state = {
     chatHistory: [],
     isProcessing: false,
     activeSessions: [],
+    teacherId: '',
+    monitoredStudents: [],
+    selectedStudentId: '',
 };
 
 // ------------------------------------------------------------------ //
@@ -132,10 +135,10 @@ onboardingForm.addEventListener('submit', async (e) => {
 function showSourceSinkModal(concepts) {
     const listHtml = concepts.length > 0
         ? concepts.map(c => `
-        <div style="background:rgba(255,255,255,0.03); border:1px solid #334155; border-radius:12px; padding:12px; margin-bottom:8px; display:flex; gap:12px; align-items:start;">
+        <div style="background:#fffcf7; border:1px solid #e5ddd0; border-radius:12px; padding:12px; margin-bottom:8px; display:flex; gap:12px; align-items:start;">
             <div style="flex:1">
-                <div style="font-weight:600; font-size:0.95rem; color:#e2e8f0; margin-bottom:4px;">${c.name}</div>
-                <div style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">${escapeHtml(c.desc || '')}</div>
+                <div style="font-weight:600; font-size:0.95rem; color:#334155; margin-bottom:4px;">${c.name}</div>
+                <div style="font-size:0.75rem; color:#64748b; line-height:1.4;">${escapeHtml(c.desc || '')}</div>
             </div>
             <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
                 <label style="font-size:0.7rem; color:#10b981; display:flex; align-items:center; gap:4px; cursor:pointer;">
@@ -156,16 +159,16 @@ function showSourceSinkModal(concepts) {
     const modal = document.createElement('div');
     modal.id = 'planSelectModal';
     modal.style.cssText = `
-        position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999;
+        position:fixed; inset:0; background:rgba(51,65,85,0.45); z-index:9999;
         display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);`;
 
     modal.innerHTML = `
-        <div style="background:#1e293b; border:1px solid #334155; border-radius:24px; width:90%; max-width:800px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.8);">
-            <div style="padding:24px 32px; border-bottom:1px solid #334155; background:#0f172a;">
-                <h2 style="margin:0 0 8px; font-size:1.5rem; color:#f8fafc; display:flex; align-items:center; gap:12px;">
-                    <i class="fa-solid fa-route text-indigo-400"></i> Customize Your Path
+        <div style="background:#fffcf7; border:1px solid #e5ddd0; border-radius:24px; width:90%; max-width:800px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(79,70,229,0.12);">
+            <div style="padding:24px 32px; border-bottom:1px solid #e5ddd0; background:#f7f4ef;">
+                <h2 style="margin:0 0 8px; font-size:1.5rem; color:#1e293b; display:flex; align-items:center; gap:12px;">
+                    <i class="fa-solid fa-route text-indigo-600"></i> Customize Your Path
                 </h2>
-                <p style="margin:0; font-size:0.9rem; color:#94a3b8;">
+                <p style="margin:0; font-size:0.9rem; color:#64748b;">
                     Select what you already know (sources) and what you want to achieve (targets). We'll compute the optimal route.
                 </p>
             </div>
@@ -174,8 +177,8 @@ function showSourceSinkModal(concepts) {
                 ${listHtml}
             </div>
 
-            <div style="padding:24px 32px; border-top:1px solid #334155; background:#0f172a; display:flex; justify-content:space-between; align-items:center;">
-                <button id="skipBtn" style="background:transparent; color:#94a3b8; border:1px solid #334155; padding:10px 20px; border-radius:10px; cursor:pointer; font-weight:500; transition:all 0.2s;">
+            <div style="padding:24px 32px; border-top:1px solid #e5ddd0; background:#f7f4ef; display:flex; justify-content:space-between; align-items:center;">
+                <button id="skipBtn" style="background:transparent; color:#64748b; border:1px solid #e5ddd0; padding:10px 20px; border-radius:10px; cursor:pointer; font-weight:500; transition:all 0.2s;">
                     Skip (Default Path)
                 </button>
                 <button id="computeBtn" style="background:#6366f1; color:white; border:none; padding:10px 24px; border-radius:10px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; box-shadow:0 4px 14px 0 rgba(99,102,241,0.39); transition:all 0.2s;">
@@ -338,7 +341,7 @@ async function loadSessions() {
 function renderSessionList(sessions) {
     if (!sessions.length) {
         sessionList.innerHTML = `
-            <div class="text-center text-gray-600 text-xs py-8">
+            <div class="text-center text-slate-500 text-xs py-8">
                 <i class="fa-solid fa-comment-slash text-2xl mb-2 block"></i>
                 No past sessions yet
             </div>`;
@@ -353,7 +356,7 @@ function renderSessionList(sessions) {
                     <i class="fa-solid fa-book text-indigo-500 text-[9px] flex-shrink-0"></i>
                     <span class="session-topic truncate">${escapeHtml(s.topic || 'Untitled')}</span>
                 </div>
-                <button onclick="event.stopPropagation(); deleteSession('${s.session_id}')" class="delete-session-btn opacity-60 hover:opacity-100 text-red-500 hover:text-red-400 px-2 py-1 rounded flex-shrink-0 transition-all hover:bg-red-950/30" title="Delete conversation">
+                <button onclick="event.stopPropagation(); deleteSession('${s.session_id}')" class="delete-session-btn opacity-60 hover:opacity-100 text-red-500 hover:text-red-600 px-2 py-1 rounded flex-shrink-0 transition-all hover:bg-red-50" title="Delete conversation">
                     <i class="fa-solid fa-trash-can text-sm"></i>
                 </button>
             </div>
@@ -441,7 +444,7 @@ function appendMessage(role, content) {
     if (role === 'user') {
         div.classList.add('flex-row-reverse');
         div.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-card border border-border flex-shrink-0 flex items-center justify-center text-gray-400 text-xs mt-0.5">
+            <div class="w-8 h-8 rounded-full bg-card border border-border flex-shrink-0 flex items-center justify-center text-slate-500 text-xs mt-0.5">
                 <i class="fa-regular fa-user"></i>
             </div>
             <div class="bg-primary/90 text-white rounded-2xl rounded-tr-none px-4 py-3 max-w-[80%] text-sm leading-relaxed shadow-md chat-bubble">
@@ -452,7 +455,7 @@ function appendMessage(role, content) {
             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5 shadow-md shadow-primary/30">
                 <i class="fa-solid fa-robot"></i>
             </div>
-            <div class="bg-card border border-border rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm leading-relaxed text-gray-200 shadow-sm chat-bubble">
+            <div class="bg-card border border-border rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm leading-relaxed text-slate-800 shadow-sm chat-bubble">
                 ${content ? marked.parse(content) : typingDots()}
             </div>`;
     }
@@ -463,8 +466,11 @@ function appendMessage(role, content) {
 }
 
 function typingDots() {
-    return `<div class="flex items-center gap-1 h-4">
-        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+    return `<div id="typingIndicator" class="flex flex-col gap-1.5 justify-center">
+        <div class="flex items-center gap-1 h-3">
+            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        </div>
+        <span class="status-text text-[10px] text-slate-500 italic font-semibold">Getting ready to help you…</span>
     </div>`;
 }
 
@@ -572,20 +578,32 @@ chatForm.addEventListener('submit', async (e) => {
 // Agent Bar
 // ------------------------------------------------------------------ //
 const AGENT_ORDER = ['router', 'diagnoser', 'planner', 'tutor'];
+const FRIENDLY_STATUSES = {
+    'router': 'Understanding your question…',
+    'diagnoser': 'Checking what you already know…',
+    'planner': 'Planning the best way to teach this…',
+    'tutor': 'Preparing your answer…',
+};
 
 function updateAgentBar(activeNode) {
+    const nodeKey = (activeNode || '').toLowerCase();
     const chips = agentPipeline.querySelectorAll('.agent-chip');
     let foundActive = false;
     chips.forEach(chip => {
         const name = chip.dataset.agent;
         chip.classList.remove('active', 'done');
-        if (name === activeNode) {
+        if (name === nodeKey) {
             chip.classList.add('active');
             foundActive = true;
         } else if (!foundActive) {
             chip.classList.add('done');
         }
     });
+
+    const statusTextEl = document.querySelector('#typingIndicator .status-text');
+    if (statusTextEl) {
+        statusTextEl.textContent = FRIENDLY_STATUSES[nodeKey] || 'Almost there…';
+    }
 }
 
 function resetAgentBar() {
@@ -1047,16 +1065,16 @@ const showVideosBtn       = document.getElementById('showVideosBtn');
 let _allVideoTopics = [];  // cache for filter/search
 
 const STATUS_CONFIG = {
-    mastered:  { label: '✅ Mastered',           badge: 'bg-emerald-900/50 text-emerald-400 border-emerald-700/40', bar: '#10b981' },
-    current:   { label: '🎯 Currently Learning', badge: 'bg-amber-900/50  text-amber-400  border-amber-700/40',  bar: '#f59e0b' },
-    upcoming:  { label: '🔵 Upcoming',           badge: 'bg-indigo-900/50 text-indigo-400 border-indigo-700/40', bar: '#6366f1' },
+    mastered:  { label: '✅ Mastered',           badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', bar: '#10b981' },
+    current:   { label: '🎯 Currently Learning', badge: 'bg-amber-50  text-amber-700  border-amber-200',  bar: '#f59e0b' },
+    upcoming:  { label: '🔵 Upcoming',           badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', bar: '#4f46e5' },
 };
 
 function renderVideoTopics(topics) {
     if (!topics.length) {
         videoLibraryContent.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-3">
-                <i class="fa-brands fa-youtube text-4xl text-red-900/60"></i>
+            <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-3">
+                <i class="fa-brands fa-youtube text-4xl text-red-600/60"></i>
                 <p class="text-sm">No topics match your filter.</p>
             </div>`;
         return;
@@ -1066,7 +1084,7 @@ function renderVideoTopics(topics) {
         const sc = STATUS_CONFIG[t.status] || STATUS_CONFIG.upcoming;
         const videoLinks = t.videos.map(v => `
             <a href="${v.url}" target="_blank" rel="noopener"
-                class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface/60 hover:bg-surface border border-border hover:border-red-700/40 transition-all group text-xs text-gray-400 hover:text-white">
+                class="flex items-center gap-2 px-3 py-2 rounded-lg bg-card hover:bg-surface border border-border hover:border-indigo-300 transition-all group text-xs text-slate-600 hover:text-slate-900">
                 <i class="fa-brands fa-youtube text-red-500 text-base flex-shrink-0 group-hover:scale-110 transition-transform"></i>
                 <span class="truncate">${v.label}</span>
                 <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-auto opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"></i>
@@ -1081,8 +1099,8 @@ function renderVideoTopics(topics) {
                 <!-- Topic Header -->
                 <div class="flex items-start justify-between gap-3 mb-3">
                     <div class="flex items-center gap-2 min-w-0">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-md bg-card border border-border text-[10px] font-bold text-gray-500 flex items-center justify-center">${t.step}</span>
-                        <h3 class="font-semibold text-sm text-gray-100 truncate">${t.name}</h3>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-md bg-card border border-border text-[10px] font-bold text-slate-500 flex items-center justify-center">${t.step}</span>
+                        <h3 class="font-semibold text-sm text-slate-800 truncate">${t.name}</h3>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <span class="text-[10px] px-2 py-0.5 rounded-full border ${sc.badge}">${sc.label}</span>
@@ -1172,3 +1190,379 @@ videoSearchInput.addEventListener('input', applyVideoFilters);
 showVideosBtn.addEventListener('click', showVideoLibrary);
 closeVideoLibraryModal.addEventListener('click', hideVideoLibrary);
 videoLibraryModal.addEventListener('click', e => { if (e.target === videoLibraryModal) hideVideoLibrary(); });
+
+
+// ================================================================== //
+// Teacher Console Functionality
+// ================================================================== //
+
+// DOM References for Teacher Portal
+const tabStudent          = document.getElementById('tabStudent');
+const tabTeacher          = document.getElementById('tabTeacher');
+const teacherLoginForm    = document.getElementById('teacherLoginForm');
+const onboardTeacherId    = document.getElementById('onboardTeacherId');
+const teacherStartBtn     = document.getElementById('teacherStartBtn');
+
+const teacherShell        = document.getElementById('teacherShell');
+const teacherHeaderId     = document.getElementById('teacherHeaderId');
+const teacherLogoutBtn    = document.getElementById('teacherLogoutBtn');
+const addStudentForm      = document.getElementById('addStudentForm');
+const addStudentIdInput   = document.getElementById('addStudentIdInput');
+const teacherStudentList  = document.getElementById('teacherStudentList');
+
+const teacherPlaceholder        = document.getElementById('teacherPlaceholder');
+const teacherStudentDashboard  = document.getElementById('teacherStudentDashboard');
+const teacherSelectedStudentTitle = document.getElementById('teacherSelectedStudentTitle');
+
+const statTotalSessions   = document.getElementById('statTotalSessions');
+const statTotalDoubts     = document.getElementById('statTotalDoubts');
+const statMasteryRate     = document.getElementById('statMasteryRate');
+
+const dashboardStrongTopics     = document.getElementById('dashboardStrongTopics');
+const dashboardWeakTopics       = document.getElementById('dashboardWeakTopics');
+const dashboardUnstartedTopics  = document.getElementById('dashboardUnstartedTopics');
+const dashboardActivePaths      = document.getElementById('dashboardActivePaths');
+const dashboardDoubtLog         = document.getElementById('dashboardDoubtLog');
+const dashboardActivityFeed     = document.getElementById('dashboardActivityFeed');
+
+// Login Tabs Switchers
+tabStudent.addEventListener('click', () => {
+    tabStudent.className = "flex-1 pb-3 text-center border-b-2 border-primary text-sm font-semibold text-primary transition-all";
+    tabTeacher.className = "flex-1 pb-3 text-center border-b-2 border-transparent text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all";
+    onboardingForm.classList.remove('hidden');
+    teacherLoginForm.classList.add('hidden');
+});
+
+tabTeacher.addEventListener('click', () => {
+    tabTeacher.className = "flex-1 pb-3 text-center border-b-2 border-primary text-sm font-semibold text-primary transition-all";
+    tabStudent.className = "flex-1 pb-3 text-center border-b-2 border-transparent text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all";
+    teacherLoginForm.classList.remove('hidden');
+    onboardingForm.classList.add('hidden');
+});
+
+// Teacher Login Action
+teacherLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const teacherId = onboardTeacherId.value.trim();
+    if (!teacherId) return;
+
+    teacherStartBtn.disabled = true;
+    teacherStartBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Entering Console…';
+
+    try {
+        state.teacherId = teacherId;
+        teacherHeaderId.textContent = teacherId;
+        
+        onboardingOverlay.classList.add('fade-out');
+        setTimeout(() => {
+            onboardingOverlay.classList.add('hidden');
+            teacherShell.classList.remove('hidden');
+            teacherShell.classList.add('flex');
+        }, 380);
+
+        await loadMonitoredStudents();
+        
+        state.selectedStudentId = '';
+        teacherPlaceholder.classList.remove('hidden');
+        teacherStudentDashboard.classList.add('hidden');
+    } catch (err) {
+        console.error(err);
+        alert('Failed to load teacher console. Is the backend running?');
+    } finally {
+        teacherStartBtn.disabled = false;
+        teacherStartBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Enter Teacher Console';
+    }
+});
+
+// Load Monitored Students
+async function loadMonitoredStudents() {
+    if (!state.teacherId) return;
+    try {
+        const res = await fetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students`);
+        const data = await res.json();
+        state.monitoredStudents = data.students || [];
+        renderMonitoredStudentsList();
+    } catch (err) {
+        console.warn('Failed to load monitored students', err);
+    }
+}
+
+// Render Monitored Students List
+function renderMonitoredStudentsList() {
+    if (!state.monitoredStudents.length) {
+        teacherStudentList.innerHTML = `
+            <div class="text-center text-gray-600 text-xs py-8">
+                <i class="fa-solid fa-users-slash text-2xl mb-2 block"></i>
+                No students monitored yet
+            </div>`;
+        return;
+    }
+
+    teacherStudentList.innerHTML = state.monitoredStudents.map(studentId => `
+        <div class="student-item group ${studentId === state.selectedStudentId ? 'active' : ''}"
+             data-id="${studentId}" onclick="selectStudent('${studentId}')">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+                <i class="fa-solid fa-user-graduate text-indigo-500 text-xs flex-shrink-0"></i>
+                <span class="truncate font-semibold text-xs text-slate-700 group-hover:text-slate-900">${studentId}</span>
+            </div>
+            <button onclick="event.stopPropagation(); removeMonitoredStudent('${studentId}')" 
+                class="opacity-0 group-hover:opacity-100 hover:opacity-100 text-red-500 hover:text-red-600 p-1 rounded transition-all hover:bg-red-50" 
+                title="Remove student">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+// Add Monitored Student
+addStudentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const studentId = addStudentIdInput.value.trim();
+    if (!studentId || !state.teacherId) return;
+
+    try {
+        const res = await fetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_id: studentId })
+        });
+        if (!res.ok) throw new Error('Failed to add student');
+        
+        addStudentIdInput.value = '';
+        await loadMonitoredStudents();
+        selectStudent(studentId);
+    } catch (err) {
+        alert('Failed to add student.');
+    }
+});
+
+// Remove Monitored Student
+async function removeMonitoredStudent(studentId) {
+    if (!confirm(`Are you sure you want to remove student "${studentId}" from your monitored list?`)) return;
+    try {
+        const res = await fetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students/${encodeURIComponent(studentId)}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error('Failed to remove student');
+        
+        if (state.selectedStudentId === studentId) {
+            state.selectedStudentId = '';
+            teacherPlaceholder.classList.remove('hidden');
+            teacherStudentDashboard.classList.add('hidden');
+        }
+        await loadMonitoredStudents();
+    } catch (err) {
+        alert('Failed to remove student.');
+    }
+}
+
+// Select Student and Load Progress
+async function selectStudent(studentId) {
+    state.selectedStudentId = studentId;
+    
+    document.querySelectorAll('.student-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === studentId);
+    });
+
+    teacherPlaceholder.classList.add('hidden');
+    teacherStudentDashboard.classList.remove('hidden');
+    
+    teacherSelectedStudentTitle.textContent = studentId;
+    
+    const spinner = `<div class="flex justify-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-xl text-indigo-500"></i></div>`;
+    dashboardStrongTopics.innerHTML = spinner;
+    dashboardWeakTopics.innerHTML = spinner;
+    dashboardUnstartedTopics.innerHTML = spinner;
+    dashboardActivePaths.innerHTML = spinner;
+    dashboardDoubtLog.innerHTML = spinner;
+    dashboardActivityFeed.innerHTML = spinner;
+
+    statTotalSessions.textContent = '-';
+    statTotalDoubts.textContent = '-';
+    statMasteryRate.textContent = '-%';
+
+    try {
+        const res = await fetch(`/api/teacher/student/${encodeURIComponent(studentId)}/progress`);
+        if (!res.ok) throw new Error('Failed to fetch student progress');
+        const data = await res.json();
+        
+        renderStudentProgress(data);
+    } catch (err) {
+        console.error(err);
+        const errMsg = `<div class="text-xs text-red-400 py-4">Error loading progress data.</div>`;
+        dashboardStrongTopics.innerHTML = errMsg;
+        dashboardWeakTopics.innerHTML = errMsg;
+        dashboardUnstartedTopics.innerHTML = errMsg;
+        dashboardActivePaths.innerHTML = errMsg;
+        dashboardDoubtLog.innerHTML = errMsg;
+        dashboardActivityFeed.innerHTML = errMsg;
+    }
+}
+
+// Render Student Progress Report
+function renderStudentProgress(data) {
+    const sessions = data.sessions || [];
+    const doubts = data.doubts || [];
+    const mp = data.mastery_profile || {};
+    
+    const strong = mp.strong_topics || [];
+    const weak = mp.weak_topics || [];
+    const unstarted = mp.unstarted_topics || [];
+    
+    const totalConcepts = strong.length + weak.length + unstarted.length;
+    const masteryRate = totalConcepts > 0 ? Math.round((strong.length / totalConcepts) * 100) : 0;
+    
+    statTotalSessions.textContent = sessions.length;
+    statTotalDoubts.textContent = doubts.length;
+    statMasteryRate.textContent = `${masteryRate}%`;
+    
+    // Strong Topics
+    if (strong.length === 0) {
+        dashboardStrongTopics.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No concepts mastered yet (&ge; 80% score).</div>`;
+    } else {
+        dashboardStrongTopics.innerHTML = strong.map(c => `
+            <div class="bg-surface/50 border border-border/60 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-semibold text-slate-800">${c.name}</span>
+                    <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-semibold">${c.mastery_pct}%</span>
+                </div>
+                <div class="h-1.5 w-full bg-surface rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 rounded-full" style="width: ${c.mastery_pct}%;"></div>
+                </div>
+                ${c.desc ? `<p class="text-[10px] text-slate-500 mt-1 line-clamp-1">${escapeHtml(c.desc)}</p>` : ''}
+            </div>
+        `).join('');
+    }
+    
+    // Weak Topics
+    if (weak.length === 0) {
+        dashboardWeakTopics.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No active learning topics in progress (0% &lt; score &lt; 80%).</div>`;
+    } else {
+        dashboardWeakTopics.innerHTML = weak.map(c => `
+            <div class="bg-surface/50 border border-border/60 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-semibold text-slate-800">${c.name}</span>
+                    <span class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full font-semibold">${c.mastery_pct}%</span>
+                </div>
+                <div class="h-1.5 w-full bg-surface rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-500 rounded-full" style="width: ${c.mastery_pct}%;"></div>
+                </div>
+                ${c.desc ? `<p class="text-[10px] text-slate-500 mt-1 line-clamp-1">${escapeHtml(c.desc)}</p>` : ''}
+            </div>
+        `).join('');
+    }
+    
+    // Unstarted
+    if (unstarted.length === 0) {
+        dashboardUnstartedTopics.innerHTML = `<div class="text-xs text-slate-500 italic py-1">No other concepts in database.</div>`;
+    } else {
+        dashboardUnstartedTopics.innerHTML = `
+            <div class="flex flex-wrap gap-1.5">
+                ${unstarted.map(c => `
+                    <span class="text-[10px] px-2 py-1 bg-surface/50 border border-border rounded-lg text-slate-600 font-semibold" title="${escapeHtml(c.desc || '')}">
+                        ${c.name}
+                    </span>
+                `).join('')}
+            </div>`;
+    }
+    
+    // Active Paths
+    if (sessions.length === 0) {
+        dashboardActivePaths.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No learning sessions found for this student.</div>`;
+    } else {
+        dashboardActivePaths.innerHTML = sessions.map(s => {
+            const planNames = s.active_plan_names || [];
+            const planSeqHtml = planNames.length > 0 
+                ? `<div class="mt-2 flex flex-wrap items-center gap-1.5">
+                     ${planNames.map((name, i) => `
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold">${name}</span>
+                        ${i < planNames.length - 1 ? '<i class="fa-solid fa-arrow-right text-slate-400 text-[8px]"></i>' : ''}
+                     `).join('')}
+                   </div>`
+                : `<span class="text-[10px] text-slate-500 block mt-1">Default/No customized path computed yet</span>`;
+                
+            return `
+                <div class="bg-surface/50 border border-border/60 rounded-xl p-3.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-semibold text-slate-800">${escapeHtml(s.topic || 'Untitled Session')}</span>
+                        <span class="text-[9px] text-slate-500">${timeAgo(s.updated_at || s.created_at)}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 mt-1 flex items-center gap-2">
+                        <span>${s.turn_count || 0} discussion turns</span>
+                        <span>·</span>
+                        <span>Session ID: ${s.session_id.substring(0, 8)}...</span>
+                    </div>
+                    ${planSeqHtml}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Doubt Log
+    if (doubts.length === 0) {
+        dashboardDoubtLog.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No misconceptions or doubts recorded. The student is learning smoothly!</div>`;
+    } else {
+        dashboardDoubtLog.innerHTML = doubts.map(d => `
+            <div class="bg-red-50 border border-red-200 rounded-xl p-3.5 space-y-2">
+                <div class="flex items-center justify-between gap-2 border-b border-red-100 pb-1.5">
+                    <span class="text-[10px] text-red-700 font-semibold uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Misconception Detected</span>
+                    <span class="text-[9px] text-slate-500">${timeAgo(d.timestamp)}</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Student Question</span>
+                    <p class="text-xs text-slate-700 italic mt-0.5">&ldquo;${escapeHtml(d.user_input)}&rdquo;</p>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tutor Guidance / Explanation</span>
+                    <div class="text-xs text-slate-700 mt-1 chat-bubble max-w-none bg-white border border-border p-2.5 rounded-xl leading-relaxed">
+                        ${marked.parse(d.final_response)}
+                    </div>
+                </div>
+                ${d.affected_concepts && d.affected_concepts.length > 0 ? `
+                    <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        <span class="text-[9px] text-slate-500 uppercase tracking-wider">Affected:</span>
+                        ${d.affected_concepts.map(c => `<span class="text-[9px] px-1.5 py-0.5 bg-red-50 border border-red-200 text-red-700 rounded font-semibold">${c}</span>`).join('')}
+                    </div>` : ''}
+            </div>
+        `).join('');
+    }
+    
+    // Activity Feed
+    const feed = data.recent_activity || [];
+    if (feed.length === 0) {
+        dashboardActivityFeed.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No chat exchanges recorded yet.</div>`;
+    } else {
+        dashboardActivityFeed.innerHTML = feed.map(turn => `
+            <div class="border-l-2 border-border pl-4 space-y-1.5 py-1">
+                <div class="flex items-center justify-between text-[9px] text-slate-500">
+                    <span>${turn.session_id ? `Session ID: ${turn.session_id.substring(0, 8)}...` : ''}</span>
+                    <span>${timeAgo(turn.timestamp)}</span>
+                </div>
+                <div class="flex items-start gap-1.5">
+                    <span class="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider mt-0.5 flex-shrink-0 w-8">User:</span>
+                    <p class="text-xs text-slate-700 font-medium">&ldquo;${escapeHtml(turn.user_input)}&rdquo;</p>
+                </div>
+                <div class="flex items-start gap-1.5">
+                    <span class="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider mt-0.5 flex-shrink-0 w-8">Tutor:</span>
+                    <div class="text-xs text-slate-700 chat-bubble max-w-none p-0 bg-transparent border-none leading-relaxed">
+                        ${marked.parse(turn.final_response)}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+// Teacher Logout Action
+teacherLogoutBtn.addEventListener('click', () => {
+    state.teacherId = '';
+    state.selectedStudentId = '';
+    
+    teacherShell.classList.add('hidden');
+    teacherShell.classList.remove('flex');
+    onboardingOverlay.classList.remove('hidden');
+    onboardingOverlay.classList.remove('fade-out');
+    
+    onboardTeacherId.value = 'teacher_123';
+});
+

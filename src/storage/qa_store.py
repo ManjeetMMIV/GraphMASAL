@@ -8,12 +8,19 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from dotenv import load_dotenv
+
+
+_mongo_client: Optional[MongoClient] = None
 
 
 def _get_db():
-    uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-    client = MongoClient(uri)
-    return client.graphmasal
+    global _mongo_client
+    if _mongo_client is None:
+        load_dotenv(override=True)
+        uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+        _mongo_client = MongoClient(uri)
+    return _mongo_client.graphmasal
 
 
 def _sessions_coll():
@@ -22,6 +29,10 @@ def _sessions_coll():
 
 def _turns_coll():
     return _get_db().qa_sessions
+
+
+def _teachers_coll():
+    return _get_db().teachers
 
 
 def get_db():
@@ -41,6 +52,9 @@ def init_db() -> None:
         turns.create_index("student_id")
         turns.create_index("session_id")
         turns.create_index("timestamp")
+
+        teachers = _teachers_coll()
+        teachers.create_index("teacher_id", unique=True)
     except Exception as e:
         print(f"Failed to initialize MongoDB: {e}")
 
@@ -178,3 +192,33 @@ def delete_session(session_id: str) -> bool:
     turns.delete_many({"session_id": session_id})
     result = sessions.delete_one({"session_id": session_id})
     return result.deleted_count > 0
+
+
+# --------------------------------------------------------------------------- #
+# Teacher Monitored Students Management
+# --------------------------------------------------------------------------- #
+
+def get_teacher_students(teacher_id: str) -> List[str]:
+    """Return a list of student IDs monitored by the teacher."""
+    doc = _teachers_coll().find_one({"teacher_id": teacher_id})
+    if not doc:
+        return []
+    return doc.get("student_ids", [])
+
+
+def add_teacher_student(teacher_id: str, student_id: str) -> None:
+    """Add a student ID to the teacher's list of monitored students (deduplicated)."""
+    _teachers_coll().update_one(
+        {"teacher_id": teacher_id},
+        {"$addToSet": {"student_ids": student_id}},
+        upsert=True
+    )
+
+
+def remove_teacher_student(teacher_id: str, student_id: str) -> None:
+    """Remove a student ID from the teacher's list."""
+    _teachers_coll().update_one(
+        {"teacher_id": teacher_id},
+        {"$pull": {"student_ids": student_id}}
+    )
+

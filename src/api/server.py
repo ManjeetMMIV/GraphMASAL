@@ -100,6 +100,11 @@ class SelectPlanRequest(BaseModel):
     concept_sequence: List[str]  # ordered list of concept IDs
 
 
+class AddStudentRequest(BaseModel):
+    student_id: str
+
+
+
 # --------------------------------------------------------------------------- #
 # Session Endpoints
 # --------------------------------------------------------------------------- #
@@ -782,6 +787,120 @@ async def reset_data(request: ResetRequest):
     finally:
         conn.close()
 
+
+
+# --------------------------------------------------------------------------- #
+# Teacher Dashboard Endpoints
+# --------------------------------------------------------------------------- #
+
+@app.get("/api/teacher/{teacher_id}/students")
+async def list_teacher_students(teacher_id: str):
+    """Retrieve a teacher's list of monitored students."""
+    from src.storage.qa_store import get_teacher_students
+    students = get_teacher_students(teacher_id)
+    return {"students": students}
+
+
+@app.post("/api/teacher/{teacher_id}/students")
+async def add_student_to_teacher(teacher_id: str, req: AddStudentRequest):
+    """Add a student ID to the teacher's list."""
+    from src.storage.qa_store import add_teacher_student
+    add_teacher_student(teacher_id, req.student_id)
+    return {"status": "ok", "student_id": req.student_id}
+
+
+@app.delete("/api/teacher/{teacher_id}/students/{student_id}")
+async def remove_student_from_teacher(teacher_id: str, student_id: str):
+    """Remove a student ID from the teacher's list."""
+    from src.storage.qa_store import remove_teacher_student
+    remove_teacher_student(teacher_id, student_id)
+    return {"status": "ok", "student_id": student_id}
+
+
+@app.get("/api/teacher/student/{student_id}/progress")
+async def get_student_progress_for_teacher(student_id: str):
+    """
+    Aggregate all session logs, mastery levels, doubts/misconceptions,
+    and recent activity for a specific student for the Teacher Dashboard.
+    """
+    try:
+        from src.storage.qa_store import get_db as _qa_get_db
+        db = _qa_get_db()
+        
+        # 1. Fetch sessions from MongoDB sorted newest-first
+        sessions = list(db.sessions.find({"student_id": student_id}, {"_id": 0}).sort("updated_at", -1))
+        
+        # 2. Fetch recent activity (last 10 turns) sorted newest-first
+        recent_turns = list(db.qa_sessions.find({"student_id": student_id}, {"_id": 0}).sort("timestamp", -1).limit(10))
+        
+        # 3. Fetch doubts (turns with misconception) sorted newest-first
+        doubt_turns = list(db.qa_sessions.find({"student_id": student_id, "misconception": 1}, {"_id": 0}).sort("timestamp", -1))
+        
+        # 4. Fetch mastery and concepts from Neo4j
+        conn = _get_neo4j_connection()
+        strong_topics = []
+        weak_topics = []
+        unstarted_topics = []
+        concept_names = {}
+        
+        if conn:
+            try:
+                # First, build a map of ALL concept IDs to their display names in Neo4j
+                all_concepts_records = conn.query("MATCH (c:Concept) RETURN c.id AS id, c.name AS name")
+                for r in (all_concepts_records or []):
+                    concept_names[r["id"]] = r["name"]
+
+                # Next, query concepts linked to the student to construct their cognitive profile
+                rows = conn.query(
+                    """
+                    MATCH (s:Student {id: $sid})
+                    OPTIONAL MATCH (s)-[r:HAS_MASTERY_OF]->(c:Concept)
+                    OPTIONAL MATCH (s)-[:HAS_EXTRACTED]->(c2:Concept)
+                    WITH s, collect(DISTINCT c) + collect(DISTINCT c2) AS all_concepts
+                    UNWIND all_concepts AS concept
+                    WITH DISTINCT concept, s
+                    OPTIONAL MATCH (s)-[r:HAS_MASTERY_OF]->(concept)
+                    RETURN concept.id AS id, concept.name AS name, concept.description AS desc,
+                           coalesce(r.score, 0.0) AS mastery
+                    ORDER BY concept.name
+                    """,
+                    {"sid": student_id}
+                )
+                
+                for row in (rows or []):
+                    concept_data = {
+                        "id": row["id"],
+                        "name": row["name"],
+                        "desc": row.get("desc", ""),
+                        "mastery": row["mastery"],
+                        "mastery_pct": round(row["mastery"] * 100)
+                    }
+                    if row["mastery"] >= 0.8:
+                        strong_topics.append(concept_data)
+                    elif row["mastery"] > 0.0:
+                        weak_topics.append(concept_data)
+                    else:
+                        unstarted_topics.append(concept_data)
+            finally:
+                conn.close()
+
+        # Attach readable concept names to active plans in the sessions list
+        for s in sessions:
+            s["active_plan_names"] = [concept_names.get(cid, cid) for cid in s.get("active_plan", [])]
+            
+        return {
+            "student_id": student_id,
+            "sessions": sessions,
+            "recent_activity": recent_turns,
+            "doubts": doubt_turns,
+            "mastery_profile": {
+                "strong_topics": strong_topics,
+                "weak_topics": weak_topics,
+                "unstarted_topics": unstarted_topics
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # --------------------------------------------------------------------------- #

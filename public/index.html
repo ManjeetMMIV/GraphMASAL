@@ -14,12 +14,12 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#6366f1',
-                        accent: '#8b5cf6',
-                        dark: '#0a0a0f',
-                        surface: '#111118',
-                        card: '#1a1a26',
-                        border: '#2a2a3a',
+                        primary: '#4f46e5',
+                        accent: '#7c3aed',
+                        dark: '#f7f4ef',
+                        surface: '#f0ebe3',
+                        card: '#fffcf7',
+                        border: '#e5ddd0',
                     }
                 }
             }
@@ -27,7 +27,7 @@
     </script>
 </head>
 
-<body class="bg-dark text-gray-100 h-screen overflow-hidden font-sans flex flex-col">
+<body class="bg-dark text-slate-800 h-screen overflow-hidden font-sans flex flex-col">
 
     <!-- ================================================================ -->
     <!-- ONBOARDING OVERLAY -->
@@ -48,33 +48,59 @@
                     <i class="fa-solid fa-brain text-3xl text-white"></i>
                 </div>
                 <h1
-                    class="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+                    class="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
                     GraphMASAL</h1>
-                <p class="text-gray-400 mt-2 text-sm">Your AI-powered Tutor — powered by Knowledge Graphs</p>
+                <p class="text-slate-600 mt-2 text-sm">Your AI-powered Tutor — powered by Knowledge Graphs</p>
             </div>
 
             <!-- Onboarding Form -->
             <div class="glass-card p-8">
-                <h2 class="text-xl font-semibold mb-6 text-white">Welcome! Let's get started.</h2>
+                <!-- Portal Tabs -->
+                <div class="flex border-b border-border mb-6">
+                    <button id="tabStudent" type="button" class="flex-1 pb-3 text-center border-b-2 border-primary text-sm font-semibold text-primary transition-all">
+                        <i class="fa-solid fa-graduation-cap mr-1.5"></i>Student Portal
+                    </button>
+                    <button id="tabTeacher" type="button" class="flex-1 pb-3 text-center border-b-2 border-transparent text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all">
+                        <i class="fa-solid fa-chalkboard-user mr-1.5"></i>Teacher Portal
+                    </button>
+                </div>
+
+                <!-- Student Login Form -->
                 <form id="onboardingForm" class="space-y-5">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Your
+                        <label class="block text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">Your
                             Student ID</label>
                         <input type="text" id="onboardStudentId" placeholder="e.g. student_123"
-                            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder-gray-600"
+                            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-slate-800 placeholder-slate-400"
                             required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">What do
+                        <label class="block text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">What do
                             you want to study today?</label>
                         <input type="text" id="onboardTopic" placeholder="e.g. Virtual Memory, Scheduling, Deadlocks..."
-                            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder-gray-600"
+                            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-slate-800 placeholder-slate-400"
                             required>
                     </div>
                     <button type="submit" id="startBtn"
                         class="w-full py-3 bg-gradient-to-r from-primary to-accent text-white font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/30 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rocket"></i>
                         Start Learning
+                    </button>
+                </form>
+
+                <!-- Teacher Login Form (Hidden by default) -->
+                <form id="teacherLoginForm" class="space-y-5 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">Your
+                            Teacher ID</label>
+                        <input type="text" id="onboardTeacherId" value="teacher_123" placeholder="e.g. teacher_123"
+                            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-slate-800 placeholder-slate-400"
+                            required>
+                    </div>
+                    <button type="submit" id="teacherStartBtn"
+                        class="w-full py-3 bg-gradient-to-r from-primary to-accent text-white font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Enter Teacher Console
                     </button>
                 </form>
             </div>
@@ -94,27 +120,27 @@
                     class="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                     <i class="fa-solid fa-brain text-white text-xs"></i>
                 </div>
-                <span class="text-sm font-semibold text-gray-200">GraphMASAL</span>
+                <span class="text-sm font-semibold text-slate-800">GraphMASAL</span>
                 <span class="text-xs text-gray-500">|</span>
-                <span class="text-xs text-gray-400">Studying: <span id="headerTopic"
-                        class="text-indigo-400 font-medium"></span></span>
+                <span class="text-xs text-slate-600">Studying: <span id="headerTopic"
+                        class="text-indigo-600 font-semibold"></span></span>
             </div>
             <!-- Agent Pipeline Status -->
             <div class="flex items-center gap-1" id="agentPipeline">
-                <div class="agent-chip" data-agent="router"><i class="fa-solid fa-code-branch text-xs mr-1"></i>Router
+                <div class="agent-chip" data-agent="router"><i class="fa-solid fa-code-branch text-xs mr-1"></i>Inquiry Guide
                 </div>
                 <div class="agent-arrow">›</div>
                 <div class="agent-chip" data-agent="diagnoser"><i
-                        class="fa-solid fa-stethoscope text-xs mr-1"></i>Diagnoser</div>
+                        class="fa-solid fa-stethoscope text-xs mr-1"></i>Knowledge Check</div>
                 <div class="agent-arrow">›</div>
-                <div class="agent-chip" data-agent="planner"><i class="fa-solid fa-map text-xs mr-1"></i>Planner</div>
+                <div class="agent-chip" data-agent="planner"><i class="fa-solid fa-map text-xs mr-1"></i>Study Planner</div>
                 <div class="agent-arrow">›</div>
-                <div class="agent-chip" data-agent="tutor"><i class="fa-solid fa-chalkboard-user text-xs mr-1"></i>Tutor
+                <div class="agent-chip" data-agent="tutor"><i class="fa-solid fa-chalkboard-user text-xs mr-1"></i>AI Tutor
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button id="newChatBtn" title="New Chat"
-                    class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-card border border-border rounded-lg px-3 py-1.5 transition-all hover:border-primary/50">
+                    class="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 bg-card border border-border rounded-lg px-3 py-1.5 transition-all hover:border-primary/50">
                     <i class="fa-solid fa-plus"></i> New Chat
                 </button>
             </div>
@@ -127,14 +153,14 @@
             <aside id="leftSidebar"
                 class="w-64 bg-surface border-r border-border flex flex-col flex-shrink-0 overflow-hidden">
                 <div class="p-4 flex items-center justify-between border-b border-border">
-                    <span class="text-xs font-semibold uppercase tracking-widest text-gray-500">Conversations</span>
-                    <button id="refreshSessionsBtn" class="text-gray-600 hover:text-gray-300 transition-colors"
+                    <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">Conversations</span>
+                    <button id="refreshSessionsBtn" class="text-slate-400 hover:text-slate-700 transition-colors"
                         title="Refresh sessions">
                         <i class="fa-solid fa-rotate-right text-xs"></i>
                     </button>
                 </div>
                 <div id="sessionList" class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
-                    <div class="text-center text-gray-600 text-xs py-8">
+                    <div class="text-center text-slate-500 text-xs py-8">
                         <i class="fa-solid fa-comment-slash text-2xl mb-2 block"></i>
                         No past sessions yet
                     </div>
@@ -147,9 +173,9 @@
                             <i class="fa-regular fa-user text-xs"></i>
                         </div>
                         <div class="min-w-0">
-                            <div class="text-xs font-medium text-gray-300 truncate" id="sidebarStudentId">student_123
+                            <div class="text-xs font-semibold text-slate-700 truncate" id="sidebarStudentId">student_123
                             </div>
-                            <div class="text-[10px] text-gray-600">Student</div>
+                            <div class="text-[10px] text-slate-500">Student</div>
                         </div>
                     </div>
                 </div>
@@ -167,15 +193,15 @@
                 <div id="tracePanel"
                     class="absolute bottom-28 left-4 right-4 bg-card border border-border rounded-xl shadow-2xl z-10 flex flex-col overflow-hidden max-h-52 hidden">
                     <div class="flex items-center justify-between px-4 py-2 border-b border-border bg-surface/80">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">
                             <i class="fa-solid fa-terminal mr-1"></i>Workflow Trace
                         </span>
-                        <button id="closeTraceBtn" class="text-gray-600 hover:text-white transition-colors">
+                        <button id="closeTraceBtn" class="text-slate-400 hover:text-slate-800 transition-colors">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
                     <div id="traceLogs"
-                        class="p-3 font-mono text-xs text-gray-500 overflow-y-auto custom-scrollbar space-y-1.5 flex-1">
+                        class="p-3 font-mono text-xs text-slate-500 overflow-y-auto custom-scrollbar space-y-1.5 flex-1">
                     </div>
                 </div>
 
@@ -184,7 +210,7 @@
                     class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-dark via-dark/95 to-transparent pt-16">
                     <form id="chatForm" class="relative max-w-3xl mx-auto">
                         <input type="text" id="chatInput" placeholder="Ask anything about your topic…"
-                            class="w-full bg-card border border-border rounded-2xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/40 shadow-xl transition-all placeholder-gray-600"
+                            class="w-full bg-card border border-border rounded-2xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/40 shadow-xl transition-all text-slate-800 placeholder-slate-400"
                             autocomplete="off">
                         <button type="submit" id="sendBtn"
                             class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-primary hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center transition-all shadow-lg shadow-primary/30 disabled:opacity-40">
@@ -193,7 +219,7 @@
                     </form>
                     <div class="max-w-3xl mx-auto flex justify-center mt-2">
                         <button id="toggleTraceBtn"
-                            class="hidden text-[10px] text-gray-600 hover:text-gray-400 transition-colors flex items-center gap-1">
+                            class="hidden text-[10px] text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1">
                             <i class="fa-solid fa-terminal text-[9px]"></i> Workflow Trace
                         </button>
                     </div>
@@ -206,15 +232,15 @@
                 <!-- PDF Upload -->
                 <div class="p-4 border-b border-border">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold uppercase tracking-widest text-gray-500">Knowledge
+                        <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">Knowledge
                             Base</span>
                         <div class="flex items-center gap-2">
                             <button id="extractConceptsBtn"
-                                class="text-gray-600 hover:text-indigo-400 transition-colors"
+                                class="text-slate-400 hover:text-indigo-600 transition-colors"
                                 title="Extract concepts from uploaded PDFs (run once after uploading)">
                                 <i class="fa-solid fa-brain text-xs"></i>
                             </button>
-                            <button id="refreshDocsBtn" class="text-gray-600 hover:text-gray-300 transition-colors"
+                            <button id="refreshDocsBtn" class="text-slate-400 hover:text-slate-700 transition-colors"
                                 title="Refresh documents">
                                 <i class="fa-solid fa-rotate-right text-xs"></i>
                             </button>
@@ -227,10 +253,10 @@
                         <div
                             class="w-8 h-8 rounded-full bg-card flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
                             <i
-                                class="fa-solid fa-file-pdf text-sm text-gray-500 group-hover:text-red-400 transition-colors"></i>
+                                class="fa-solid fa-file-pdf text-sm text-slate-400 group-hover:text-red-500 transition-colors"></i>
                         </div>
-                        <p class="text-xs font-medium text-gray-400">Drop PDF here</p>
-                        <p class="text-[10px] text-gray-600 mt-0.5">or click to browse</p>
+                        <p class="text-xs font-semibold text-slate-600">Drop PDF here</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">or click to browse</p>
                     </div>
                     <!-- Upload Status -->
                     <div id="uploadStatus" class="mt-2 hidden">
@@ -243,7 +269,7 @@
 
                 <!-- Document List -->
                 <div id="documentList" class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
-                    <div class="text-center text-gray-600 text-xs py-8">
+                    <div class="text-center text-slate-500 text-xs py-8">
                         <i class="fa-solid fa-file-pdf text-2xl mb-2 block"></i>
                         No documents uploaded
                     </div>
@@ -252,28 +278,187 @@
                 <!-- Actions -->
                 <div class="p-4 border-t border-border space-y-2">
                     <button id="choosePlanBtn"
-                        class="w-full py-2 bg-purple-900/30 text-purple-400 hover:bg-purple-900/50 border border-purple-900/50 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1.5">
+                        class="w-full py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-map-marked-alt"></i> Choose Learning Plan
                     </button>
                     <button id="showRoadmapBtn"
-                        class="w-full py-2 bg-indigo-900/30 text-indigo-400 hover:bg-indigo-900/50 border border-indigo-900/50 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1.5">
+                        class="w-full py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-diagram-project"></i> Learning Roadmap
                     </button>
                     <button id="showVideosBtn"
-                        class="w-full py-2 bg-red-900/20 text-red-400 hover:bg-red-900/30 border border-red-900/40 rounded-xl text-xs font-medium transition-all flex items-center justify-center gap-1.5">
+                        class="w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-brands fa-youtube"></i> Video Library
                     </button>
                     <button id="clearDocsBtn"
-                        class="w-full py-2 bg-orange-900/20 text-orange-400 hover:bg-orange-900/30 border border-orange-900/40 rounded-xl text-xs font-medium transition-all">
+                        class="w-full py-2 bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-xl text-xs font-semibold transition-all">
                         <i class="fa-solid fa-file-circle-xmark mr-1"></i> Clear All Documents
                     </button>
                     <button id="resetDataBtn"
-                        class="w-full py-2 bg-red-900/20 text-red-500 hover:bg-red-900/30 border border-red-900/40 rounded-xl text-xs font-medium transition-all">
+                        class="w-full py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-xl text-xs font-semibold transition-all">
                         <i class="fa-solid fa-trash-can mr-1"></i> Reset Student Data
                     </button>
                 </div>
             </aside>
 
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- TEACHER APP -->
+    <!-- ================================================================ -->
+    <div id="teacherShell" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Teacher Header -->
+        <header class="h-12 bg-surface/90 border-b border-border backdrop-blur-md flex items-center justify-between px-4 z-20 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <i class="fa-solid fa-chalkboard-user text-white text-xs"></i>
+                </div>
+                <span class="text-sm font-semibold text-slate-800">GraphMASAL | Teacher Console</span>
+                <span class="text-xs text-gray-500">|</span>
+                <span class="text-xs text-slate-600">Monitoring Student Progress</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-xs text-slate-600"><i class="fa-regular fa-user mr-1.5 text-indigo-600"></i>Teacher ID: <span id="teacherHeaderId" class="font-semibold text-indigo-600"></span></span>
+                <button id="teacherLogoutBtn" class="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 bg-card border border-border rounded-lg px-3 py-1.5 transition-all hover:border-red-500/50 hover:bg-red-50">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Split Layout -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Left Sidebar: Monitored Students -->
+            <aside class="w-64 bg-surface border-r border-border flex flex-col flex-shrink-0 overflow-hidden">
+                <div class="p-4 border-b border-border">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">Monitored Students</span>
+                </div>
+                <form id="addStudentForm" class="flex gap-2 p-3 border-b border-border bg-card/25">
+                    <input type="text" id="addStudentIdInput" placeholder="Add student ID..." 
+                        class="flex-1 bg-surface border border-border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary text-slate-800 placeholder-slate-400" required>
+                    <button type="submit" title="Add student"
+                        class="w-8 h-8 rounded-xl bg-primary hover:bg-indigo-500 text-white flex items-center justify-center flex-shrink-0 transition-all shadow-md shadow-primary/20">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </form>
+                <div id="teacherStudentList" class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
+                    <div class="text-center text-slate-500 text-xs py-8">
+                        <i class="fa-solid fa-users-slash text-2xl mb-2 block"></i>
+                        No students monitored yet
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Main Area: Student Progress Dashboard -->
+            <main class="flex-1 bg-dark overflow-y-auto custom-scrollbar p-6">
+                <!-- Placeholder when no student selected -->
+                <div id="teacherPlaceholder" class="flex flex-col items-center justify-center h-full text-slate-400 gap-4 py-20">
+                    <div class="w-20 h-20 rounded-full bg-surface/50 border border-border flex items-center justify-center shadow-xl">
+                        <i class="fa-solid fa-chalkboard-user text-3xl text-slate-500 logo-pulse"></i>
+                    </div>
+                    <div class="text-center max-w-sm">
+                        <h3 class="text-base font-semibold text-slate-700 mb-1">Select a Student</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Choose a student from the left sidebar to view their learning plans, cognitive mastery state, doubts, and recent questions.</p>
+                    </div>
+                </div>
+
+                <!-- Dashboard Content (hidden by default) -->
+                <div id="teacherStudentDashboard" class="hidden space-y-6">
+                    <!-- Student Header / Quick Stats Card -->
+                    <div class="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <h2 class="text-xl font-bold text-slate-800" id="teacherSelectedStudentTitle">student_123</h2>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Cognitive profile and progress reports</p>
+                        </div>
+                        <!-- Stats Grid -->
+                        <div class="flex gap-4 flex-wrap">
+                            <div class="bg-surface/60 border border-border rounded-xl px-4 py-2.5 text-center min-w-[100px]">
+                                <span class="block text-2xl font-bold text-primary" id="statTotalSessions">0</span>
+                                <span class="text-[10px] uppercase font-semibold tracking-wider text-slate-500">Active Topics</span>
+                            </div>
+                            <div class="bg-surface/60 border border-border rounded-xl px-4 py-2.5 text-center min-w-[100px]">
+                                <span class="block text-2xl font-bold text-amber-500" id="statTotalDoubts">0</span>
+                                <span class="text-[10px] uppercase font-semibold tracking-wider text-slate-500">Doubts Detected</span>
+                            </div>
+                            <div class="bg-surface/60 border border-border rounded-xl px-4 py-2.5 text-center min-w-[100px]">
+                                <span class="block text-2xl font-bold text-emerald-500" id="statMasteryRate">0%</span>
+                                <span class="text-[10px] uppercase font-semibold tracking-wider text-slate-500">Mastery Rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Grid -->
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <!-- Left Grid: Mastery Profile (Strong vs Doubts) -->
+                        <div class="space-y-6">
+                            <!-- Strong Topics -->
+                            <div class="bg-card border border-border rounded-2xl p-5 flex flex-col">
+                                <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-emerald-500"></i> Strong Topics (&ge; 80% Mastery)
+                                </h3>
+                                <div id="dashboardStrongTopics" class="space-y-3 flex-1 overflow-y-auto max-h-72 custom-scrollbar">
+                                    <div class="text-xs text-slate-500 italic py-2">No concepts mastered yet.</div>
+                                </div>
+                            </div>
+
+                            <!-- Weak Topics / In Progress -->
+                            <div class="bg-card border border-border rounded-2xl p-5 flex flex-col">
+                                <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Topics in Progress / Gaps
+                                </h3>
+                                <div id="dashboardWeakTopics" class="space-y-3 flex-1 overflow-y-auto max-h-72 custom-scrollbar">
+                                    <div class="text-xs text-slate-500 italic py-2">No active learning topics yet.</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Unstarted Topics -->
+                            <div class="bg-card border border-border rounded-2xl p-5 flex flex-col">
+                                <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                                    <i class="fa-regular fa-circle text-slate-500"></i> Other Extracted Concepts
+                                </h3>
+                                <div id="dashboardUnstartedTopics" class="space-y-2 flex-1 overflow-y-auto max-h-52 custom-scrollbar">
+                                    <div class="text-xs text-slate-500 italic py-2">No other concepts available.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Grid: Active Learning Paths & doubts -->
+                        <div class="space-y-6">
+                            <!-- Generated Learning Paths -->
+                            <div class="bg-card border border-border rounded-2xl p-5">
+                                <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-map-location-dot text-indigo-600"></i> Active Learning Paths
+                                </h3>
+                                <div id="dashboardActivePaths" class="space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar">
+                                    <div class="text-xs text-slate-500 italic">No learning plans found.</div>
+                                </div>
+                            </div>
+
+                            <!-- Doubt Log -->
+                            <div class="bg-card border border-border rounded-2xl p-5">
+                                <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-heart-crack text-red-500"></i> Doubt & Misconception Log
+                                </h3>
+                                <div id="dashboardDoubtLog" class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    <div class="text-xs text-slate-500 italic">No misconceptions detected so far.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom: Recent Chat Feed -->
+                    <div class="bg-card border border-border rounded-2xl p-5">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+                            <i class="fa-regular fa-comments text-primary"></i> Recent Chat Feed (Last 10 turns)
+                        </h3>
+                        <div id="dashboardActivityFeed" class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar">
+                            <div class="text-xs text-slate-500 italic">No activity logs recorded.</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -286,11 +471,11 @@
             class="bg-card border border-border rounded-2xl w-[90vw] h-[80vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300">
             <div class="flex justify-between items-center p-5 border-b border-border">
                 <div>
-                    <h2 class="text-lg font-bold">Optimal Learning Path</h2>
-                    <p class="text-xs text-gray-400 mt-0.5" id="roadmapMeta">Analyzing trajectory…</p>
+                    <h2 class="text-lg font-bold text-slate-800">Optimal Learning Path</h2>
+                    <p class="text-xs text-slate-500 mt-0.5" id="roadmapMeta">Analyzing trajectory…</p>
                 </div>
                 <button id="closeRoadmapModal"
-                    class="w-8 h-8 rounded-full bg-surface hover:bg-border flex items-center justify-center transition-colors">
+                    class="w-8 h-8 rounded-full bg-surface hover:bg-border flex items-center justify-center transition-colors text-slate-600 hover:text-slate-900">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
@@ -312,31 +497,31 @@
             <!-- Header -->
             <div class="flex justify-between items-center p-5 border-b border-border">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-red-900/40 border border-red-700/40 flex items-center justify-center">
-                        <i class="fa-brands fa-youtube text-red-400 text-sm"></i>
+                    <div class="w-8 h-8 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center">
+                        <i class="fa-brands fa-youtube text-red-600 text-sm"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Video Library</h2>
-                        <p class="text-xs text-gray-400 mt-0.5" id="videoLibraryMeta">Topic-wise video recommendations for your learning plan</p>
+                        <h2 class="text-lg font-bold text-slate-800">Video Library</h2>
+                        <p class="text-xs text-slate-500 mt-0.5" id="videoLibraryMeta">Topic-wise video recommendations for your learning plan</p>
                     </div>
                 </div>
                 <button id="closeVideoLibraryModal"
-                    class="w-8 h-8 rounded-full bg-surface hover:bg-border flex items-center justify-center transition-colors">
+                    class="w-8 h-8 rounded-full bg-surface hover:bg-border flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
             <!-- Search / Filter bar -->
             <div class="px-5 py-3 border-b border-border flex items-center gap-3">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input id="videoSearchInput" type="text" placeholder="Filter topics…"
-                        class="w-full bg-surface border border-border rounded-lg pl-8 pr-4 py-2 text-xs focus:outline-none focus:border-primary/50 text-gray-200 placeholder-gray-600">
+                        class="w-full bg-surface border border-border rounded-lg pl-8 pr-4 py-2 text-xs focus:outline-none focus:border-primary/50 text-slate-800 placeholder-slate-400">
                 </div>
                 <div class="flex items-center gap-1.5 text-xs">
-                    <button class="video-filter-btn active px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="all">All</button>
-                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="current">🎯 Current</button>
-                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="upcoming">🔵 Upcoming</button>
-                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-gray-400 hover:text-white transition-all" data-filter="mastered">✅ Mastered</button>
+                    <button class="video-filter-btn active px-3 py-1.5 rounded-lg border border-border text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all" data-filter="all">All</button>
+                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all" data-filter="current">🎯 Current</button>
+                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all" data-filter="upcoming">🔵 Upcoming</button>
+                    <button class="video-filter-btn px-3 py-1.5 rounded-lg border border-border text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all" data-filter="mastered">✅ Mastered</button>
                 </div>
             </div>
             <!-- Topic Cards -->

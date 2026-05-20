@@ -144,7 +144,7 @@ if __name__ == "__main__":
             "final_response": ""
         }
         
-        print("\n[System]: Thinking...\n")
+        print("\n[System]: Analyzing your query and consulting knowledge base...\n")
         sys.stdout.flush()
         
         try:
