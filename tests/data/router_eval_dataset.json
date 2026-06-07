@@ -1,0 +1,202 @@
+[
+  {
+    "user_input": "What is the primary difference between a process and a thread in a modern operating system?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Can you explain the concept of a Translation Lookaside Buffer (TLB) and how it improves memory access times?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Describe the four necessary conditions for a deadlock to occur.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "How does the Completely Fair Scheduler (CFS) in Linux assign CPU time to different processes?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What are the advantages of using a microkernel architecture over a monolithic kernel?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Define thrashing in the context of virtual memory management.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Explain the concept of priority inversion and how the priority inheritance protocol solves it.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What is a page fault, and what are the steps the OS takes to handle it?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Compare and contrast First-In-First-Out (FIFO) and Least Recently Used (LRU) page replacement algorithms.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What is the purpose of the dirty bit in a page table entry?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I keep getting a 'Segmentation fault (core dumped)' error in my C program when I try to access an array element. I don't understand why.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I'm struggling to understand why my multithreaded program is producing different results every time I run it. I think I have a race condition but I'm not sure.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I failed the midterm question on Belady's anomaly. I thought adding more frames always reduces page faults. Where is my reasoning flawed?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "My implementation of the producer-consumer problem using semaphores keeps deadlocking when the buffer is full. Can you help me figure out what's wrong?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I don't get why my CPU utilization is so low even though I have many processes running. Could my I/O bound processes be starving the CPU bound ones?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I am so confused about virtual addresses. If every process has its own virtual address space starting at 0, how do they not overwrite each other in physical memory?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I thought a system call and a function call were the same thing, but my professor said they aren't. What am I misunderstanding?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Whenever I try to use fork(), my program creates way more processes than I expected. I think I'm putting it in the wrong place in my loop.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I'm having trouble seeing the difference between a mutex and a binary semaphore. I used a semaphore like a mutex but got an error about ownership.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Why did I lose points on this assignment? I implemented shortest job first scheduling, but long processes are never getting executed.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I'm a bit confused about the terminology. Could you just define what a 'context switch' is and list what information is saved?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Even though I got the last question wrong, I just want a straightforward explanation of how RAID 5 parity works.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I'm struggling to remember the exact syntax. What is the system call used to create a new process in Unix?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I failed to understand this in class. Can you provide a high-level summary of the OSI model's seven layers?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "My friend said I'm wrong, but can you give me the textbook definition of a zombie process?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I'm trying to optimize my code for cache performance. Can you explain the difference between spatial and temporal locality?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I don't know why, but I need to know the default time quantum for the Linux scheduler. What is it?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I'm stuck on my homework. Can you list the three main requirements for a solution to the critical section problem?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Can you explain how a multi-level feedback queue works? I'm having a hard time grasping the concept.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "I am so lost. Please just tell me what DMA (Direct Memory Access) stands for and what it does.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Explain why my specific code snippet `int *p; *p = 5;` causes a crash. What is the fundamental issue here?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I understand the concept of a TLB, but in my simulation, the hit rate is only 10%. Is my matrix multiplication loop causing thrashing?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Provide a breakdown of why a system might experience high page fault rates even with plenty of free physical memory. I'm seeing this on my server.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Define the terms in my own context: I have 3 threads writing to a shared queue. Why does thread 1 sometimes read data meant for thread 2?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Give me an example of how my specific implementation of a spinlock using `test_and_set` might be inefficient on a single-core system.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "How can I improve my grasp of memory management? I read the chapter on paging, but I still can't solve the page table translation problems.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "What are the key properties I missed in my design document? The reviewer said my deadlock prevention scheme is actually just deadlock avoidance.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Can you summarize what I did wrong in the last lab? My file system implementation corrupted the superblock after an unexpected crash.",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "I know what a context switch is, but why does my real-time application miss its deadlines when I have a lot of interrupts happening?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "Can you define the exact reason my implementation of Dekker's algorithm fails to provide mutual exclusion in this edge case?",
+    "expected_route": "diagnose"
+  },
+  {
+    "user_input": "What is an inode and what metadata does it store?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Describe the structure of a typical hard disk drive, including platters, tracks, and sectors.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "How does the elevator algorithm (SCAN) for disk scheduling work?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What is the difference between a symbolic link and a hard link in Unix?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Explain the concept of memory-mapped files.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What are the common attributes associated with a file?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "Describe the File Allocation Table (FAT) file system structure.",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What is the role of the Virtual File System (VFS) layer in Linux?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "How does a journaling file system like ext4 handle crash recovery?",
+    "expected_route": "retrieve"
+  },
+  {
+    "user_input": "What is the principle of least privilege in the context of OS security?",
+    "expected_route": "retrieve"
+  }
+]

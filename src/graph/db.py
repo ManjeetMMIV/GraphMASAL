@@ -4,6 +4,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import logging
+import warnings
+
+# Suppress Neo4j verbose logging and notifications across the application
+warnings.filterwarnings("ignore", module="neo4j")
+logging.getLogger("neo4j").setLevel(logging.CRITICAL)
+logging.getLogger("neo4j.notifications").setLevel(logging.CRITICAL)
+
 # Get Aura credentials from .env
 NEO4J_URI = os.getenv("NEO4J_URI")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
@@ -14,14 +22,21 @@ class Neo4jConnection:
         self.driver = None
         try:
             self.driver = GraphDatabase.driver(uri, auth=(user, pwd))
-            print("Successfully connected to Neo4j instance.")
+            self.driver.verify_connectivity()
+            # print("Successfully connected to Neo4j instance.")
         except Exception as e:
-            print(f"Failed to create the driver: {e}")
+            print(f"Failed to connect to Neo4j instance: {e}")
+            if self.driver is not None:
+                try:
+                    self.driver.close()
+                except Exception:
+                    pass
+                self.driver = None
 
     def close(self):
         if self.driver is not None:
             self.driver.close()
-            print("Neo4j connection closed.")
+            # print("Neo4j connection closed.")
 
     def query(self, query, parameters=None, db=None):
         assert self.driver is not None, "Driver not initialized!"

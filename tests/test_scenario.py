@@ -10,10 +10,15 @@ from dotenv import load_dotenv
 load_dotenv()
 sys.path.insert(0, os.getcwd())
 
+# pyrefly: ignore [missing-import]
 from src.graph.db import Neo4jConnection
+# pyrefly: ignore [missing-import]
 from src.graph.student import StudentManager
+# pyrefly: ignore [missing-import]
 from src.pathing.graph_adapter import GraphAdapter
+# pyrefly: ignore [missing-import]
 from src.pathing.state import StateModeler
+# pyrefly: ignore [missing-import]
 from src.pathing.msms import MSMSOptimizer
 
 # ---- Test Configuration ----
