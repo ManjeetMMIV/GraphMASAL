@@ -1,0 +1,251 @@
+{
+  "metrics": {
+    "faithfulness": 0.5148,
+    "answer_relevancy": 0.8259,
+    "context_precision": 0.5417,
+    "context_recall": 0.9333,
+    "answer_correctness": 0.5161
+  },
+  "per_question": [
+    {
+      "question": "What is computer architecture and why is it important?",
+      "ground_truth": "Computer architecture is the basic structure of computers, including CPU, memory, and I/O systems. It forms the foundation for understanding how operating systems interact with hardware.",
+      "answer": "Computer architecture refers to the basic structure of computers, including the CPU, memory, and I/O components. It is important because it determines how efficiently a computer can execute instructions and process data. Understanding computer architecture helps in designing efficient systems and optimizing performance.",
+      "contexts": [
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "Processes: The abstraction of a running program.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 6947.02,
+      "generation_time_ms": 1909.51
+    },
+    {
+      "question": "How does CPU virtualization work in modern operating systems?",
+      "ground_truth": "CPU virtualization provides the illusion of many CPUs by time-sharing the physical CPU among multiple processes. The OS manages context switching and scheduling to give each process its own virtual CPU.",
+      "answer": "In modern operating systems, CPU virtualization works by providing the illusion of many CPUs to the user through the use of virtualization techniques.",
+      "contexts": [
+        "CPU Virtualization: How the OS provides the illusion of many CPUs.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Processes: The abstraction of a running program."
+      ],
+      "retrieval_time_ms": 151.32,
+      "generation_time_ms": 1176.94
+    },
+    {
+      "question": "What is a process in an operating system?",
+      "ground_truth": "A process is the abstraction of a running program. It includes the program code, its current activity, and the resources allocated to it by the operating system, such as memory and file handles.",
+      "answer": "A process in an operating system is the abstraction of a running program.",
+      "contexts": [
+        "Processes: The abstraction of a running program.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 114.76,
+      "generation_time_ms": 716.54
+    },
+    {
+      "question": "Explain the different process scheduling policies.",
+      "ground_truth": "Process scheduling policies determine which process runs next on the CPU. Common policies include round-robin, priority-based scheduling, and multi-level feedback queues. The goal is to balance throughput, fairness, and response time.",
+      "answer": "The provided context does not include information on different process scheduling policies.",
+      "contexts": [
+        "Processes: The abstraction of a running program.",
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Threads: Multiple independent execution units within a single process."
+      ],
+      "retrieval_time_ms": 153.15,
+      "generation_time_ms": 767.23
+    },
+    {
+      "question": "How does memory virtualization provide the illusion of infinite memory?",
+      "ground_truth": "Memory virtualization gives each process its own virtual address space, which is mapped to physical memory by the MMU. This isolates processes and allows them to use more memory than physically available through paging and swapping.",
+      "answer": "Memory virtualization provides the illusion of infinite memory by allowing the operating system to manage and allocate memory resources efficiently, making it appear as if there is an unlimited amount of memory available to processes.",
+      "contexts": [
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Processes: The abstraction of a running program.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 227.0,
+      "generation_time_ms": 1147.0
+    },
+    {
+      "question": "What is paging and how does it solve memory fragmentation?",
+      "ground_truth": "Paging divides memory into fixed-size pages, eliminating external fragmentation. The OS maps virtual pages to physical frames using page tables, allowing non-contiguous physical memory allocation.",
+      "answer": "Paging is a memory management scheme that allows the operating system to divide physical memory into fixed-size blocks called pages. It helps solve memory fragmentation by storing and managing memory in these fixed-size blocks, which reduces the likelihood of fragmented memory spaces.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 138.31,
+      "generation_time_ms": 977.92
+    },
+    {
+      "question": "What is concurrency and why is it important in operating systems?",
+      "ground_truth": "Concurrency is the execution of multiple instruction sequences at the same time. It is essential for utilizing multi-core processors and handling multiple tasks efficiently, but introduces synchronization challenges.",
+      "answer": "Concurrency in operating systems refers to the execution of multiple instruction sequences simultaneously. It is important because it allows for efficient utilization of resources and enables better performance by running multiple tasks concurrently.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Threads: Multiple independent execution units within a single process.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 141.37,
+      "generation_time_ms": 1656.55
+    },
+    {
+      "question": "How do threads differ from processes?",
+      "ground_truth": "Threads are multiple independent execution units within a single process. They share the same address space and resources, making communication between threads cheaper than between processes. However, they require careful synchronization.",
+      "answer": "Threads are multiple independent execution units within a single process, while processes are the abstraction of a running program.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Processes: The abstraction of a running program.",
+        "Threads: Multiple independent execution units within a single process."
+      ],
+      "retrieval_time_ms": 144.52,
+      "generation_time_ms": 1037.6
+    },
+    {
+      "question": "What are locks and how do they prevent race conditions?",
+      "ground_truth": "Locks are synchronization mechanisms that protect critical sections of code from concurrent access. By requiring a thread to acquire a lock before accessing shared data, they prevent race conditions and ensure data consistency.",
+      "answer": "Locks are synchronization mechanisms used to protect critical sections in concurrent programming. They prevent race conditions by allowing only one thread to access the critical section at a time, ensuring that data integrity is maintained.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Threads: Multiple independent execution units within a single process.",
+        "Locks: Synchronization mechanisms to protect critical sections."
+      ],
+      "retrieval_time_ms": 154.09,
+      "generation_time_ms": 1014.96
+    },
+    {
+      "question": "What is persistence in the context of operating systems?",
+      "ground_truth": "Persistence refers to storing data long-term, beyond the life of a process. It involves saving data to non-volatile storage devices like hard drives or SSDs so that it remains available after system restarts.",
+      "answer": "Persistence in the context of operating systems refers to the ability of the OS to store data in a way that survives system shutdowns or reboots, typically achieved through file systems for persistent storage.",
+      "contexts": [
+        "Processes: The abstraction of a running program.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "File Systems: OS abstractions for persistent storage (files, directories)."
+      ],
+      "retrieval_time_ms": 101.32,
+      "generation_time_ms": 1021.29
+    },
+    {
+      "question": "How do file systems organize and manage data?",
+      "ground_truth": "File systems provide abstractions for persistent storage by organizing data into files and directories. They manage space allocation, maintain metadata, and handle read/write operations on physical storage devices.",
+      "answer": "File systems organize and manage data using a hierarchical structure of files and directories on persistent storage.",
+      "contexts": [
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "File Systems: OS abstractions for persistent storage (files, directories).",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory."
+      ],
+      "retrieval_time_ms": 197.68,
+      "generation_time_ms": 1988.65
+    },
+    {
+      "question": "What is data integrity and how is it maintained in storage systems?",
+      "ground_truth": "Data integrity and protection ensures that stored data is safe from corruption and failures. Techniques include RAID for redundancy, checksums for detecting corruption, and journaling for crash recovery.",
+      "answer": "Data integrity refers to the accuracy and consistency of data stored in storage systems. It is maintained through mechanisms such as error checking, redundancy, and checksums implemented by the operating system and file systems.",
+      "contexts": [
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Persistence: Storing data long-term, beyond the life of a process.",
+        "File Systems: OS abstractions for persistent storage (files, directories)."
+      ],
+      "retrieval_time_ms": 919.12,
+      "generation_time_ms": 1169.83
+    },
+    {
+      "question": "Describe the relationship between CPU virtualization and processes.",
+      "ground_truth": "CPU virtualization creates the illusion of multiple CPUs through time-sharing, and processes are the abstraction that represents each running program. The OS uses CPU virtualization to switch between processes, giving each a fair share of CPU time.",
+      "answer": "CPU virtualization allows the operating system to create the illusion of multiple CPUs, which can be utilized to run multiple processes concurrently. Processes are the abstraction of running programs, and CPU virtualization helps manage and allocate CPU resources efficiently among these processes.",
+      "contexts": [
+        "Processes: The abstraction of a running program.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs.",
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O."
+      ],
+      "retrieval_time_ms": 1250.6,
+      "generation_time_ms": 1046.73
+    },
+    {
+      "question": "How does memory virtualization relate to paging?",
+      "ground_truth": "Memory virtualization provides each process with a virtual address space. Paging is the mechanism that implements this virtualization by dividing memory into fixed-size pages and mapping virtual addresses to physical frames via page tables.",
+      "answer": "Memory virtualization and paging are related in the sense that paging is a technique used in memory virtualization to manage memory by dividing it into fixed-size blocks called pages.",
+      "contexts": [
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 549.29,
+      "generation_time_ms": 847.34
+    },
+    {
+      "question": "What prerequisites are needed to understand concurrency?",
+      "ground_truth": "To understand concurrency, you first need to understand processes and memory virtualization. Processes provide the execution context, and memory virtualization explains how memory is managed across concurrently running processes.",
+      "answer": "Prerequisites to understand concurrency include knowledge of computer architecture, threads, and the concept of executing multiple instruction sequences simultaneously.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "Threads: Multiple independent execution units within a single process."
+      ],
+      "retrieval_time_ms": 711.1,
+      "generation_time_ms": 1138.65
+    },
+    {
+      "question": "Why are threads considered a prerequisite for learning about locks?",
+      "ground_truth": "Threads represent multiple execution units within a process that share memory. Locks are needed precisely because threads share memory and can interfere with each other when accessing shared data concurrently.",
+      "answer": "Threads are considered a prerequisite for learning about locks because locks are commonly used in multi-threaded programming to manage access to shared resources and prevent race conditions. Since threads are independent execution units within a single process, understanding how threads work is essential for understanding how locks can be used to synchronize access to shared data among multiple threads.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Processes: The abstraction of a running program.",
+        "Threads: Multiple independent execution units within a single process."
+      ],
+      "retrieval_time_ms": 271.71,
+      "generation_time_ms": 1162.65
+    },
+    {
+      "question": "Explain the learning path from processes to locks.",
+      "ground_truth": "The path is: processes -> concurrency -> threads -> locks. First understand processes, then learn about concurrency (multiple things happening at once), then threads (lightweight execution units), and finally locks (synchronization for thread safety).",
+      "answer": "Processes are the abstraction of a running program, while threads are multiple independent execution units within a single process. Locks are used to manage access to shared resources in concurrent programming. The learning path from processes to locks involves understanding how threads within a process can access shared resources concurrently and how locks can be used to synchronize access to these resources to prevent conflicts.",
+      "contexts": [
+        "Concurrency: Execution of multiple instruction sequences at the same time.",
+        "Processes: The abstraction of a running program.",
+        "Threads: Multiple independent execution units within a single process."
+      ],
+      "retrieval_time_ms": 124.04,
+      "generation_time_ms": 1155.07
+    },
+    {
+      "question": "What role does computer architecture play in understanding file systems?",
+      "ground_truth": "Computer architecture provides foundational knowledge of how storage devices connect to the CPU and memory. This is essential for understanding how file systems manage data on persistent storage devices.",
+      "answer": "Computer architecture plays a role in understanding file systems by determining how data is stored, accessed, and managed within the computer's memory and storage devices. The CPU, memory, and I/O components of the computer architecture interact with the file system to read and write data to and from storage devices.",
+      "contexts": [
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "Processes: The abstraction of a running program.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory."
+      ],
+      "retrieval_time_ms": 125.35,
+      "generation_time_ms": 1162.43
+    },
+    {
+      "question": "How does the OS use scheduling to manage CPU time?",
+      "ground_truth": "The OS uses scheduling policies to decide which process runs next on the CPU. These policies balance multiple goals: maximizing CPU utilization, minimizing response time, ensuring fairness, and meeting throughput requirements.",
+      "answer": "The OS uses scheduling to manage CPU time by allocating and prioritizing processes to run on the CPU based on certain criteria, such as process priority, time slice, and resource availability.",
+      "contexts": [
+        "Processes: The abstraction of a running program.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory."
+      ],
+      "retrieval_time_ms": 135.61,
+      "generation_time_ms": 4768.45
+    },
+    {
+      "question": "Compare persistence and memory virtualization.",
+      "ground_truth": "Memory virtualization deals with temporary, volatile memory (RAM) and provides each process with a virtual address space. Persistence deals with permanent, non-volatile storage and ensures data survives beyond process lifetimes and system restarts.",
+      "answer": "The context provided does not include information on persistence.",
+      "contexts": [
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 122.71,
+      "generation_time_ms": 1620.5
+    }
+  ]
+}

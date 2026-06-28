@@ -94,9 +94,9 @@ def run_pathsim_evaluation():
             
             print(f"  Expert Path:    {' -> '.join(expert_names)}")
             print(f"  Generated Path: {' -> '.join(generated_names)}")
+            status = "PASS" if breakdown.total_score >= 0.8 else "FAIL (below threshold)"
             print(
-                f"  PathSim Score:  {breakdown.total_score:.4f} "
-                f"{'✓' if breakdown.total_score >= 0.8 else '✗ (below threshold)'}"
+                f"  PathSim Score:  {breakdown.total_score:.4f} [{status}]"
             )
             print(f"  Node Overlap:   {breakdown.node_similarity:.4f}")
             print(f"  Edge Overlap:   {breakdown.edge_similarity:.4f}")

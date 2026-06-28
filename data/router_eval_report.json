@@ -2,11 +2,11 @@
   "total_queries": 50,
   "correct": 42,
   "routing_accuracy_pct": 84.0,
-  "avg_latency_ms": 3144.31,
-  "min_latency_ms": 2050.4,
-  "max_latency_ms": 4959.9,
-  "avg_latency_diagnose_ms": 2723.36,
-  "avg_latency_retrieve_ms": 3475.06,
+  "avg_latency_ms": 1628.54,
+  "min_latency_ms": 49.52,
+  "max_latency_ms": 35777.63,
+  "avg_latency_diagnose_ms": 587.17,
+  "avg_latency_retrieve_ms": 2446.76,
   "per_query_results": [
     {
       "id": 1,
@@ -14,8 +14,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Request for an explanation of a concept.",
-      "latency_ms": 4959.9
+      "reason": "Requesting an explanation of a concept.",
+      "latency_ms": 35777.63
     },
     {
       "id": 2,
@@ -23,8 +23,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Explaining the concept of a Translation Lookaside Buffer and its impact on memory access times.",
-      "latency_ms": 2995.17
+      "reason": "Request for an explanation of a concept.",
+      "latency_ms": 2845.54
     },
     {
       "id": 3,
@@ -33,7 +33,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Requesting factual information about the necessary conditions for a deadlock.",
-      "latency_ms": 3173.08
+      "latency_ms": 1221.37
     },
     {
       "id": 4,
@@ -41,8 +41,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Explaining how the Completely Fair Scheduler (CFS) in Linux assigns CPU time to different processes.",
-      "latency_ms": 2874.41
+      "reason": "Request for an explanation of how the Completely Fair Scheduler (CFS) in Linux assigns CPU time to different processes.",
+      "latency_ms": 1263.66
     },
     {
       "id": 5,
@@ -51,7 +51,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Providing an explanation of the advantages of using a microkernel architecture over a monolithic kernel.",
-      "latency_ms": 3023.05
+      "latency_ms": 1217.54
     },
     {
       "id": 6,
@@ -59,8 +59,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Providing a definition.",
-      "latency_ms": 3024.52
+      "reason": "Providing a definition of a concept.",
+      "latency_ms": 1718.82
     },
     {
       "id": 7,
@@ -69,7 +69,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Providing an explanation of a concept.",
-      "latency_ms": 3655.36
+      "latency_ms": 1130.03
     },
     {
       "id": 8,
@@ -77,8 +77,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Request for an explanation and factual answer about page faults and how the operating system handles them.",
-      "latency_ms": 3530.17
+      "reason": "Request for an explanation and factual answer about page faults and the steps taken by the OS to handle them.",
+      "latency_ms": 883.77
     },
     {
       "id": 9,
@@ -87,7 +87,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Providing a comparison between two page replacement algorithms.",
-      "latency_ms": 3378.68
+      "latency_ms": 1683.57
     },
     {
       "id": 10,
@@ -95,8 +95,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Providing an explanation of a concept.",
-      "latency_ms": 2860.51
+      "reason": "Request for an explanation.",
+      "latency_ms": 1251.78
     },
     {
       "id": 11,
@@ -105,7 +105,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2079.24
+      "latency_ms": 75.21
     },
     {
       "id": 12,
@@ -113,8 +113,8 @@
       "expected": "diagnose",
       "predicted": "diagnose",
       "correct": true,
-      "reason": "Student is reporting confusion and likely needs a learning plan to understand race conditions in multithreaded programs.",
-      "latency_ms": 3098.37
+      "reason": "Student is reporting confusion and suspects a race condition in their multithreaded program.",
+      "latency_ms": 917.6
     },
     {
       "id": 13,
@@ -123,7 +123,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2050.4
+      "latency_ms": 49.52
     },
     {
       "id": 14,
@@ -132,7 +132,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2065.48
+      "latency_ms": 75.66
     },
     {
       "id": 15,
@@ -140,8 +140,8 @@
       "expected": "diagnose",
       "predicted": "diagnose",
       "correct": true,
-      "reason": "Student appears confused about the relationship between CPU utilization and I/O bound processes.",
-      "latency_ms": 3710.57
+      "reason": "Student appears confused about CPU utilization and process management, likely needs a learning plan to understand the concepts better.",
+      "latency_ms": 839.09
     },
     {
       "id": 16,
@@ -150,7 +150,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2075.74
+      "latency_ms": 70.16
     },
     {
       "id": 17,
@@ -158,8 +158,8 @@
       "expected": "diagnose",
       "predicted": "retrieve",
       "correct": false,
-      "reason": "Student is seeking an explanation to clarify the difference between a system call and a function call.",
-      "latency_ms": 3750.21
+      "reason": "Clarification on the difference between a system call and a function call.",
+      "latency_ms": 911.44
     },
     {
       "id": 18,
@@ -168,7 +168,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2075.54
+      "latency_ms": 62.11
     },
     {
       "id": 19,
@@ -176,8 +176,8 @@
       "expected": "diagnose",
       "predicted": "diagnose",
       "correct": true,
-      "reason": "Student is confused about the difference between a mutex and a binary semaphore and needs clarification to understand the concept better.",
-      "latency_ms": 4284.46
+      "reason": "Student is confused about the difference between a mutex and a binary semaphore and needs clarification on their usage.",
+      "latency_ms": 1457.56
     },
     {
       "id": 20,
@@ -185,8 +185,8 @@
       "expected": "diagnose",
       "predicted": "diagnose",
       "correct": true,
-      "reason": "Student appears confused and needs guidance on understanding the implementation of shortest job first scheduling.",
-      "latency_ms": 2808.11
+      "reason": "Student appears confused and needs guidance on implementing shortest job first scheduling correctly.",
+      "latency_ms": 973.56
     },
     {
       "id": 21,
@@ -195,7 +195,7 @@
       "predicted": "diagnose",
       "correct": false,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2082.19
+      "latency_ms": 113.84
     },
     {
       "id": 22,
@@ -204,7 +204,7 @@
       "predicted": "diagnose",
       "correct": false,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2132.14
+      "latency_ms": 95.37
     },
     {
       "id": 23,
@@ -213,7 +213,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Request for a factual answer.",
-      "latency_ms": 4336.22
+      "latency_ms": 838.84
     },
     {
       "id": 24,
@@ -222,7 +222,7 @@
       "predicted": "diagnose",
       "correct": false,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2070.57
+      "latency_ms": 282.24
     },
     {
       "id": 25,
@@ -231,7 +231,7 @@
       "predicted": "diagnose",
       "correct": false,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2072.69
+      "latency_ms": 161.13
     },
     {
       "id": 26,
@@ -240,7 +240,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Providing an explanation of a concept.",
-      "latency_ms": 3787.63
+      "latency_ms": 1066.34
     },
     {
       "id": 27,
@@ -249,7 +249,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Request for a factual answer.",
-      "latency_ms": 3325.67
+      "latency_ms": 917.79
     },
     {
       "id": 28,
@@ -258,7 +258,7 @@
       "predicted": "diagnose",
       "correct": false,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2088.91
+      "latency_ms": 116.23
     },
     {
       "id": 29,
@@ -267,7 +267,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Student is asking for an explanation of a concept.",
-      "latency_ms": 3035.74
+      "latency_ms": 948.0
     },
     {
       "id": 30,
@@ -276,7 +276,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Student is asking for a factual answer about the definition and function of DMA (Direct Memory Access).",
-      "latency_ms": 2759.99
+      "latency_ms": 1052.61
     },
     {
       "id": 31,
@@ -285,7 +285,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "Attempting to dereference an uninitialized pointer p, leading to a segmentation fault or memory access violation.",
-      "latency_ms": 3277.64
+      "latency_ms": 933.57
     },
     {
       "id": 32,
@@ -294,7 +294,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "Student is reporting failure and likely needs a learning plan to address the low TLB hit rate and potential thrashing issue.",
-      "latency_ms": 3115.9
+      "latency_ms": 1129.23
     },
     {
       "id": 33,
@@ -303,7 +303,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "The system may be experiencing high page fault rates due to inefficient memory management, potential memory leaks, or excessive swapping between physical memory and disk.",
-      "latency_ms": 3145.48
+      "latency_ms": 913.99
     },
     {
       "id": 34,
@@ -312,7 +312,7 @@
       "predicted": "retrieve",
       "correct": false,
       "reason": "To explain the concept of race conditions and how they can lead to threads reading data meant for other threads in a shared queue scenario.",
-      "latency_ms": 3658.59
+      "latency_ms": 1636.18
     },
     {
       "id": 35,
@@ -320,8 +320,8 @@
       "expected": "diagnose",
       "predicted": "diagnose",
       "correct": true,
-      "reason": "The student is likely confused about the inefficiencies of spinlocks on single-core systems and may need a learning plan to understand alternative synchronization mechanisms.",
-      "latency_ms": 4547.74
+      "reason": "Student appears to be struggling with understanding the inefficiencies of spinlocks on single-core systems.",
+      "latency_ms": 1363.67
     },
     {
       "id": 36,
@@ -330,7 +330,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "Student appears confused and needs a learning plan to improve understanding of memory management concepts, specifically page table translation problems.",
-      "latency_ms": 3067.48
+      "latency_ms": 1366.5
     },
     {
       "id": 37,
@@ -339,7 +339,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "Student needs guidance on understanding the difference between deadlock prevention and deadlock avoidance in the context of their design document.",
-      "latency_ms": 2963.47
+      "latency_ms": 896.89
     },
     {
       "id": 38,
@@ -348,7 +348,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "User signaled confusion, struggle, or a request for remediation.",
-      "latency_ms": 2086.87
+      "latency_ms": 87.92
     },
     {
       "id": 39,
@@ -357,7 +357,7 @@
       "predicted": "diagnose",
       "correct": true,
       "reason": "Student is experiencing difficulty understanding the impact of interrupts on real-time applications and may benefit from a learning plan to address this issue.",
-      "latency_ms": 3014.85
+      "latency_ms": 936.67
     },
     {
       "id": 40,
@@ -366,7 +366,7 @@
       "predicted": "retrieve",
       "correct": false,
       "reason": "Providing a definition or explanation of why Dekker's algorithm fails in a specific edge case.",
-      "latency_ms": 3383.04
+      "latency_ms": 868.69
     },
     {
       "id": 41,
@@ -375,7 +375,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Providing an explanation and factual answer about inodes and the metadata they store.",
-      "latency_ms": 3893.75
+      "latency_ms": 902.54
     },
     {
       "id": 42,
@@ -384,7 +384,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Requesting an explanation of the structure of a hard disk drive.",
-      "latency_ms": 3385.93
+      "latency_ms": 1673.77
     },
     {
       "id": 43,
@@ -392,8 +392,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Providing an explanation of how the elevator algorithm (SCAN) for disk scheduling works.",
-      "latency_ms": 4079.95
+      "reason": "Request for an explanation of a specific algorithm.",
+      "latency_ms": 1141.47
     },
     {
       "id": 44,
@@ -401,8 +401,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Providing an explanation of the difference between symbolic link and hard link in Unix.",
-      "latency_ms": 3594.74
+      "reason": "Explaining the difference between symbolic link and hard link in Unix.",
+      "latency_ms": 802.76
     },
     {
       "id": 45,
@@ -411,7 +411,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Providing an explanation of a concept.",
-      "latency_ms": 4093.86
+      "latency_ms": 1839.03
     },
     {
       "id": 46,
@@ -420,7 +420,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Request for an explanation or factual answer about common attributes associated with a file.",
-      "latency_ms": 3474.13
+      "latency_ms": 958.23
     },
     {
       "id": 47,
@@ -428,8 +428,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Request for an explanation of a file system structure.",
-      "latency_ms": 2756.53
+      "reason": "Providing an explanation of the File Allocation Table (FAT) file system structure.",
+      "latency_ms": 1061.88
     },
     {
       "id": 48,
@@ -438,7 +438,7 @@
       "predicted": "retrieve",
       "correct": true,
       "reason": "Request for an explanation.",
-      "latency_ms": 2841.43
+      "latency_ms": 1067.5
     },
     {
       "id": 49,
@@ -446,8 +446,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Explaining how a journaling file system like ext4 handles crash recovery requires providing an explanation of the specific mechanisms involved.",
-      "latency_ms": 3923.35
+      "reason": "Explaining how a journaling file system like ext4 handles crash recovery.",
+      "latency_ms": 937.09
     },
     {
       "id": 50,
@@ -455,8 +455,8 @@
       "expected": "retrieve",
       "predicted": "retrieve",
       "correct": true,
-      "reason": "Providing users with only the minimum levels of access and permissions necessary to perform their tasks, reducing the potential impact of security breaches.",
-      "latency_ms": 3745.97
+      "reason": "Explaining the principle of least privilege in the context of OS security.",
+      "latency_ms": 891.32
     }
   ]
 }

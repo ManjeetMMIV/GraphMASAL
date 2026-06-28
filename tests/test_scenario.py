@@ -79,10 +79,10 @@ def run_scenario_test():
             generated_set = set(path)
             expected_set = set(EXPECTED_PATH)
             if expected_set.issubset(generated_set):
-                print(f"\n[PASS] ✓ Generated path correctly covers expected prerequisite chain: {EXPECTED_PATH}")
+                print(f"\n[PASS] Generated path correctly covers expected prerequisite chain: {EXPECTED_PATH}")
             else:
                 missing = expected_set - generated_set
-                print(f"\n[FAIL] ✗ Path is missing expected prerequisites: {missing}")
+                print(f"\n[FAIL] Path is missing expected prerequisites: {missing}")
                 all_passed = False
     
     conn.close()

@@ -1,0 +1,82 @@
+[
+  {
+    "question": "What is computer architecture and why is it important?",
+    "ground_truth": "Computer architecture is the basic structure of computers, including CPU, memory, and I/O systems. It forms the foundation for understanding how operating systems interact with hardware."
+  },
+  {
+    "question": "How does CPU virtualization work in modern operating systems?",
+    "ground_truth": "CPU virtualization provides the illusion of many CPUs by time-sharing the physical CPU among multiple processes. The OS manages context switching and scheduling to give each process its own virtual CPU."
+  },
+  {
+    "question": "What is a process in an operating system?",
+    "ground_truth": "A process is the abstraction of a running program. It includes the program code, its current activity, and the resources allocated to it by the operating system, such as memory and file handles."
+  },
+  {
+    "question": "Explain the different process scheduling policies.",
+    "ground_truth": "Process scheduling policies determine which process runs next on the CPU. Common policies include round-robin, priority-based scheduling, and multi-level feedback queues. The goal is to balance throughput, fairness, and response time."
+  },
+  {
+    "question": "How does memory virtualization provide the illusion of infinite memory?",
+    "ground_truth": "Memory virtualization gives each process its own virtual address space, which is mapped to physical memory by the MMU. This isolates processes and allows them to use more memory than physically available through paging and swapping."
+  },
+  {
+    "question": "What is paging and how does it solve memory fragmentation?",
+    "ground_truth": "Paging divides memory into fixed-size pages, eliminating external fragmentation. The OS maps virtual pages to physical frames using page tables, allowing non-contiguous physical memory allocation."
+  },
+  {
+    "question": "What is concurrency and why is it important in operating systems?",
+    "ground_truth": "Concurrency is the execution of multiple instruction sequences at the same time. It is essential for utilizing multi-core processors and handling multiple tasks efficiently, but introduces synchronization challenges."
+  },
+  {
+    "question": "How do threads differ from processes?",
+    "ground_truth": "Threads are multiple independent execution units within a single process. They share the same address space and resources, making communication between threads cheaper than between processes. However, they require careful synchronization."
+  },
+  {
+    "question": "What are locks and how do they prevent race conditions?",
+    "ground_truth": "Locks are synchronization mechanisms that protect critical sections of code from concurrent access. By requiring a thread to acquire a lock before accessing shared data, they prevent race conditions and ensure data consistency."
+  },
+  {
+    "question": "What is persistence in the context of operating systems?",
+    "ground_truth": "Persistence refers to storing data long-term, beyond the life of a process. It involves saving data to non-volatile storage devices like hard drives or SSDs so that it remains available after system restarts."
+  },
+  {
+    "question": "How do file systems organize and manage data?",
+    "ground_truth": "File systems provide abstractions for persistent storage by organizing data into files and directories. They manage space allocation, maintain metadata, and handle read/write operations on physical storage devices."
+  },
+  {
+    "question": "What is data integrity and how is it maintained in storage systems?",
+    "ground_truth": "Data integrity and protection ensures that stored data is safe from corruption and failures. Techniques include RAID for redundancy, checksums for detecting corruption, and journaling for crash recovery."
+  },
+  {
+    "question": "Describe the relationship between CPU virtualization and processes.",
+    "ground_truth": "CPU virtualization creates the illusion of multiple CPUs through time-sharing, and processes are the abstraction that represents each running program. The OS uses CPU virtualization to switch between processes, giving each a fair share of CPU time."
+  },
+  {
+    "question": "How does memory virtualization relate to paging?",
+    "ground_truth": "Memory virtualization provides each process with a virtual address space. Paging is the mechanism that implements this virtualization by dividing memory into fixed-size pages and mapping virtual addresses to physical frames via page tables."
+  },
+  {
+    "question": "What prerequisites are needed to understand concurrency?",
+    "ground_truth": "To understand concurrency, you first need to understand processes and memory virtualization. Processes provide the execution context, and memory virtualization explains how memory is managed across concurrently running processes."
+  },
+  {
+    "question": "Why are threads considered a prerequisite for learning about locks?",
+    "ground_truth": "Threads represent multiple execution units within a process that share memory. Locks are needed precisely because threads share memory and can interfere with each other when accessing shared data concurrently."
+  },
+  {
+    "question": "Explain the learning path from processes to locks.",
+    "ground_truth": "The path is: processes -> concurrency -> threads -> locks. First understand processes, then learn about concurrency (multiple things happening at once), then threads (lightweight execution units), and finally locks (synchronization for thread safety)."
+  },
+  {
+    "question": "What role does computer architecture play in understanding file systems?",
+    "ground_truth": "Computer architecture provides foundational knowledge of how storage devices connect to the CPU and memory. This is essential for understanding how file systems manage data on persistent storage devices."
+  },
+  {
+    "question": "How does the OS use scheduling to manage CPU time?",
+    "ground_truth": "The OS uses scheduling policies to decide which process runs next on the CPU. These policies balance multiple goals: maximizing CPU utilization, minimizing response time, ensuring fairness, and meeting throughput requirements."
+  },
+  {
+    "question": "Compare persistence and memory virtualization.",
+    "ground_truth": "Memory virtualization deals with temporary, volatile memory (RAM) and provides each process with a virtual address space. Persistence deals with permanent, non-volatile storage and ensures data survives beyond process lifetimes and system restarts."
+  }
+]
