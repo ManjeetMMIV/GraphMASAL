@@ -3,7 +3,10 @@ from pydantic import BaseModel
 from fastapi import UploadFile
 
 from src.api.dependencies import get_neo4j_connection, bootstrap_student
-from src.ingestion.pdf_pipeline import PdfEmbeddingPipeline
+
+# PdfEmbeddingPipeline is intentionally NOT imported here at module level.
+# sentence_transformers (and PyTorch) take several seconds to load and consume
+# hundreds of MB - importing them at startup causes Render's port-scan to time out.
 
 class ExtractConceptsRequest(BaseModel):
     student_id: str
@@ -16,6 +19,7 @@ def list_documents_logic(student_id: str):
     if not conn:
         raise HTTPException(status_code=500, detail="Neo4j credentials are missing.")
     try:
+        from src.ingestion.pdf_pipeline import PdfEmbeddingPipeline
         pipeline = PdfEmbeddingPipeline(conn, student_id=student_id)
         docs = pipeline.list_recent_documents(limit=50)
         return {"documents": docs}
@@ -42,6 +46,7 @@ def extract_concepts_logic(req: ExtractConceptsRequest):
         if not records:
             return {"status": "ok", "message": "No PDFDocument nodes found for this student.", "total_concepts": 0}
 
+        from src.ingestion.pdf_pipeline import PdfEmbeddingPipeline
         pipeline = PdfEmbeddingPipeline(conn, student_id=req.student_id)
         pipeline.initialize_concept_schema()
 
@@ -71,6 +76,7 @@ async def upload_pdf_logic(student_id: str, file: UploadFile):
     try:
         bootstrap_student(student_id)
         bytes_data = await file.read()
+        from src.ingestion.pdf_pipeline import PdfEmbeddingPipeline
         pipeline = PdfEmbeddingPipeline(conn, student_id=student_id)
         pipeline.initialize_concept_schema()
         result = pipeline.ingest_pdf_bytes(file.filename, bytes_data)
