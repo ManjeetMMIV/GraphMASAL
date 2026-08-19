@@ -124,6 +124,23 @@
                 <span class="text-xs text-gray-500">|</span>
                 <span class="text-xs text-slate-600">Studying: <span id="headerTopic"
                         class="text-indigo-600 font-semibold"></span></span>
+                
+                <!-- Quick Up Next Dropdown -->
+                <div class="relative group ml-2">
+                    <button class="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold bg-white border border-border px-2 py-1 rounded-md text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm">
+                        <i class="fa-solid fa-list-ul"></i> Up Next
+                        <i class="fa-solid fa-chevron-down text-[8px] opacity-70"></i>
+                    </button>
+                    <!-- Dropdown Content -->
+                    <div class="absolute left-0 top-full mt-2 w-72 bg-white border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 transform origin-top-left scale-95 group-hover:scale-100">
+                        <div class="px-3 py-2 border-b border-border bg-slate-50 rounded-t-xl">
+                            <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Optimal Learning Path</span>
+                        </div>
+                        <div id="quickPlanList" class="max-h-64 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                            <div class="text-xs text-slate-400 italic text-center py-4">No active plan selected</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- Agent Pipeline Status -->
             <div class="flex items-center gap-1" id="agentPipeline">
@@ -537,7 +554,7 @@
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js?v=2"></script>
 </body>
 
 </html>

@@ -121,6 +121,7 @@ onboardingForm.addEventListener('submit', async (e) => {
         addWelcomeMessage(topic);
         loadSessions();
         loadDocuments();
+        updateQuickPlanDropdown();
 
     } catch (err) {
         startBtn.disabled = false;
@@ -251,6 +252,7 @@ function showSourceSinkModal(concepts) {
         addWelcomeMessage(state.topic);
         loadSessions();
         loadDocuments();
+        updateQuickPlanDropdown();
     };
 
     computeBtn.addEventListener('click', () => {
@@ -303,6 +305,7 @@ async function startNewChat() {
         addWelcomeMessage(state.topic);
         loadSessions();
         resetAgentBar();
+        updateQuickPlanDropdown();
     } catch (err) {
         alert('Failed to create new session.');
     }
@@ -420,12 +423,74 @@ async function loadSession(sessionId, topic) {
         document.querySelectorAll('.session-item').forEach(el => {
             el.classList.toggle('active', el.dataset.id === sessionId);
         });
+        
+        updateQuickPlanDropdown();
     } catch (err) {
         alert('Failed to load session.');
     }
 }
 
 refreshSessionsBtn.addEventListener('click', loadSessions);
+
+async function updateQuickPlanDropdown() {
+    const listEl = document.getElementById('quickPlanList');
+    if (!listEl) return;
+    
+    if (!state.studentId || !state.sessionId) {
+        listEl.innerHTML = `<div class="text-xs text-slate-400 italic text-center py-4">No active session</div>`;
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`);
+        const data = await res.json();
+        
+        const activePlan = data.active_plan || [];
+        const currentConcept = data.current_concept || null;
+        const allNodes = data.nodes || [];
+        
+        if (activePlan.length === 0) {
+            listEl.innerHTML = `<div class="text-xs text-slate-400 italic text-center py-4">No active plan selected.<br>Click "Choose Learning Plan".</div>`;
+            return;
+        }
+
+        const nodeMap = {};
+        allNodes.forEach(n => nodeMap[n.id] = n);
+
+        let html = '';
+        activePlan.forEach((id, idx) => {
+            const node = nodeMap[id] || { name: id, mastery: 0 };
+            const isMastered = node.mastery >= 0.8;
+            const isCurrent = id === currentConcept;
+            
+            let icon = '<i class="fa-regular fa-circle text-slate-300"></i>';
+            let textColor = 'text-slate-600';
+            let bgClass = 'hover:bg-slate-50';
+            
+            if (isMastered) {
+                icon = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+                textColor = 'text-slate-400 line-through';
+            } else if (isCurrent) {
+                icon = '<i class="fa-solid fa-crosshairs text-indigo-600"></i>';
+                textColor = 'text-indigo-700 font-bold';
+                bgClass = 'bg-indigo-50 border border-indigo-100';
+            }
+            
+            html += `
+                <div class="flex items-center gap-2 p-2 rounded-lg ${bgClass} transition-colors">
+                    <span class="text-[10px] text-slate-400 font-mono w-4">${idx + 1}.</span>
+                    <div class="flex-shrink-0 w-4 flex justify-center">${icon}</div>
+                    <span class="text-xs truncate ${textColor}" title="${escapeHtml(node.name)}">${escapeHtml(node.name)}</span>
+                </div>
+            `;
+        });
+        
+        listEl.innerHTML = html;
+    } catch (err) {
+        console.error('Failed to update quick plan', err);
+        listEl.innerHTML = `<div class="text-xs text-red-400 italic text-center py-4">Failed to load plan</div>`;
+    }
+}
 
 // ------------------------------------------------------------------ //
 // Chat
@@ -562,6 +627,7 @@ chatForm.addEventListener('submit', async (e) => {
 
         // Refresh sidebar to update turn count
         loadSessions();
+        updateQuickPlanDropdown();
 
     } catch (err) {
         bubbleContent.innerHTML = `<span class="text-red-400">Connection error. Is the server running?</span>`;
