@@ -4,10 +4,16 @@ from sse_starlette.sse import EventSourceResponse
 from pydantic import BaseModel
 from typing import List
 
-from src.agents.workflow import build_graph
+# Lazy import - only load the heavy LangGraph workflow on first request
+# so Render can bind to the port before hitting memory limits
+_graph_app = None
 
-# Initialize graph instance globally
-graph_app = build_graph()
+def _get_graph():
+    global _graph_app
+    if _graph_app is None:
+        from src.agents.workflow import build_graph
+        _graph_app = build_graph()
+    return _graph_app
 
 class ChatMessage(BaseModel):
     role: str
@@ -65,7 +71,7 @@ async def chat_stream_logic(request: Request, body: ChatRequest):
         retrieved_context = ""
 
         try:
-            for event in graph_app.stream(initial_state, stream_mode="updates", config=run_cfg):
+            for event in _get_graph().stream(initial_state, stream_mode="updates", config=run_cfg):
                 if await request.is_disconnected():
                     break
 
