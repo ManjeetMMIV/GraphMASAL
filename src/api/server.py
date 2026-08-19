@@ -904,6 +904,87 @@ async def get_student_progress_for_teacher(student_id: str):
 
 
 # --------------------------------------------------------------------------- #
+# Audio Lecture Endpoint
+# --------------------------------------------------------------------------- #
+
+class LectureRequest(BaseModel):
+    student_id: str
+    session_id: str
+    concept_name: str
+
+@app.post("/api/lecture/generate")
+async def generate_lecture(req: LectureRequest):
+    """Generate an audio podcast/lecture for a concept and return its URL."""
+    conn = _get_neo4j_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Neo4j credentials are missing.")
+    try:
+        from src.agents.lecturer_agent import LecturerAgent
+        from src.audio.tts_engine import generate_audio_file
+        
+        # 1. Generate text script
+        agent = LecturerAgent(conn)
+        script = agent.generate_script(req.concept_name, req.student_id)
+        
+        if not script:
+            raise HTTPException(status_code=500, detail="Failed to generate script.")
+            
+        # 2. Generate Audio
+        filename = f"{uuid.uuid4().hex[:8]}.mp3"
+        audio_dir = REPO_ROOT / "public" / "audio"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        audio_path = audio_dir / filename
+        
+        await generate_audio_file(script, str(audio_path))
+        
+        # 3. Return URL path
+        return {"status": "ok", "audio_url": f"/audio/{filename}", "script": script}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+# --------------------------------------------------------------------------- #
+# PPT Generation Endpoint
+# --------------------------------------------------------------------------- #
+
+class PPTRequest(BaseModel):
+    student_id: str
+    session_id: str
+    concept_name: str
+    custom_prompt: str = ""
+
+@app.post("/api/ppt/generate")
+async def generate_ppt(req: PPTRequest):
+    """Generate a PowerPoint presentation for a concept and return its URL."""
+    conn = _get_neo4j_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Neo4j credentials are missing.")
+    try:
+        from src.agents.ppt_agent import PPTAgent
+        from src.presentation.ppt_engine import PPTEngine
+        
+        # 1. Generate JSON slides
+        agent = PPTAgent(conn)
+        slides_json = agent.generate_slides_json(req.concept_name, req.student_id, req.custom_prompt)
+        
+        if not slides_json:
+            raise HTTPException(status_code=500, detail="Failed to generate slide content.")
+            
+        # 2. Generate PPTX
+        engine = PPTEngine(output_dir=str(REPO_ROOT / "public" / "presentations"))
+        url_path = engine.generate_presentation(slides_json, filename_prefix=req.concept_name)
+        
+        return {"status": "ok", "ppt_url": url_path}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+# --------------------------------------------------------------------------- #
 # Static Frontend
 # --------------------------------------------------------------------------- #
 

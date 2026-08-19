@@ -1108,6 +1108,23 @@ function renderVideoTopics(topics) {
                     </div>
                 </div>
                 ${t.desc ? `<p class="text-[11px] text-gray-500 mb-3 line-clamp-2">${t.desc}</p>` : ''}
+                
+                <!-- Podcast & PPT Generators -->
+                <div class="flex gap-2 mb-3">
+                    <div class="podcast-container flex-1" id="podcast-${t.id}">
+                        <button class="w-full justify-center text-xs bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-all font-semibold flex items-center gap-1.5"
+                                onclick="generatePodcast('${t.id}', '${escapeHtml(t.name)}', this)">
+                            <i class="fa-solid fa-headphones"></i> Audio Lecture
+                        </button>
+                    </div>
+                    <div class="ppt-container flex-1" id="ppt-${t.id}">
+                        <button class="w-full justify-center text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-all font-semibold flex items-center gap-1.5"
+                                onclick="generatePresentation('${t.id}', '${escapeHtml(t.name)}', this)">
+                            <i class="fa-solid fa-file-powerpoint"></i> Presentation
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Video Links -->
                 <div class="space-y-1.5">
                     ${videoLinks}
@@ -1115,6 +1132,96 @@ function renderVideoTopics(topics) {
             </div>
         </div>`;
     }).join('');
+}
+
+async function generatePodcast(conceptId, conceptName, btnEl) {
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating Audio (takes a few seconds)...';
+    btnEl.classList.add('opacity-70', 'cursor-not-allowed');
+
+    try {
+        const res = await fetch('/api/lecture/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: state.studentId,
+                session_id: state.sessionId,
+                concept_name: conceptName
+            })
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+            const container = document.getElementById(`podcast-${conceptId}`);
+            container.innerHTML = `
+                <div class="bg-card border border-border rounded-lg p-3">
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-podcast text-indigo-500 mr-1"></i> AI Podcast Lecture</span>
+                    </div>
+                    <audio controls autoplay class="w-full h-8" style="outline: none;">
+                        <source src="${data.audio_url}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            `;
+        } else {
+            alert('Failed to generate podcast: ' + (data.detail || 'Unknown error'));
+            btnEl.innerHTML = '<i class="fa-solid fa-headphones"></i> Generate Podcast Lecture (Failed, Try Again)';
+            btnEl.disabled = false;
+            btnEl.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Network error while generating podcast.');
+        btnEl.innerHTML = '<i class="fa-solid fa-headphones"></i> Generate Podcast Lecture (Failed, Try Again)';
+        btnEl.disabled = false;
+        btnEl.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
+}
+
+async function generatePresentation(conceptId, conceptName, btnEl) {
+    const customPrompt = window.prompt(`Any specific focus for the ${conceptName} presentation? (e.g. 'Use lots of examples', 'Make it for beginners')\n\nLeave blank for the default expert template:`);
+    
+    // User cancelled prompt
+    if (customPrompt === null) return;
+
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating PPT...';
+    btnEl.classList.add('opacity-70', 'cursor-not-allowed');
+
+    try {
+        const res = await fetch('/api/ppt/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: state.studentId,
+                session_id: state.sessionId,
+                concept_name: conceptName,
+                custom_prompt: customPrompt
+            })
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+            const container = document.getElementById(`ppt-${conceptId}`);
+            container.innerHTML = `
+                <a href="${data.ppt_url}" download class="w-full justify-center text-xs bg-emerald-600 text-white border border-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-all font-semibold flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-download"></i> Download PPT
+                </a>
+            `;
+        } else {
+            alert('Failed to generate presentation: ' + (data.detail || 'Unknown error'));
+            btnEl.innerHTML = '<i class="fa-solid fa-file-powerpoint"></i> Presentation (Failed, Try Again)';
+            btnEl.disabled = false;
+            btnEl.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Network error while generating presentation.');
+        btnEl.innerHTML = '<i class="fa-solid fa-file-powerpoint"></i> Presentation (Failed, Try Again)';
+        btnEl.disabled = false;
+        btnEl.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
 }
 
 function applyVideoFilters() {
