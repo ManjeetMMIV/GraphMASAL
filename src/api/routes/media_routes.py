@@ -2,8 +2,10 @@ from fastapi import APIRouter
 from src.api.controllers.media_controller import (
     LectureRequest,
     PPTRequest,
+    NotesRequest,
     generate_lecture_logic,
-    generate_ppt_logic
+    generate_ppt_logic,
+    generate_notes_logic,
 )
 
 router = APIRouter(tags=["Media"])
@@ -15,3 +17,7 @@ async def generate_lecture(req: LectureRequest):
 @router.post("/api/ppt/generate")
 async def generate_ppt(req: PPTRequest):
     return generate_ppt_logic(req)
+
+@router.post("/api/notes/generate")
+async def generate_notes(req: NotesRequest):
+    return generate_notes_logic(req)

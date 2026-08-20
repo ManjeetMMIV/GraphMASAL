@@ -1175,7 +1175,7 @@ function renderVideoTopics(topics) {
                 </div>
                 ${t.desc ? `<p class="text-[11px] text-gray-500 mb-3 line-clamp-2">${t.desc}</p>` : ''}
                 
-                <!-- Podcast & PPT Generators -->
+                <!-- Podcast, PPT & Notes Generators -->
                 <div class="flex gap-2 mb-3">
                     <div class="podcast-container flex-1" id="podcast-${t.id}">
                         <button class="w-full justify-center text-xs bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-all font-semibold flex items-center gap-1.5"
@@ -1187,6 +1187,12 @@ function renderVideoTopics(topics) {
                         <button class="w-full justify-center text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-all font-semibold flex items-center gap-1.5"
                                 onclick="generatePresentation('${t.id}', '${escapeHtml(t.name)}', this)">
                             <i class="fa-solid fa-file-powerpoint"></i> Presentation
+                        </button>
+                    </div>
+                    <div class="flex-1">
+                        <button class="w-full justify-center text-xs bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-all font-semibold flex items-center gap-1.5"
+                                onclick="generateNotes('${escapeHtml(t.name)}', this)">
+                            <i class="fa-solid fa-note-sticky"></i> Short Notes
                         </button>
                     </div>
                 </div>
@@ -1289,6 +1295,97 @@ async function generatePresentation(conceptId, conceptName, btnEl) {
         btnEl.classList.remove('opacity-70', 'cursor-not-allowed');
     }
 }
+
+async function generateNotes(conceptName, btnEl) {
+    const origHtml = btnEl.innerHTML;
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+    btnEl.classList.add('opacity-70', 'cursor-not-allowed');
+
+    try {
+        const res = await fetch('/api/notes/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: state.studentId,
+                session_id: state.sessionId,
+                concept_name: conceptName
+            })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showNotesModal(data.concept_name || conceptName, data.notes);
+        } else {
+            alert('Failed to generate notes: ' + (data.detail || 'Unknown error'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Network error while generating notes.');
+    } finally {
+        btnEl.disabled = false;
+        btnEl.innerHTML = origHtml;
+        btnEl.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
+}
+
+function showNotesModal(conceptName, notesMarkdown) {
+    // Remove existing modal if any
+    document.getElementById('notesModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'notesModal';
+    modal.style.cssText = `
+        position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9999;
+        display:flex; align-items:center; justify-content:center;
+        backdrop-filter:blur(8px); padding:16px;`;
+
+    modal.innerHTML = `
+        <div style="background:#fffdf7; border:1px solid #e5ddd0; border-radius:20px; width:100%; max-width:680px;
+                    max-height:88vh; display:flex; flex-direction:column; overflow:hidden;
+                    box-shadow:0 25px 60px -12px rgba(0,0,0,0.25);">
+            <!-- Header -->
+            <div style="padding:20px 28px 16px; border-bottom:1px solid #e5ddd0; background:#f7f4ef; flex-shrink:0; display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                    <div style="font-size:10px; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">
+                        <i class="fa-solid fa-note-sticky"></i> Short Notes
+                    </div>
+                    <h2 style="margin:0; font-size:1.25rem; font-weight:700; color:#1e293b;">${escapeHtml(conceptName)}</h2>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="copyNotes()" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; color:#475569; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                    <button onclick="document.getElementById('notesModal').remove()" style="background:#fee2e2; border:1px solid #fca5a5; border-radius:8px; padding:7px 12px; font-size:13px; color:#dc2626; cursor:pointer; transition:all 0.15s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Content -->
+            <div id="notesContent" style="padding:24px 28px; overflow-y:auto; flex:1; font-size:0.875rem; line-height:1.7; color:#334155;" class="custom-scrollbar prose prose-sm max-w-none">
+                ${marked.parse(notesMarkdown)}
+            </div>
+        </div>
+    `;
+
+    // Close on backdrop click
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+}
+
+function copyNotes() {
+    const content = document.getElementById('notesContent');
+    if (!content) return;
+    navigator.clipboard.writeText(content.innerText).then(() => {
+        const btn = document.querySelector('#notesModal button');
+        const orig = btn?.innerHTML;
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Copied!';
+            setTimeout(() => { if(btn) btn.innerHTML = orig; }, 2000);
+        }
+    });
+}
+
 
 function applyVideoFilters() {
     const searchTerm = videoSearchInput.value.toLowerCase().trim();

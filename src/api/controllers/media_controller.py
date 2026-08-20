@@ -69,3 +69,30 @@ def generate_ppt_logic(req: PPTRequest):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
+
+
+class NotesRequest(BaseModel):
+    student_id: str
+    session_id: str
+    concept_name: str
+
+
+def generate_notes_logic(req: NotesRequest):
+    conn = get_neo4j_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Neo4j credentials are missing.")
+    try:
+        from src.agents.notes_agent import NotesAgent
+
+        agent = NotesAgent(conn)
+        notes_markdown = agent.generate_notes(req.concept_name, req.student_id)
+
+        if not notes_markdown:
+            raise HTTPException(status_code=500, detail="Failed to generate notes.")
+
+        return {"status": "ok", "notes": notes_markdown, "concept_name": req.concept_name}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
