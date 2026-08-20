@@ -6,7 +6,8 @@ from src.api.controllers.graph_controller import (
     list_concepts_logic,
     compute_path_logic,
     select_plan_logic,
-    get_knowledge_graph_logic
+    get_knowledge_graph_logic,
+    get_videos_logic,
 )
 
 router = APIRouter(tags=["Graph"])
@@ -30,3 +31,7 @@ async def select_plan(req: SelectPlanRequest):
 @router.get("/api/knowledge_graph")
 async def get_knowledge_graph(student_id: str, session_id: str = ""):
     return get_knowledge_graph_logic(student_id, session_id)
+
+@router.get("/api/videos")
+async def get_videos(student_id: str, session_id: str = ""):
+    return get_videos_logic(student_id, session_id)

@@ -214,3 +214,103 @@ def get_knowledge_graph_logic(student_id: str, session_id: str = ""):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
+
+
+def get_videos_logic(student_id: str, session_id: str = ""):
+    """Build the video library: one entry per concept in the active plan,
+    enriched with mastery status and YouTube search links."""
+    import urllib.parse
+
+    conn = get_neo4j_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Neo4j credentials are missing.")
+    try:
+        from src.pathing.graph_adapter import GraphAdapter
+        from src.storage.qa_store import get_db as _qa_get_db
+
+        # 1. Load active plan
+        active_plan: list[str] = []
+        if session_id:
+            session_doc = _qa_get_db()["sessions"].find_one({"session_id": session_id})
+            if session_doc:
+                active_plan = session_doc.get("active_plan", [])
+
+        # 2. Load concept graph to get names/descriptions
+        adapter = GraphAdapter(conn)
+        nx_graph = adapter.get_networkx_graph(student_id=student_id)
+
+        # 3. Load mastery scores
+        mastery_rows = conn.query(
+            """
+            MATCH (s:Student {id: $sid})-[r:HAS_MASTERY_OF]->(c:Concept)
+            RETURN c.id AS id, coalesce(r.score, 0.0) AS score
+            """,
+            {"sid": student_id},
+        )
+        mastery_map = {row["id"]: row["score"] for row in (mastery_rows or [])}
+
+        # 4. Build topic list
+        # If no active plan, fall back to all nodes in topological order
+        if not active_plan:
+            try:
+                import networkx as nx
+                ordered = list(nx.topological_sort(nx_graph))
+            except Exception:
+                ordered = list(nx_graph.nodes())
+            active_plan = ordered
+
+        current_found = False
+        topics = []
+        for idx, concept_id in enumerate(active_plan):
+            if concept_id in nx_graph:
+                node_data = nx_graph.nodes[concept_id]
+                name = node_data.get("name", concept_id)
+                desc = node_data.get("description", "")
+            else:
+                name = concept_id
+                desc = ""
+
+            score = mastery_map.get(concept_id, 0.0)
+            mastery_pct = int(round(score * 100))
+
+            if score >= 0.8:
+                status = "mastered"
+            elif not current_found:
+                status = "current"
+                current_found = True
+            else:
+                status = "upcoming"
+
+            # Generate YouTube search links
+            search_query = urllib.parse.quote_plus(name)
+            videos = [
+                {
+                    "label": f"{name} – Explained",
+                    "url": f"https://www.youtube.com/results?search_query={search_query}+explained",
+                },
+                {
+                    "label": f"{name} – Tutorial",
+                    "url": f"https://www.youtube.com/results?search_query={search_query}+tutorial",
+                },
+                {
+                    "label": f"{name} – Lecture",
+                    "url": f"https://www.youtube.com/results?search_query={search_query}+lecture",
+                },
+            ]
+
+            topics.append({
+                "id": concept_id,
+                "step": idx + 1,
+                "name": name,
+                "desc": desc,
+                "status": status,
+                "mastery_pct": mastery_pct,
+                "videos": videos,
+            })
+
+        return {"topics": topics}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
