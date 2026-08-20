@@ -38,7 +38,8 @@ class StudentManager:
 
         query = """
         MATCH (s:Student {id: $student_id})
-        MATCH (c:Concept {id: $concept_id})
+        MATCH (c:Concept)
+        WHERE c.id = $concept_id OR toLower(c.name) = toLower($concept_id)
         MERGE (s)-[r:HAS_MASTERY_OF]->(c)
         SET r.score = $score
         """
