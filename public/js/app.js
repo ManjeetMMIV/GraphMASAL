@@ -25,6 +25,7 @@ const appShell          = document.getElementById('appShell');
 const onboardingForm    = document.getElementById('onboardingForm');
 const onboardStudentId  = document.getElementById('onboardStudentId');
 const onboardTopic      = document.getElementById('onboardTopic');
+const onboardPace       = document.getElementById('onboardPace');
 const startBtn          = document.getElementById('startBtn');
 
 const headerTopic       = document.getElementById('headerTopic');
@@ -89,6 +90,34 @@ function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// Pace picker toggle logic
+document.querySelectorAll('.pace-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const pace = btn.dataset.pace;
+        onboardPace.value = pace;
+        document.querySelectorAll('.pace-btn').forEach(b => {
+            b.className = b.className
+                .replace(/border-2 border-primary bg-primary\/5 text-primary/g, 'border border-border bg-surface text-slate-600')
+                .replace(/border border-amber-400 bg-amber-50 text-amber-700/g, 'border border-border bg-surface text-slate-600')
+                .replace(/border border-emerald-400 bg-emerald-50 text-emerald-700/g, 'border border-border bg-surface text-slate-600');
+            b.style.boxShadow = '';
+            b.querySelector('span:nth-child(3)').className = 'text-[9px] font-normal text-slate-400 text-center leading-tight';
+        });
+        if (pace === 'slow') {
+            btn.classList.replace('border', 'border');
+            btn.classList.add('border-amber-400', 'bg-amber-50', 'text-amber-700');
+            btn.querySelector('span:nth-child(3)').className = 'text-[9px] font-normal text-amber-500 text-center leading-tight';
+        } else if (pace === 'normal') {
+            btn.classList.add('border-2', 'border-primary', 'bg-primary/5', 'text-primary');
+            btn.style.boxShadow = '0 0 0 2px rgba(99,102,241,0.15)';
+            btn.querySelector('span:nth-child(3)').className = 'text-[9px] font-normal text-indigo-400 text-center leading-tight';
+        } else if (pace === 'fast') {
+            btn.classList.add('border-emerald-400', 'bg-emerald-50', 'text-emerald-700');
+            btn.querySelector('span:nth-child(3)').className = 'text-[9px] font-normal text-emerald-500 text-center leading-tight';
+        }
+    });
+});
+
 // ------------------------------------------------------------------ //
 // Onboarding
 // ------------------------------------------------------------------ //
@@ -106,7 +135,11 @@ onboardingForm.addEventListener('submit', async (e) => {
         const res = await fetch('/api/sessions/new', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ student_id: studentId, topic }),
+            body: JSON.stringify({
+                student_id: studentId,
+                topic,
+                learning_pace: onboardPace?.value || 'normal',
+            }),
         });
         if (!res.ok) throw new Error('Session creation failed');
         const session = await res.json();

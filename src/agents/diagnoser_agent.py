@@ -17,19 +17,39 @@ def diagnoser_node(state: AgentState):
     # binding the search and update tools directly to it.
     llm = get_chat_model(temperature=0)
     llm_with_tools = llm.bind_tools([hybrid_retrieval_tool, update_mastery_tool])
-    
+    pace = state.get("learning_pace", "normal")
+    _PACE_SENSITIVITY = {
+        "slow": (
+            "SENSITIVITY: This student is on a SLOW pace. Only flag a misconception if the student "
+            "demonstrates a SEVERE, fundamental misunderstanding. Incomplete or partially correct answers "
+            "are acceptable \u2014 DO NOT reset their mastery for minor errors. Be lenient and supportive."
+        ),
+        "normal": (
+            "SENSITIVITY: Flag misconceptions when the student shows a clear misunderstanding of a core concept."
+        ),
+        "fast": (
+            "SENSITIVITY: This student is on a FAST pace. Be strict \u2014 flag even partial misconceptions "
+            "and incorrect assumptions. Any meaningfully wrong answer should trigger a mastery reset "
+            "so they fully consolidate before advancing."
+        ),
+    }
+    pace_sensitivity = _PACE_SENSITIVITY.get(pace, _PACE_SENSITIVITY["normal"])
+
     system_prompt = f"""
     You are the Diagnostic Engine of an AI Tutor.
     The current student's ID is: {state['student_id']}.
     Prior long-term memory for this student:
     {state.get('long_term_memory', 'No relevant long-term memory found.')}
-    
+
+    {pace_sensitivity}
+
     Your job is to analyze the student's input. 
     If the student demonstrates a severe misunderstanding of a concept, or explicitly states they failed on a topic (e.g., "Paging", "File Systems", "Locks"), you MUST invoke the `update_mastery_tool`.
     
     Pass the concept ID as a lowercased, hyphenated string (e.g., 'paging', 'file-systems', 'locks') and set the mastery score to 0.0.
     DO NOT just search for the concept. You MUST invoke `update_mastery_tool`.
     """
+
     
     # Include prior conversation so diagnoser can detect misconceptions in context
     messages = [SystemMessage(content=system_prompt)]

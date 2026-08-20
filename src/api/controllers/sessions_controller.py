@@ -13,11 +13,16 @@ from src.storage.qa_store import (
 class NewSessionRequest(BaseModel):
     student_id: str
     topic: str
+    learning_pace: str = "normal"  # 'slow', 'normal', or 'fast'
 
 def create_new_session(req: NewSessionRequest):
     """Create a new chat session and ensure the student exists in Neo4j."""
     bootstrap_student(req.student_id)
-    session = create_session(student_id=req.student_id, topic=req.topic)
+    session = create_session(
+        student_id=req.student_id,
+        topic=req.topic,
+        learning_pace=req.learning_pace,
+    )
     return session
 
 def list_sessions(student_id: str):

@@ -52,6 +52,34 @@ def tutor_node(state: AgentState):
     student_id = state["student_id"]
     user_input = state["user_input"]
     chat_history = state.get("chat_history", [])
+    pace = state.get("learning_pace", "normal")
+
+    _PACE_INSTRUCTIONS = {
+        "slow": """
+PACE INSTRUCTIONS — this student prefers a SLOW, deliberate learning pace:
+- Use very simple, everyday language. Avoid jargon unless you define it first.
+- Break each concept into 2-3 tiny digestible pieces. Never explain more than one idea per paragraph.
+- Provide TWO concrete examples per concept (one familiar analogy + one technical).
+- Always end with a warm, encouraging sentence before your Quick Check question.
+- If the student answers incorrectly, re-explain using a completely fresh analogy — never just repeat the same explanation.
+- Keep your total response SHORT (under 200 words). One concept per response only.""",
+
+        "normal": """
+PACE INSTRUCTIONS — this student prefers a NORMAL learning pace:
+- Use clear language with appropriate technical terms.
+- One concrete example per concept is sufficient.
+- Encourage but stay focused on the content.""",
+
+        "fast": """
+PACE INSTRUCTIONS — this student prefers a FAST learning pace:
+- Skip basic preamble. Get straight to the core idea in one sentence.
+- Assume they understand standard terminology — no need to define basics.
+- ONE crisp example maximum, then immediately ask your check question.
+- If they answer the check question correctly, DO NOT pause — immediately begin teaching the NEXT concept in the same response.
+- Use a direct, efficient tone. Cut all filler phrases like 'Great question!' or 'That's correct!'.
+- Aim for dense, information-packed responses.""",
+    }
+    pace_block = _PACE_INSTRUCTIONS.get(pace, _PACE_INSTRUCTIONS["normal"])
 
     # Determine if this is a "start/continue" signal or an actual question
     START_SIGNALS = {"lets start", "let's start", "yes", "ok", "okay", "sure",
@@ -121,7 +149,7 @@ def tutor_node(state: AgentState):
         affected = state.get("affected_concepts", [])
         paths = "\n".join(state.get("learning_paths", []))
         system_prompt = f"""You are an expert, structured AI tutor. The student is: {student_id}.
-
+{pace_block}
 Long-term memory: {memory_context}
 
 The student has a misconception about: {affected}.
@@ -152,7 +180,7 @@ Your CURRENT concept to teach is: **{learning_paths[0]}**
 After teaching it and checking understanding, move to the next concept in the list.
 """
         system_prompt = f"""You are an expert, proactive AI tutor. The student is: {student_id}.
-
+{pace_block}
 Long-term memory: {memory_context}
 Knowledge retrieved from the Knowledge Graph: {retrieval_context}
 {plan_section}

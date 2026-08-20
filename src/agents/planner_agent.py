@@ -16,6 +16,7 @@ def planner_node(state: AgentState):
 
     active_plan = state.get("active_plan", [])
     misconception = state.get("misconception_detected", False)
+    pace = state.get("learning_pace", "normal")
 
     # Mode 1: Misconception remediation (original behavior)
     if misconception:
@@ -27,6 +28,11 @@ def planner_node(state: AgentState):
         except Exception as e:
             logging.warning(f"Planner: generate_paths_tool failed: {e}")
             paths_list = []
+        # Slow pace: teach all remediation concepts; Fast: only the directly failing one
+        if pace == "slow" and paths_list:
+            pass  # use all paths
+        elif pace == "fast" and affected:
+            paths_list = [affected[0]] if affected else paths_list[:1]
         print(f"Planner generated {len(paths_list)} remediation paths.")
         return {"learning_paths": paths_list}
 
@@ -67,11 +73,21 @@ def planner_node(state: AgentState):
             if not unmastered_ids:
                 print("Planner: All concepts in the active plan are mastered!")
                 return {"learning_paths": ["The student has mastered the entire active plan! Congratulations!"]}
-                
-            # Take the next up to 10 unmastered concepts
-            next_ids = unmastered_ids[:10]
+
+            # Pace controls how many concepts are queued at once:
+            # Slow  → 3 concepts (smaller chunks, less overwhelming)
+            # Normal → 10 concepts (default)
+            # Fast  → 5 concepts but starts from the most advanced unmastered
+            if pace == "slow":
+                next_ids = unmastered_ids[:3]
+            elif pace == "fast":
+                # Skip to the furthest unmastered concept (reverse order)
+                next_ids = unmastered_ids[-5:]
+            else:
+                next_ids = unmastered_ids[:10]
+
             plan_names = [id_to_name.get(cid, cid) for cid in next_ids]
-            print(f"Planner active_plan progression → next unmastered: {plan_names}")
+            print(f"Planner ({pace} pace) active_plan → next unmastered: {plan_names}")
             return {"learning_paths": plan_names}
         except Exception as e:
             logging.warning(f"Planner: failed to resolve and filter concept names: {e}")

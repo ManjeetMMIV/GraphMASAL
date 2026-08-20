@@ -28,12 +28,14 @@ class ChatRequest(BaseModel):
 
 async def chat_stream_logic(request: Request, body: ChatRequest):
     active_plan: list = []
+    learning_pace: str = "normal"
     if body.session_id:
         try:
             from src.storage.qa_store import get_db as _qa_get_db
             session_doc = _qa_get_db()["sessions"].find_one({"session_id": body.session_id})
             if session_doc:
                 active_plan = session_doc.get("active_plan", [])
+                learning_pace = session_doc.get("learning_pace", "normal")
         except Exception:
             pass 
 
@@ -51,6 +53,7 @@ async def chat_stream_logic(request: Request, body: ChatRequest):
         "final_response": "",
         "active_plan": active_plan,
         "topic": body.topic,
+        "learning_pace": learning_pace,
     }
 
     run_cfg = {

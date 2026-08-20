@@ -63,7 +63,7 @@ def init_db() -> None:
 # Session Management
 # --------------------------------------------------------------------------- #
 
-def create_session(*, student_id: str, topic: str) -> Dict[str, Any]:
+def create_session(*, student_id: str, topic: str, learning_pace: str = "normal") -> Dict[str, Any]:
     """Create a new chat session document. Returns the session dict."""
     sessions = _sessions_coll()
     session_id = str(uuid.uuid4())
@@ -72,6 +72,7 @@ def create_session(*, student_id: str, topic: str) -> Dict[str, Any]:
         "session_id": session_id,
         "student_id": student_id,
         "topic": topic,
+        "learning_pace": learning_pace,
         "created_at": now,
         "updated_at": now,
     }

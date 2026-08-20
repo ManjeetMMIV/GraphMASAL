@@ -39,3 +39,6 @@ class AgentState(TypedDict):
 
     # The student's selected learning plan (ordered list of concept IDs)
     active_plan: List[str]
+
+    # The student's preferred learning pace: 'slow', 'normal', or 'fast'
+    learning_pace: str
