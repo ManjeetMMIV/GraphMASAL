@@ -658,9 +658,10 @@ chatForm.addEventListener('submit', async (e) => {
             bubbleContent.innerHTML = marked.parse('Workflow completed with no specific output.');
         }
 
-        // Refresh sidebar to update turn count
+        // Refresh sidebar + graph after turn completes
         loadSessions();
         updateQuickPlanDropdown();
+        refreshGraphAfterTurn();  // silently re-fetches mastery, updates graph colors live
 
     } catch (err) {
         bubbleContent.innerHTML = `<span class="text-red-400">Connection error. Is the server running?</span>`;
@@ -930,6 +931,12 @@ clearDocsBtn.addEventListener('click', async () => {
 // ------------------------------------------------------------------ //
 // Roadmap (vis.js interactive network graph)
 // ------------------------------------------------------------------ //
+
+// Keep references to the live vis.js DataSets so we can update in-place
+let _visNodesDataSet = null;
+let _visEdgesDataSet = null;
+let _lastMasteryMap  = {};  // snapshot after last turn — used to detect changes
+
 function showRoadmap() {
     roadmapMeta.textContent = 'Fetching knowledge graph…';
     mermaidContainer.innerHTML = `
@@ -1099,12 +1106,16 @@ function showRoadmap() {
 
             // Render vis.js graph
             const container = document.getElementById('visGraphContainer');
+            // Create DataSets and store refs so refreshGraphAfterTurn() can update in-place
+            _visNodesDataSet = new vis.DataSet(visNodes);
+            _visEdgesDataSet = new vis.DataSet(visEdges);
+            // Snapshot mastery for change detection
+            _lastMasteryMap = {};
+            allNodes.forEach(n => { _lastMasteryMap[n.id] = n.mastery; });
+
             const network = new vis.Network(
                 container,
-                {
-                    nodes: new vis.DataSet(visNodes),
-                    edges: new vis.DataSet(visEdges)
-                },
+                { nodes: _visNodesDataSet, edges: _visEdgesDataSet },
                 {
                     layout: { improvedLayout: true },
                     physics: {
@@ -1150,6 +1161,121 @@ function hideRoadmap() {
 showRoadmapBtn.addEventListener('click', showRoadmap);
 closeRoadmapModal.addEventListener('click', hideRoadmap);
 roadmapModal.addEventListener('click', e => { if (e.target === roadmapModal) hideRoadmap(); });
+
+/**
+ * Called silently after every chat turn completes.
+ * Re-fetches mastery scores and updates node colors in the live vis.js graph.
+ * Shows a toast if any concepts were newly mastered.
+ */
+async function refreshGraphAfterTurn() {
+    if (!state.studentId || !state.sessionId) return;
+    try {
+        const res = await fetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`);
+        const data = await res.json();
+        const freshNodes = data.nodes || [];
+        const activePlan = data.active_plan || [];
+        const currentConcept = data.current_concept || null;
+        const justification = data.justification || {};
+
+        // Detect newly mastered concepts
+        const newlyMastered = [];
+        freshNodes.forEach(n => {
+            const prev = _lastMasteryMap[n.id] ?? 0;
+            if (n.mastery >= 0.8 && prev < 0.8) newlyMastered.push(n.name);
+            _lastMasteryMap[n.id] = n.mastery;
+        });
+
+        // Update vis.js node colors in-place if graph is open
+        if (_visNodesDataSet && freshNodes.length > 0) {
+            const activeSet = new Set(activePlan);
+            const stateColors = {
+                mastered: { bg: '#d1fae5', border: '#10b981', font: '#065f46' },
+                current:  { bg: '#fef3c7', border: '#f59e0b', font: '#92400e' },
+                upcoming: { bg: '#ede9fe', border: '#6366f1', font: '#3730a3' },
+                offplan:  { bg: '#f8fafc', border: '#cbd5e1', font: '#64748b' },
+            };
+            const updates = freshNodes.map(n => {
+                let nodeState;
+                if (!activeSet.has(n.id)) nodeState = 'offplan';
+                else if (n.mastery >= 0.8)  nodeState = 'mastered';
+                else if (n.id === currentConcept) nodeState = 'current';
+                else nodeState = 'upcoming';
+                const c = stateColors[nodeState];
+                const masteryPct = Math.round((n.mastery || 0) * 100);
+                const stateLabel = nodeState === 'mastered' ? '✅ Mastered'
+                    : nodeState === 'current'  ? '🎯 Currently Learning'
+                    : nodeState === 'upcoming' ? '🔵 Upcoming' : '⚪ Related';
+                return {
+                    id: n.id,
+                    color: { background: c.bg, border: c.border, highlight: { background: c.bg, border: c.border } },
+                    font: { color: c.font, size: nodeState === 'current' ? 15 : 12, bold: nodeState === 'current' },
+                    borderWidth: nodeState === 'current' ? 3 : (nodeState !== 'offplan' ? 2 : 1),
+                    size: nodeState === 'current' ? 32 : (nodeState !== 'offplan' ? 26 : 20),
+                    title: `${n.name}\n${stateLabel} · Mastery: ${masteryPct}%\n\n${n.desc || ''}`,
+                };
+            });
+            _visNodesDataSet.update(updates);
+
+            // Update justification banner if it exists in the DOM
+            const banner = document.querySelector('#visGraphContainer')?.previousElementSibling?.previousElementSibling;
+            if (banner && justification.reason) {
+                const reasonSpan = banner.querySelector('span:nth-child(2)');
+                if (reasonSpan) reasonSpan.textContent = justification.reason;
+                const masteredSpan = banner.querySelector('span[style*="emerald"]');
+                if (masteredSpan) masteredSpan.textContent = `✅ ${justification.mastered_count ?? 0} mastered`;
+            }
+        }
+
+        // Also refresh the sidebar Up Next list
+        updateQuickPlanDropdown();
+
+        // Toast notification if mastery changed
+        if (newlyMastered.length > 0) {
+            showMasteryToast(newlyMastered, justification);
+        }
+
+    } catch (err) {
+        console.warn('Background graph refresh failed:', err);
+    }
+}
+
+function showMasteryToast(conceptNames, justification) {
+    document.querySelectorAll('.mastery-toast').forEach(t => t.remove());
+    const toast = document.createElement('div');
+    toast.className = 'mastery-toast';
+    toast.style.cssText = `
+        position:fixed; bottom:24px; right:24px; z-index:9999;
+        background:linear-gradient(135deg,#064e3b,#065f46);
+        color:white; border-radius:16px; padding:16px 20px;
+        box-shadow:0 20px 40px -8px rgba(16,185,129,0.4);
+        display:flex; flex-direction:column; gap:6px;
+        max-width:320px; animation:slideInRight 0.4s ease;
+        border:1px solid rgba(52,211,153,0.3);
+    `;
+    const nextConcept = justification?.current_concept
+        ? `<div style="font-size:11px;color:#6ee7b7;margin-top:2px;">▶ Now learning: ${escapeHtml(justification.reason?.split("'")[1] || 'next concept')}</div>`
+        : '';
+    toast.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:1.2rem;">🎉</span>
+            <div>
+                <div style="font-weight:700;font-size:13px;">Concept${conceptNames.length > 1 ? 's' : ''} Mastered!</div>
+                <div style="font-size:11px;color:#a7f3d0;">${conceptNames.map(escapeHtml).join(', ')}</div>
+            </div>
+        </div>
+        <div style="font-size:11px;color:#6ee7b7;">📈 Knowledge graph updated · Plan re-sequenced</div>
+        ${nextConcept}
+    `;
+    if (!document.getElementById('masteryToastStyle')) {
+        const s = document.createElement('style');
+        s.id = 'masteryToastStyle';
+        s.textContent = '@keyframes slideInRight{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}';
+        document.head.appendChild(s);
+    }
+    document.body.appendChild(toast);
+    setTimeout(() => toast.style.cssText += 'transition:opacity 0.6s;opacity:0;', 4000);
+    setTimeout(() => toast.remove(), 4700);
+}
 
 // ------------------------------------------------------------------ //
 // Video Library
