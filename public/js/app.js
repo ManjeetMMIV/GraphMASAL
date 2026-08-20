@@ -488,7 +488,13 @@ async function updateQuickPlanDropdown() {
         }
 
         const nodeMap = {};
-        allNodes.forEach(n => nodeMap[n.id] = n);
+        allNodes.forEach(n => {
+            nodeMap[n.id] = n;
+            // Initialize mastery baseline if it's not set, so we don't spam notifications on first turn
+            if (typeof _lastMasteryMap !== 'undefined' && _lastMasteryMap[n.id] === undefined) {
+                _lastMasteryMap[n.id] = n.mastery;
+            }
+        });
 
         let html = '';
         activePlan.forEach((id, idx) => {

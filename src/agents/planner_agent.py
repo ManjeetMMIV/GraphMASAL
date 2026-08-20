@@ -81,8 +81,8 @@ def planner_node(state: AgentState):
             if pace == "slow":
                 next_ids = unmastered_ids[:3]
             elif pace == "fast":
-                # Skip to the furthest unmastered concept (reverse order)
-                next_ids = unmastered_ids[-5:]
+                # Give 5 concepts starting from the very next one (don't skip ahead!)
+                next_ids = unmastered_ids[:5]
             else:
                 next_ids = unmastered_ids[:10]
 
