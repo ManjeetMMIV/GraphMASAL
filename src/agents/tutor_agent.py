@@ -88,10 +88,32 @@ PACE INSTRUCTIONS — this student prefers a FAST learning pace:
     is_continuation = user_input.strip().lower() in START_SIGNALS
 
     # ------------------------------------------------------------------ #
-    # Build retrieval query
+    # Build retrieval query + concept ID mapping for the LLM
     # ------------------------------------------------------------------ #
     active_plan = state.get("active_plan", [])
     next_concept_name = None
+    concept_id_map = {}  # name → id mapping so LLM can pass correct IDs to tools
+
+    # Pre-fetch concept ID → name mapping for the entire active plan
+    if active_plan:
+        try:
+            import os as _os
+            from src.graph.db import Neo4jConnection as _Neo4jConn
+            _conn = _Neo4jConn(
+                _os.getenv("NEO4J_URI", ""),
+                _os.getenv("NEO4J_USERNAME", ""),
+                _os.getenv("NEO4J_PASSWORD", ""),
+            )
+            rows = _conn.query(
+                "UNWIND $ids AS cid MATCH (c:Concept {id: cid}) RETURN c.id AS id, c.name AS name, c.description AS desc",
+                {"ids": active_plan}
+            )
+            _conn.close()
+            for r in (rows or []):
+                concept_id_map[r["name"]] = r["id"]
+        except Exception as _e:
+            import logging as _logging
+            _logging.warning(f"Tutor: could not load concept ID map: {_e}")
 
     if state.get("misconception_detected", False):
         affected = state.get("affected_concepts", [])
@@ -100,29 +122,13 @@ PACE INSTRUCTIONS — this student prefers a FAST learning pace:
     elif active_plan and (is_continuation or not chat_history):
         # Follow the selected plan — teach the first concept
         next_concept_id = active_plan[0]
-        try:
-            import os as _os
-            from src.graph.db import Neo4jConnection as _Neo4jConn
-            import logging as _logging
-            _conn = _Neo4jConn(
-                _os.getenv("NEO4J_URI", ""),
-                _os.getenv("NEO4J_USERNAME", ""),
-                _os.getenv("NEO4J_PASSWORD", ""),
-            )
-            rows = _conn.query(
-                "MATCH (c:Concept {id: $id}) RETURN c.name AS name, c.description AS desc LIMIT 1",
-                {"id": next_concept_id}
-            )
-            _conn.close()
-            if rows:
-                next_concept_name = rows[0]["name"]
-                next_concept_desc = rows[0].get("desc", "")
-                query = f"{next_concept_name}. {next_concept_desc}"
-            else:
-                query = next_concept_id
-        except Exception as _e:
-            import logging as _logging
-            _logging.warning(f"Tutor: could not look up plan concept: {_e}")
+        # Look up the name from our pre-fetched map
+        row = next((r for r in (rows or []) if r["id"] == next_concept_id), None)
+        if row:
+            next_concept_name = row["name"]
+            next_concept_desc = row.get("desc", "")
+            query = f"{next_concept_name}. {next_concept_desc}"
+        else:
             query = next_concept_id
 
     elif is_continuation and chat_history:
@@ -171,6 +177,7 @@ TEACHING RULES — follow these strictly:
     else:
         learning_paths = state.get("learning_paths", [])
         plan_section = ""
+        concept_id_reference = ""
         if learning_paths:
             plan_section = f"""
 ACTIVE LEARNING PLAN — teach these concepts IN ORDER, one per response:
@@ -179,15 +186,30 @@ ACTIVE LEARNING PLAN — teach these concepts IN ORDER, one per response:
 Your CURRENT concept to teach is: **{learning_paths[0]}**
 After teaching it and checking understanding, move to the next concept in the list.
 """
+            # Build concept_id reference table for the LLM
+            if concept_id_map:
+                id_lines = []
+                for name in learning_paths:
+                    cid = concept_id_map.get(name)
+                    if cid:
+                        id_lines.append(f"  - \"{name}\" → concept_id = \"{cid}\"")
+                if id_lines:
+                    concept_id_reference = f"""
+
+CONCEPT ID REFERENCE — when calling `update_mastery_tool`, you MUST use the exact concept_id from this table:
+{chr(10).join(id_lines)}
+Do NOT pass display names like "What is Motion?". Pass the concept_id like "what-is-motion".
+"""
+
         system_prompt = f"""You are an expert, proactive AI tutor. The student is: {student_id}.
 {pace_block}
 Long-term memory: {memory_context}
 Knowledge retrieved from the Knowledge Graph: {retrieval_context}
-{plan_section}
+{plan_section}{concept_id_reference}
 TEACHING RULES — follow these strictly at ALL TIMES:
 1. You are a TEACHER, not a chatbot. When the student signals they are ready (says "yes", "ok", "lets start", "next", etc.), DO NOT ask them what topic to start with. IMMEDIATELY begin teaching the next logical piece of content.
 2. If an ACTIVE LEARNING PLAN is shown above, always teach the stated CURRENT concept first. Do not skip or reorder.
-3. If the student is answering your previous 'Quick Check' question, EVALUATE their answer. If they are CORRECT, you MUST use the `update_mastery_tool` to set their mastery score to 1.0 for that concept, then congratulate them and move on to the next concept. If incorrect, correct them gently without updating mastery.
+3. If the student is answering your previous 'Quick Check' question, EVALUATE their answer. If they are CORRECT, you MUST use the `update_mastery_tool` to set their mastery score to 1.0 for that concept. Use the EXACT concept_id from the CONCEPT ID REFERENCE table above — never use display names. Then congratulate them and move on to the next concept. If incorrect, correct them gently without updating mastery.
 4. For every response where you introduce a new concept, TEACH something concrete using this structure:
    ### [Topic/Concept Name]
    **What it is:** [Clear one-sentence definition]
@@ -237,20 +259,17 @@ TEACHING RULES — follow these strictly at ALL TIMES:
     # We track the concept name from learning_paths[0] or fall back to the
     # heading extracted from the response itself.
     # ------------------------------------------------------------------ #
-    is_new_concept_turn = final_content and "### " in final_content
-    if is_new_concept_turn:
-        # Try to use the current planned concept name for precision
-        concept_for_video = (
-            state.get("learning_paths", [None])[0]  # planner-resolved name
-            or next_concept_name                    # looked up earlier
-        )
-        if not concept_for_video:
-            # Fall back: extract the first ### heading from the response
-            for line in final_content.splitlines():
-                stripped = line.strip()
-                if stripped.startswith("### "):
-                    concept_for_video = stripped[4:].strip()
-                    break
+    # Extract ALL ### headings from the response and only add videos for the LAST one
+    # (the last heading is always the NEW concept being taught, not a previously mastered one)
+    if final_content and "### " in final_content:
+        headings = []
+        for line in final_content.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("### "):
+                headings.append(stripped[4:].strip())
+        
+        # Use the LAST heading — that's the concept being introduced now
+        concept_for_video = headings[-1] if headings else None
         if concept_for_video:
             print(f"Tutor: appending YouTube suggestions for '{concept_for_video}'")
             final_content = final_content + _make_youtube_links(concept_for_video)
