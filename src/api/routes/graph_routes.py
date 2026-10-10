@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from src.api.dependencies import get_current_user
 from src.api.controllers.graph_controller import (
     ComputePathRequest,
     SelectPlanRequest,
@@ -10,7 +11,7 @@ from src.api.controllers.graph_controller import (
     get_videos_logic,
 )
 
-router = APIRouter(tags=["Graph"])
+router = APIRouter(tags=["Graph"], dependencies=[Depends(get_current_user)])
 
 @router.get("/api/roadmap")
 async def get_roadmap(student_id: str, session_id: str = ""):

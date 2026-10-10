@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from src.api.dependencies import require_role
 from src.api.controllers.teacher_controller import (
     AddStudentRequest,
     list_teacher_students_logic,
@@ -7,7 +8,7 @@ from src.api.controllers.teacher_controller import (
     get_student_progress_logic
 )
 
-router = APIRouter(prefix="/api/teacher", tags=["Teacher"])
+router = APIRouter(prefix="/api/teacher", tags=["Teacher"], dependencies=[Depends(require_role("teacher"))])
 
 @router.get("/{teacher_id}/students")
 async def list_teacher_students(teacher_id: str):

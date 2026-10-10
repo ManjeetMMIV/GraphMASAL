@@ -15,6 +15,7 @@ const state = {
     teacherId: '',
     monitoredStudents: [],
     selectedStudentId: '',
+    authToken: sessionStorage.getItem('authToken') || '',
 };
 
 // ------------------------------------------------------------------ //
@@ -90,6 +91,23 @@ function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/**
+ * Drop-in fetch wrapper that automatically attaches the Bearer token.
+ * For FormData bodies the Content-Type header is omitted so the browser sets
+ * the correct multipart boundary automatically.
+ */
+function authFetch(url, options = {}) {
+    const headers = { ...(options.headers || {}) };
+    if (state.authToken) {
+        headers['Authorization'] = `Bearer ${state.authToken}`;
+    }
+    // Don't set Content-Type for FormData — let the browser handle it
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+    }
+    return fetch(url, { ...options, headers });
+}
+
 // Pace picker toggle logic
 document.querySelectorAll('.pace-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -119,22 +137,60 @@ document.querySelectorAll('.pace-btn').forEach(btn => {
 });
 
 // ------------------------------------------------------------------ //
-// Onboarding
+// Onboarding — Auth state (login vs register toggle)
 // ------------------------------------------------------------------ //
+let _studentAuthMode = 'login'; // 'login' | 'register'
+const studentRegisterToggle = document.getElementById('studentRegisterToggle');
+const startBtnLabel         = document.getElementById('startBtnLabel');
+const studentAuthError      = document.getElementById('studentAuthError');
+const onboardPassword       = document.getElementById('onboardPassword');
+
+studentRegisterToggle.addEventListener('click', () => {
+    _studentAuthMode = _studentAuthMode === 'login' ? 'register' : 'login';
+    if (_studentAuthMode === 'register') {
+        startBtnLabel.textContent = 'Register & Start Learning';
+        studentRegisterToggle.textContent = 'Already have an account? Sign in';
+    } else {
+        startBtnLabel.textContent = 'Sign In & Start Learning';
+        studentRegisterToggle.textContent = 'Register here';
+    }
+    studentAuthError.classList.add('hidden');
+});
+
 onboardingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const studentId = onboardStudentId.value.trim();
+    const password  = onboardPassword.value;
     const topic     = onboardTopic.value.trim();
-    if (!studentId || !topic) return;
+    if (!studentId || !password || !topic) return;
 
     startBtn.disabled = true;
-    startBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Starting…';
+    startBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Please wait…';
+    studentAuthError.classList.add('hidden');
 
     try {
-        // 1. Create session
-        const res = await fetch('/api/sessions/new', {
+        // 1. Authenticate (login or register)
+        const authEndpoint = _studentAuthMode === 'register' ? '/api/auth/register' : '/api/auth/login';
+        const authRes = await fetch(authEndpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: studentId, password, role: 'student' }),
+        });
+        const authData = await authRes.json();
+        if (!authRes.ok) {
+            const msg = authData.detail || 'Authentication failed';
+            studentAuthError.textContent = msg;
+            studentAuthError.classList.remove('hidden');
+            return;
+        }
+
+        // 2. Store token
+        state.authToken = authData.token;
+        sessionStorage.setItem('authToken', authData.token);
+
+        // 3. Create session
+        const res = await authFetch('/api/sessions/new', {
+            method: 'POST',
             body: JSON.stringify({
                 student_id: studentId,
                 topic,
@@ -149,7 +205,7 @@ onboardingForm.addEventListener('submit', async (e) => {
         state.sessionId = session.session_id;
         state.chatHistory = [];
 
-        // 2. Launch the app directly — the user can choose a learning plan when they're ready
+        // 4. Launch the app
         launchApp();
         addWelcomeMessage(topic);
         loadSessions();
@@ -157,9 +213,12 @@ onboardingForm.addEventListener('submit', async (e) => {
         updateQuickPlanDropdown();
 
     } catch (err) {
+        studentAuthError.textContent = 'Could not connect to backend. Is the server running?';
+        studentAuthError.classList.remove('hidden');
+    } finally {
         startBtn.disabled = false;
-        startBtn.innerHTML = '<i class="fa-solid fa-rocket"></i> Start Learning';
-        alert('Could not connect to backend. Is the server running?');
+        startBtnLabel.textContent = _studentAuthMode === 'register' ? 'Register & Start Learning' : 'Sign In & Start Learning';
+        startBtn.querySelector('i').className = 'fa-solid fa-rocket';
     }
 });
 
@@ -245,7 +304,7 @@ function showSourceSinkModal(concepts) {
 
         try {
             // 1. Run MSMS
-            const msmsRes = await fetch('/api/compute_path', {
+            const msmsRes = await authFetch('/api/compute_path', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -258,7 +317,7 @@ function showSourceSinkModal(concepts) {
             const conceptSequence = pathData.path || [];
 
             // 2. Save Plan to Session
-            await fetch('/api/select_plan', {
+            await authFetch('/api/select_plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -323,7 +382,7 @@ async function startNewChat() {
     if (!topic || !topic.trim()) return;
 
     try {
-        const res = await fetch('/api/sessions/new', {
+        const res = await authFetch('/api/sessions/new', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ student_id: state.studentId, topic: topic.trim() }),
@@ -366,7 +425,7 @@ Your conversation history for this topic will be saved automatically — you can
 async function loadSessions() {
     if (!state.studentId) return;
     try {
-        const res = await fetch(`/api/sessions?student_id=${encodeURIComponent(state.studentId)}`);
+        const res = await authFetch(`/api/sessions?student_id=${encodeURIComponent(state.studentId)}`);
         const data = await res.json();
         renderSessionList(data.sessions || []);
     } catch (err) {
@@ -410,7 +469,7 @@ async function deleteSession(sessionId) {
 
 
     try {
-        const res = await fetch(`/api/session/${sessionId}`, { method: 'DELETE' });
+        const res = await authFetch(`/api/session/${sessionId}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed to delete session');
 
         if (state.sessionId === sessionId) {
@@ -432,7 +491,7 @@ async function loadSession(sessionId, topic) {
     if (sessionId === state.sessionId && !confirm('Reload this session from history?')) return;
 
     try {
-        const res = await fetch(`/api/session/${sessionId}`);
+        const res = await authFetch(`/api/session/${sessionId}`);
         const data = await res.json();
 
         state.sessionId = sessionId;
@@ -475,7 +534,7 @@ async function updateQuickPlanDropdown() {
     }
 
     try {
-        const res = await fetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`);
+        const res = await authFetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`);
         const data = await res.json();
         
         const activePlan = data.active_plan || [];
@@ -598,7 +657,7 @@ chatForm.addEventListener('submit', async (e) => {
     updateAgentBar('router');
 
     try {
-        const res = await fetch('/api/chat', {
+        const res = await authFetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -768,7 +827,7 @@ async function uploadFile(file) {
         formData.append('file', file);
 
         try {
-            const res = await fetch('/api/upload_pdf', { method: 'POST', body: formData });
+            const res = await authFetch('/api/upload_pdf', { method: 'POST', body: formData });
             const data = await res.json();
 
         if (res.ok) {
@@ -793,7 +852,7 @@ async function uploadFile(file) {
 async function loadDocuments() {
     try {
         const stdId = window.studentId || state.studentId || 'default-student';
-        const res = await fetch(`/api/documents?student_id=${encodeURIComponent(stdId)}`);
+        const res = await authFetch(`/api/documents?student_id=${encodeURIComponent(stdId)}`);
         const data = await res.json();
         renderDocumentList(data.documents || []);
     } catch (err) {
@@ -832,7 +891,7 @@ if (extractConceptsBtn) {
         extractConceptsBtn.disabled = true;
         try {
             const stdId = window.studentId || state.studentId || 'default-student';
-            const res = await fetch('/api/extract_concepts', { 
+            const res = await authFetch('/api/extract_concepts', { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ student_id: stdId })
@@ -868,12 +927,11 @@ if (choosePlanBtn) {
         choosePlanBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Loading…';
         try {
             // First, auto-extract concepts using the correct studentId
-            await fetch('/api/extract_concepts', {
+            await authFetch('/api/extract_concepts', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ student_id: state.studentId })
             });
-            const res = await fetch(`/api/concepts?student_id=${encodeURIComponent(state.studentId)}`);
+            const res = await authFetch(`/api/concepts?student_id=${encodeURIComponent(state.studentId)}`);
             const data = await res.json();
             const concepts = data.concepts || [];
             // Always show the modal — if no concepts, it shows a helpful message inside
@@ -894,7 +952,7 @@ if (choosePlanBtn) {
 resetDataBtn.addEventListener('click', async () => {
     if (!confirm(`Reset all data for "${state.studentId}"? This cannot be undone.`)) return;
     try {
-        const res = await fetch('/api/reset', {
+        const res = await authFetch('/api/reset', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ student_id: state.studentId }),
@@ -918,7 +976,7 @@ clearDocsBtn.addEventListener('click', async () => {
     clearDocsBtn.disabled = true;
     clearDocsBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Deleting…';
     try {
-        const res = await fetch(`/api/documents?student_id=${encodeURIComponent(stdId)}`, { method: 'DELETE' });
+        const res = await authFetch(`/api/documents?student_id=${encodeURIComponent(stdId)}`, { method: 'DELETE' });
         const data = await res.json();
         if (res.ok) {
             loadDocuments();
@@ -959,7 +1017,7 @@ function showRoadmap() {
         return;
     }
 
-    fetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`)
+    authFetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`)
         .then(r => r.json())
         .then(data => {
             const allNodes = data.nodes || [];
@@ -1176,7 +1234,7 @@ roadmapModal.addEventListener('click', e => { if (e.target === roadmapModal) hid
 async function refreshGraphAfterTurn() {
     if (!state.studentId || !state.sessionId) return;
     try {
-        const res = await fetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`);
+        const res = await authFetch(`/api/knowledge_graph?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`);
         const data = await res.json();
         const freshNodes = data.nodes || [];
         const activePlan = data.active_plan || [];
@@ -1377,7 +1435,7 @@ async function generatePodcast(conceptId, conceptName, btnEl) {
     btnEl.classList.add('opacity-70', 'cursor-not-allowed');
 
     try {
-        const res = await fetch('/api/lecture/generate', {
+        const res = await authFetch('/api/lecture/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1427,7 +1485,7 @@ async function generatePresentation(conceptId, conceptName, btnEl) {
     btnEl.classList.add('opacity-70', 'cursor-not-allowed');
 
     try {
-        const res = await fetch('/api/ppt/generate', {
+        const res = await authFetch('/api/ppt/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1468,7 +1526,7 @@ async function generateNotes(conceptName, btnEl) {
     btnEl.classList.add('opacity-70', 'cursor-not-allowed');
 
     try {
-        const res = await fetch('/api/notes/generate', {
+        const res = await authFetch('/api/notes/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1583,7 +1641,7 @@ function showVideoLibrary() {
     </div>`;
     videoLibraryMeta.textContent = 'Loading…';
 
-    fetch(`/api/videos?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`)
+    authFetch(`/api/videos?student_id=${encodeURIComponent(state.studentId)}&session_id=${encodeURIComponent(state.sessionId)}`)
         .then(r => r.json())
         .then(data => {
             _allVideoTopics = data.topics || [];
@@ -1634,9 +1692,13 @@ videoLibraryModal.addEventListener('click', e => { if (e.target === videoLibrary
 // DOM References for Teacher Portal
 const tabStudent          = document.getElementById('tabStudent');
 const tabTeacher          = document.getElementById('tabTeacher');
-const teacherLoginForm    = document.getElementById('teacherLoginForm');
-const onboardTeacherId    = document.getElementById('onboardTeacherId');
-const teacherStartBtn     = document.getElementById('teacherStartBtn');
+const teacherLoginForm          = document.getElementById('teacherLoginForm');
+const onboardTeacherId          = document.getElementById('onboardTeacherId');
+const onboardTeacherPassword    = document.getElementById('onboardTeacherPassword');
+const teacherStartBtn           = document.getElementById('teacherStartBtn');
+const teacherStartBtnLabel      = document.getElementById('teacherStartBtnLabel');
+const teacherAuthError          = document.getElementById('teacherAuthError');
+const teacherRegisterToggle     = document.getElementById('teacherRegisterToggle');
 
 const teacherShell        = document.getElementById('teacherShell');
 const teacherHeaderId     = document.getElementById('teacherHeaderId');
@@ -1675,16 +1737,50 @@ tabTeacher.addEventListener('click', () => {
     onboardingForm.classList.add('hidden');
 });
 
+// Teacher Auth mode toggle
+let _teacherAuthMode = 'login';
+teacherRegisterToggle.addEventListener('click', () => {
+    _teacherAuthMode = _teacherAuthMode === 'login' ? 'register' : 'login';
+    if (_teacherAuthMode === 'register') {
+        teacherStartBtnLabel.textContent = 'Register';
+        teacherRegisterToggle.textContent = 'Already have an account? Sign in';
+    } else {
+        teacherStartBtnLabel.textContent = 'Sign In';
+        teacherRegisterToggle.textContent = 'Register here';
+    }
+    teacherAuthError.classList.add('hidden');
+});
+
 // Teacher Login Action
 teacherLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const teacherId = onboardTeacherId.value.trim();
-    if (!teacherId) return;
+    const password  = onboardTeacherPassword.value;
+    if (!teacherId || !password) return;
 
     teacherStartBtn.disabled = true;
-    teacherStartBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Entering Console…';
+    teacherStartBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Please wait…';
+    teacherAuthError.classList.add('hidden');
 
     try {
+        // 1. Auth
+        const authEndpoint = _teacherAuthMode === 'register' ? '/api/auth/register' : '/api/auth/login';
+        const authRes = await fetch(authEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: teacherId, password, role: 'teacher' }),
+        });
+        const authData = await authRes.json();
+        if (!authRes.ok) {
+            teacherAuthError.textContent = authData.detail || 'Authentication failed';
+            teacherAuthError.classList.remove('hidden');
+            return;
+        }
+
+        // 2. Store token
+        state.authToken = authData.token;
+        sessionStorage.setItem('authToken', authData.token);
+
         state.teacherId = teacherId;
         teacherHeaderId.textContent = teacherId;
         
@@ -1702,10 +1798,11 @@ teacherLoginForm.addEventListener('submit', async (e) => {
         teacherStudentDashboard.classList.add('hidden');
     } catch (err) {
         console.error(err);
-        alert('Failed to load teacher console. Is the backend running?');
+        teacherAuthError.textContent = 'Failed to load teacher console. Is the backend running?';
+        teacherAuthError.classList.remove('hidden');
     } finally {
         teacherStartBtn.disabled = false;
-        teacherStartBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Enter Teacher Console';
+        teacherStartBtnLabel.textContent = _teacherAuthMode === 'register' ? 'Register' : 'Sign In';
     }
 });
 
@@ -1713,7 +1810,7 @@ teacherLoginForm.addEventListener('submit', async (e) => {
 async function loadMonitoredStudents() {
     if (!state.teacherId) return;
     try {
-        const res = await fetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students`);
+        const res = await authFetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students`);
         const data = await res.json();
         state.monitoredStudents = data.students || [];
         renderMonitoredStudentsList();
@@ -1756,7 +1853,7 @@ addStudentForm.addEventListener('submit', async (e) => {
     if (!studentId || !state.teacherId) return;
 
     try {
-        const res = await fetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students`, {
+        const res = await authFetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ student_id: studentId })
@@ -1775,7 +1872,7 @@ addStudentForm.addEventListener('submit', async (e) => {
 async function removeMonitoredStudent(studentId) {
     if (!confirm(`Are you sure you want to remove student "${studentId}" from your monitored list?`)) return;
     try {
-        const res = await fetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students/${encodeURIComponent(studentId)}`, {
+        const res = await authFetch(`/api/teacher/${encodeURIComponent(state.teacherId)}/students/${encodeURIComponent(studentId)}`, {
             method: 'DELETE'
         });
         if (!res.ok) throw new Error('Failed to remove student');
@@ -1817,7 +1914,7 @@ async function selectStudent(studentId) {
     statMasteryRate.textContent = '-%';
 
     try {
-        const res = await fetch(`/api/teacher/student/${encodeURIComponent(studentId)}/progress`);
+        const res = await authFetch(`/api/teacher/student/${encodeURIComponent(studentId)}/progress`);
         if (!res.ok) throw new Error('Failed to fetch student progress');
         const data = await res.json();
         
@@ -1989,15 +2086,23 @@ function renderStudentProgress(data) {
 }
 
 // Teacher Logout Action
-teacherLogoutBtn.addEventListener('click', () => {
+teacherLogoutBtn.addEventListener('click', async () => {
+    // Revoke the token server-side
+    if (state.authToken) {
+        await authFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    }
     state.teacherId = '';
     state.selectedStudentId = '';
+    state.authToken = '';
+    sessionStorage.removeItem('authToken');
     
     teacherShell.classList.add('hidden');
     teacherShell.classList.remove('flex');
     onboardingOverlay.classList.remove('hidden');
     onboardingOverlay.classList.remove('fade-out');
     
-    onboardTeacherId.value = 'teacher_123';
+    onboardTeacherId.value = '';
+    onboardTeacherPassword.value = '';
+    teacherAuthError.classList.add('hidden');
 });
 

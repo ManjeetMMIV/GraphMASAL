@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from src.api.dependencies import get_current_user
 from src.api.controllers.media_controller import (
     LectureRequest,
     PPTRequest,
@@ -8,7 +9,7 @@ from src.api.controllers.media_controller import (
     generate_notes_logic,
 )
 
-router = APIRouter(tags=["Media"])
+router = APIRouter(tags=["Media"], dependencies=[Depends(get_current_user)])
 
 @router.post("/api/lecture/generate")
 async def generate_lecture(req: LectureRequest):

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
+from src.api.dependencies import get_current_user
 from src.api.controllers.documents_controller import (
     ExtractConceptsRequest,
     ResetRequest,
@@ -9,7 +10,7 @@ from src.api.controllers.documents_controller import (
     reset_data_logic
 )
 
-router = APIRouter(tags=["Documents"])
+router = APIRouter(tags=["Documents"], dependencies=[Depends(get_current_user)])
 
 @router.get("/api/documents")
 async def list_documents(student_id: str):

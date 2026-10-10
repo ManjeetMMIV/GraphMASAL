@@ -22,6 +22,7 @@ app.add_middleware(
 
 # Import and include routers
 from src.api.routes import (
+    auth_routes,
     sessions_routes,
     graph_routes,
     documents_routes,
@@ -31,6 +32,7 @@ from src.api.routes import (
     ui_routes
 )
 
+app.include_router(auth_routes.router)
 app.include_router(sessions_routes.router)
 app.include_router(sessions_routes.session_router)
 app.include_router(graph_routes.router)

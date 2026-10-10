@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from src.api.dependencies import get_current_user
 from src.api.controllers.sessions_controller import (
     NewSessionRequest,
     create_new_session,
@@ -7,8 +8,8 @@ from src.api.controllers.sessions_controller import (
     delete_session_logic
 )
 
-router = APIRouter(prefix="/api/sessions", tags=["Sessions"])
-session_router = APIRouter(prefix="/api/session", tags=["Session"])
+router = APIRouter(prefix="/api/sessions", tags=["Sessions"], dependencies=[Depends(get_current_user)])
+session_router = APIRouter(prefix="/api/session", tags=["Session"], dependencies=[Depends(get_current_user)])
 
 @router.post("/new")
 async def new_session_route(req: NewSessionRequest):

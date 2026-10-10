@@ -4,11 +4,15 @@ alongside structured analysis fields from the LangGraph agent state.
 """
 
 import os
+import secrets
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from passlib.context import CryptContext
 from dotenv import load_dotenv
+
+_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 _mongo_client: Optional[MongoClient] = None
@@ -35,6 +39,14 @@ def _teachers_coll():
     return _get_db().teachers
 
 
+def _users_coll():
+    return _get_db().users
+
+
+def _tokens_coll():
+    return _get_db().auth_tokens
+
+
 def get_db():
     """Public accessor for the database (used by server.py for plan selection)."""
     return _get_db()
@@ -55,6 +67,13 @@ def init_db() -> None:
 
         teachers = _teachers_coll()
         teachers.create_index("teacher_id", unique=True)
+
+        users = _users_coll()
+        users.create_index("user_id", unique=True)
+
+        tokens = _tokens_coll()
+        tokens.create_index("token", unique=True)
+        tokens.create_index("expires_at", expireAfterSeconds=0)
     except Exception as e:
         print(f"Failed to initialize MongoDB: {e}")
 
@@ -222,4 +241,72 @@ def remove_teacher_student(teacher_id: str, student_id: str) -> None:
         {"teacher_id": teacher_id},
         {"$pull": {"student_ids": student_id}}
     )
+
+
+# --------------------------------------------------------------------------- #
+# Auth — User Registration & Login
+# --------------------------------------------------------------------------- #
+
+_TOKEN_TTL_HOURS = 24 * 7  # tokens live for 7 days
+
+
+def register_user(user_id: str, password: str, role: str) -> bool:
+    """
+    Create a new user with a bcrypt-hashed password.
+    role must be 'student' or 'teacher'.
+    Returns False if the user_id already exists.
+    """
+    if role not in ("student", "teacher"):
+        raise ValueError("role must be 'student' or 'teacher'")
+    users = _users_coll()
+    if users.find_one({"user_id": user_id}):
+        return False
+    hashed = _pwd_context.hash(password)
+    users.insert_one({
+        "user_id": user_id,
+        "role": role,
+        "password_hash": hashed,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return True
+
+
+def verify_user(user_id: str, password: str, role: str) -> bool:
+    """Return True if user exists with matching password and role."""
+    doc = _users_coll().find_one({"user_id": user_id, "role": role})
+    if not doc:
+        return False
+    return _pwd_context.verify(password, doc["password_hash"])
+
+
+def create_auth_token(user_id: str, role: str) -> str:
+    """Generate a random token, persist it, and return it."""
+    token = secrets.token_hex(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=_TOKEN_TTL_HOURS)
+    _tokens_coll().insert_one({
+        "token": token,
+        "user_id": user_id,
+        "role": role,
+        "expires_at": expires_at,
+    })
+    return token
+
+
+def verify_auth_token(token: str) -> Optional[Dict[str, str]]:
+    """
+    Return {"user_id": ..., "role": ...} if the token is valid and not expired,
+    otherwise None.
+    """
+    doc = _tokens_coll().find_one({
+        "token": token,
+        "expires_at": {"$gt": datetime.now(timezone.utc)},
+    })
+    if not doc:
+        return None
+    return {"user_id": doc["user_id"], "role": doc["role"]}
+
+
+def revoke_auth_token(token: str) -> None:
+    """Delete a token (logout)."""
+    _tokens_coll().delete_one({"token": token})
 
