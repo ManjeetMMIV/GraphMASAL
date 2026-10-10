@@ -1,10 +1,15 @@
 # GraphMASAL — Graph-Based Multi-Agent System for Adaptive Student Learning
-
+deployed link : https://graphmasal-3.onrender.com/
 An intelligent tutoring system that combines **multi-agent LangGraph orchestration**, **Neo4j knowledge graphs**, and **adaptive learning paths** to personalize Operating Systems education.
 
 > Built as part of an academic project exploring how graph-based AI agents can detect misconceptions, plan learning sequences, and deliver personalized tutoring at scale.
 
 ---
+<img width="1535" height="786" alt="image" src="https://github.com/user-attachments/assets/8cc381d1-7df9-4e79-94d2-43270ba3486a" />
+<img width="1362" height="603" alt="image" src="https://github.com/user-attachments/assets/65d2540b-65b6-4456-aa7b-8457cd89872d" />
+
+
+
 
 ## ✨ Features
 
