@@ -93,6 +93,7 @@ PACE INSTRUCTIONS — this student prefers a FAST learning pace:
     active_plan = state.get("active_plan", [])
     next_concept_name = None
     concept_id_map = {}  # name → id mapping so LLM can pass correct IDs to tools
+    rows = []  # Bug 5 fix: initialize before try block to prevent NameError
 
     # Pre-fetch concept ID → name mapping for the entire active plan
     if active_plan:

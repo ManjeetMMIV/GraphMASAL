@@ -86,6 +86,17 @@ class PdfEmbeddingPipeline:
             }}
             """
         )
+        # Bug 2 fix: index PDFChunk nodes so they can be retrieved semantically
+        self.conn.query(
+            """
+            CREATE VECTOR INDEX pdf_chunk_embedding IF NOT EXISTS
+            FOR (c:PDFChunk) ON (c.embedding)
+            OPTIONS {indexConfig: {
+             `vector.dimensions`: 384,
+             `vector.similarity_function`: 'cosine'
+            }}
+            """
+        )
 
     def _extract_and_store_concepts(
         self, document_id: str, file_name: str, all_chunks: list[str]

@@ -26,7 +26,7 @@ class ConceptEmbedder:
             
             # Create embedding from description
             # Convert to list of floats for Neo4j
-            embedding = self.model.encode(description).tolist()
+            embedding = self.model.encode(f"{record['name']}. {description}").tolist()
             
             # Update the concept node with the embedding
             update_query = """
