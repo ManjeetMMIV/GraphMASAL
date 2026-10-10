@@ -45,10 +45,17 @@ app.include_router(ui_routes.router)
 # Mount static files (for css/js/audio/presentations)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 public_dir = REPO_ROOT / "public"
-public_dir.mkdir(exist_ok=True)
+audio_dir = public_dir / "audio"
+presentations_dir = public_dir / "presentations"
+
+# Ensure all static directories exist before mounting
+public_dir.mkdir(parents=True, exist_ok=True)
+audio_dir.mkdir(parents=True, exist_ok=True)
+presentations_dir.mkdir(parents=True, exist_ok=True)
+
 app.mount("/static", StaticFiles(directory=str(public_dir)), name="static")
-app.mount("/audio", StaticFiles(directory=str(public_dir / "audio")), name="audio")
-app.mount("/presentations", StaticFiles(directory=str(public_dir / "presentations")), name="presentations")
+app.mount("/audio", StaticFiles(directory=str(audio_dir)), name="audio")
+app.mount("/presentations", StaticFiles(directory=str(presentations_dir)), name="presentations")
 
 if __name__ == "__main__":
     import uvicorn
