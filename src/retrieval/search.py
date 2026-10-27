@@ -40,15 +40,27 @@ def _get_sentence_transformer(model_name: str) -> SentenceTransformer:
     return model
 
 class SemanticSearch:
-    def __init__(self, conn: Neo4jConnection, model_name: str = 'all-MiniLM-L6-v2', use_cross_encoder: bool = False):
+    def __init__(self, conn: Neo4jConnection, model_name: str = 'all-MiniLM-L6-v2', use_cross_encoder: bool = False, use_hyde: bool = False):
         self.conn = conn
         self.model = _get_sentence_transformer(model_name)
         self.reranker = StructureAwareReranker(conn, use_cross_encoder=use_cross_encoder)
+        self.use_hyde = use_hyde
     
     def search_and_personalize(self, query_text: str, student_id: str, top_k: int = 3):
+        # ── HyDE: transform query into a richer embedding target ──────────
+        embedding_text = query_text
+        if self.use_hyde:
+            try:
+                from src.retrieval.query_transform import hyde_augmented_query
+                embedding_text = hyde_augmented_query(query_text)
+                if _verbose_retrieval():
+                    print(f"HyDE-augmented query: '{embedding_text[:120]}...'")
+            except Exception:
+                pass  # Fall back to raw query if HyDE fails
+
         if _verbose_retrieval():
             print(f"Embedding query: '{query_text}'")
-        query_embedding = self.model.encode(query_text).tolist()
+        query_embedding = self.model.encode(embedding_text).tolist()
         
         # We query the vector index and simultaneously match the student's mastery IF it exists
         cypher_query = """

@@ -1,0 +1,242 @@
+{
+  "summary": {
+    "msms": {
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_coverage": 1.0
+    },
+    "bfs": {
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_coverage": 1.0
+    },
+    "delta_msms_minus_bfs": {
+      "pathsim": 0.0,
+      "node_similarity": 0.0,
+      "edge_similarity": 0.0,
+      "sequence_similarity": 0.0,
+      "path_efficiency": 0.0,
+      "prerequisite_integrity": 0.0
+    }
+  },
+  "msms_per_scenario": [
+    {
+      "scenario": "scheduling",
+      "method": "msms",
+      "description": "Student knows Computer Architecture -> wants to learn Process Scheduling",
+      "expert_path": [
+        "Computer Architecture",
+        "CPU Virtualization",
+        "Processes",
+        "Process Scheduling"
+      ],
+      "expert_path_ids": [
+        "computer-architecture",
+        "cpu-virtualization",
+        "processes",
+        "scheduling"
+      ],
+      "generated_path": [
+        "Computer Architecture",
+        "CPU Virtualization",
+        "Processes",
+        "Process Scheduling"
+      ],
+      "generated_path_ids": [
+        "computer-architecture",
+        "cpu-virtualization",
+        "processes",
+        "scheduling"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "file_systems",
+      "method": "msms",
+      "description": "Student knows Computer Architecture -> wants to learn File Systems",
+      "expert_path": [
+        "Computer Architecture",
+        "Persistence",
+        "File Systems"
+      ],
+      "expert_path_ids": [
+        "computer-architecture",
+        "persistence",
+        "file-systems"
+      ],
+      "generated_path": [
+        "Computer Architecture",
+        "Persistence",
+        "File Systems"
+      ],
+      "generated_path_ids": [
+        "computer-architecture",
+        "persistence",
+        "file-systems"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "locks",
+      "method": "msms",
+      "description": "Student knows Processes + Memory Virtualization -> wants to learn Locks",
+      "expert_path": [
+        "Processes",
+        "Concurrency",
+        "Threads",
+        "Locks"
+      ],
+      "expert_path_ids": [
+        "processes",
+        "concurrency",
+        "threads",
+        "locks"
+      ],
+      "generated_path": [
+        "Processes",
+        "Concurrency",
+        "Threads",
+        "Locks"
+      ],
+      "generated_path_ids": [
+        "processes",
+        "concurrency",
+        "threads",
+        "locks"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    }
+  ],
+  "bfs_per_scenario": [
+    {
+      "scenario": "scheduling",
+      "method": "bfs",
+      "description": "Student knows Computer Architecture -> wants to learn Process Scheduling",
+      "expert_path": [
+        "Computer Architecture",
+        "CPU Virtualization",
+        "Processes",
+        "Process Scheduling"
+      ],
+      "expert_path_ids": [
+        "computer-architecture",
+        "cpu-virtualization",
+        "processes",
+        "scheduling"
+      ],
+      "generated_path": [
+        "Computer Architecture",
+        "CPU Virtualization",
+        "Processes",
+        "Process Scheduling"
+      ],
+      "generated_path_ids": [
+        "computer-architecture",
+        "cpu-virtualization",
+        "processes",
+        "scheduling"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "file_systems",
+      "method": "bfs",
+      "description": "Student knows Computer Architecture -> wants to learn File Systems",
+      "expert_path": [
+        "Computer Architecture",
+        "Persistence",
+        "File Systems"
+      ],
+      "expert_path_ids": [
+        "computer-architecture",
+        "persistence",
+        "file-systems"
+      ],
+      "generated_path": [
+        "Computer Architecture",
+        "Persistence",
+        "File Systems"
+      ],
+      "generated_path_ids": [
+        "computer-architecture",
+        "persistence",
+        "file-systems"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "locks",
+      "method": "bfs",
+      "description": "Student knows Processes + Memory Virtualization -> wants to learn Locks",
+      "expert_path": [
+        "Processes",
+        "Concurrency",
+        "Threads",
+        "Locks"
+      ],
+      "expert_path_ids": [
+        "processes",
+        "concurrency",
+        "threads",
+        "locks"
+      ],
+      "generated_path": [
+        "Processes",
+        "Concurrency",
+        "Threads",
+        "Locks"
+      ],
+      "generated_path_ids": [
+        "processes",
+        "concurrency",
+        "threads",
+        "locks"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    }
+  ]
+}

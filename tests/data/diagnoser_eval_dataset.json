@@ -1,0 +1,182 @@
+[
+{
+"user_input": "The CPU executes programs directly from the hard drive because it's non-volatile.",
+"has_misconception": true,
+"affected_concept": "computer-architecture",
+"explanation": "The student incorrectly believes the CPU executes instructions directly from the hard drive, rather than loading them into RAM first."
+},
+{
+"user_input": "The OS creates a separate physical CPU for every single program running at the same time.",
+"has_misconception": true,
+"affected_concept": "cpu-virtualization",
+"explanation": "The student confuses physical hardware with virtualization, failing to understand that the OS time-shares a limited number of physical CPUs."
+},
+{
+"user_input": "When a process forks, the child process shares the exact same memory space as the parent so they can easily overwrite each other's variables.",
+"has_misconception": true,
+"affected_concept": "processes",
+"explanation": "The student confuses processes with threads, missing that a forked child process gets its own independent copy of the parent's address space."
+},
+{
+"user_input": "Round robin scheduling guarantees that the shortest jobs will always finish first.",
+"has_misconception": true,
+"affected_concept": "scheduling",
+"explanation": "The student fundamentally misunderstands round robin, which focuses on fairness and response time rather than optimal turnaround time for short jobs."
+},
+{
+"user_input": "Virtual memory means every program uses the exact same physical memory addresses to save space.",
+"has_misconception": true,
+"affected_concept": "memory-virtualization",
+"explanation": "The student fails to grasp that virtual memory provides an illusion of isolated memory for each process, translating virtual addresses to distinct physical addresses."
+},
+{
+"user_input": "Paging suffers from terrible external fragmentation because the pages are all different sizes.",
+"has_misconception": true,
+"affected_concept": "paging",
+"explanation": "The student mistakenly believes pages are variable in size, whereas paging divides memory into fixed-size units specifically to eliminate external fragmentation."
+},
+{
+"user_input": "If we have a multi-core processor, we don't need to worry about race conditions since each thread runs safely on its own core.",
+"has_misconception": true,
+"affected_concept": "concurrency",
+"explanation": "The student falsely assumes that physical hardware separation prevents race conditions, ignoring that threads on different cores still access shared memory concurrently."
+},
+{
+"user_input": "Threads in the same process each have their own separate heap.",
+"has_misconception": true,
+"affected_concept": "threads",
+"explanation": "The student confuses thread state with process state, failing to realize that threads share the heap and only have private stacks and registers."
+},
+{
+"user_input": "A spinlock is always better than a yielding lock because it immediately puts the waiting thread to sleep.",
+"has_misconception": true,
+"affected_concept": "locks",
+"explanation": "The student has the definition exactly backward, as spinlocks busy-wait and consume CPU cycles rather than putting the thread to sleep."
+},
+{
+"user_input": "When a process terminates, all its local variables are automatically saved to the hard drive for the next time it runs.",
+"has_misconception": true,
+"affected_concept": "persistence",
+"explanation": "The student incorrectly assumes automatic persistence of volatile memory, not realizing that persistent storage requires explicit file I/O operations."
+},
+{
+"user_input": "An inode stores the actual file data, like the text of a document or pixels of an image.",
+"has_misconception": true,
+"affected_concept": "file-systems",
+"explanation": "The student misunderstands file system structures, believing the inode holds the data payload rather than the metadata and block pointers."
+},
+{
+"user_input": "A file system checksum guarantees that a file can be completely recovered if the disk drive dies.",
+"has_misconception": true,
+"affected_concept": "data-integrity",
+"explanation": "The student confuses error detection (checksums) with data redundancy and recovery (RAID or backups)."
+},
+{
+"user_input": "Context switching has zero overhead because it's just a single magical hardware jump instruction.",
+"has_misconception": true,
+"affected_concept": "cpu-virtualization",
+"explanation": "The student completely ignores the software and hardware overhead of saving registers, switching address spaces, and flushing caches."
+},
+{
+"user_input": "The TLB is a massive cache located on the hard drive used to store all page tables.",
+"has_misconception": true,
+"affected_concept": "memory-virtualization",
+"explanation": "The student misunderstands the hardware architecture, as the TLB is a small, extremely fast on-chip MMU cache, not a large disk-based structure."
+},
+{
+"user_input": "The Multi-Level Feedback Queue is a great scheduler because it knows exactly how long every job will take before it starts running.",
+"has_misconception": true,
+"affected_concept": "scheduling",
+"explanation": "The student falsely attributes omniscience to the MLFQ, whereas its actual design relies on learning from past job behavior without a priori knowledge."
+},
+{
+"user_input": "I'm having trouble understanding how the TLB gets updated on a context switch, can you explain?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student is simply asking a question to clarify a complex mechanism without demonstrating a false belief."
+},
+{
+"user_input": "Wait, so processes really do have their own isolated virtual address space?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student is accurately verifying a correct core concept of memory virtualization."
+},
+{
+"user_input": "The textbook says paging eliminates external fragmentation — is that right?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student is confirming a factual statement about how fixed-size pages prevent external fragmentation."
+},
+{
+"user_input": "Can you give me an example of a race condition in C++?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student is making a straightforward request for an example, which does not indicate any conceptual misunderstanding."
+},
+{
+"user_input": "So a thread has its own stack and program counter, but shares the heap with other threads in the process?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student accurately summarizes the memory layout and sharing model of threads."
+},
+{
+"user_input": "I understand that journaling file systems write intent to a log before updating data in place to recover from crashes safely.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student demonstrates a perfectly correct understanding of crash consistency and write-ahead logging."
+},
+{
+"user_input": "Is round-robin scheduling just giving each job a time slice and then moving to the next one in the queue?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student is asking a confirmation question that contains a correct definition of round-robin scheduling."
+},
+{
+"user_input": "Does the OS use a trap handler to switch from user mode to kernel mode during a system call?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student correctly identifies the mechanism for privilege escalation during system calls and is just verifying it."
+},
+{
+"user_input": "If I use a mutex, only one thread can be in the critical section at a time, right?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student correctly understands the fundamental purpose of mutual exclusion locks."
+},
+{
+"user_input": "I want to make sure I get this: does an inode map file offsets to the physical disk blocks?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student asks a clarifying question that correctly identifies one of the primary functions of an inode."
+},
+{
+"user_input": "I am so stuck and confused. Does this mean that even if we use paging, we can still get internal fragmentation if a process doesn't completely fill its last page?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "Despite expressing deep confusion, the student has drawn a completely accurate conclusion about paging and internal fragmentation."
+},
+{
+"user_input": "This is probably completely wrong, but isn't a context switch actually really expensive because we have to flush the TLB and save all the registers?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student uses language indicating self-doubt ('completely wrong'), yet accurately identifies the precise sources of context switch overhead."
+},
+{
+"user_input": "I'm totally lost. If threads share the same address space, doesn't that mean they can accidentally overwrite each other's data if we don't use locks?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student claims to be lost, but actually demonstrates a perfect understanding of why synchronization is necessary in multi-threaded programs."
+},
+{
+"user_input": "My brain is melting. Is it true that the shortest-job-first scheduler can actually cause starvation for long-running jobs if short jobs keep arriving?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "Despite the dramatic expression of confusion, the student correctly identifies a fundamental flaw (starvation) of the SJF scheduling algorithm."
+},
+{
+"user_input": "I don't know what I'm doing anymore. Wait, if a hard drive uses a checksum and finds a mismatch, it literally can't fix it unless there's parity data, right?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The student expresses feeling overwhelmed but accurately distinguishes between simple error detection (checksums) and error correction (parity)."
+}
+]

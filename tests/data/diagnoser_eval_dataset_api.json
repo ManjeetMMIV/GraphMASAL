@@ -1,0 +1,182 @@
+[
+{
+"user_input": "I want to update just the email field of a user, so I should use PUT /users/123 with a body containing only the email.",
+"has_misconception": true,
+"affected_concept": "http-methods",
+"explanation": "The user confuses PUT and PATCH. PUT is used to replace the whole resource, while PATCH is used to change some fields."
+},
+{
+"user_input": "To get the active orders, I should create an endpoint GET /getOrders.",
+"has_misconception": true,
+"affected_concept": "resource-naming",
+"explanation": "The user is using a verb ('get') in the URI. URIs should use plural nouns, not actions. The correct endpoint is GET /orders."
+},
+{
+"user_input": "If validation fails, I return a 200 OK status but include an error message in the JSON body.",
+"has_misconception": true,
+"affected_concept": "status-codes-and-errors",
+"explanation": "The user plans to return a 200 OK for an error. The cheat sheet strictly warns to never return 200 with an error payload; 422 Unprocessable Content should be used for validation failures."
+},
+{
+"user_input": "I'll store the price of the item as a float in the JSON body like {\"amount\": 19.99}.",
+"has_misconception": true,
+"affected_concept": "request-response-design",
+"explanation": "The user is using a float for money. Money should be represented as integer minor units (e.g., cents) or a decimal string to prevent precision loss, never as a float."
+},
+{
+"user_input": "My live feed table is huge and constantly changing, so I'll just use offset and limit pagination because it's easier.",
+"has_misconception": true,
+"affected_concept": "pagination-and-filtering",
+"explanation": "Offset pagination is slow on big tables and suffers from row-shift problems when data changes. Cursor pagination should be used for fast, stable feeds."
+},
+{
+"user_input": "If a POST request to /payments times out, the client should just blindly retry it to make sure it goes through.",
+"has_misconception": true,
+"affected_concept": "idempotency-and-retries",
+"explanation": "POST is not idempotent. Blindly retrying a payment without an Idempotency-Key can result in double charges."
+},
+{
+"user_input": "I don't need ETags because my JSON responses are small, and I don't really care about download speed.",
+"has_misconception": true,
+"affected_concept": "caching-and-etags",
+"explanation": "The user thinks ETags are only for bandwidth saving. ETags are also crucial for optimistic locking and preventing lost updates during concurrent edits (using If-Match and 412)."
+},
+{
+"user_input": "For generating a massive PDF report, the client should just keep the HTTP connection open for 10 minutes until it finishes.",
+"has_misconception": true,
+"affected_concept": "long-running-jobs",
+"explanation": "Holding connections open for long jobs is an anti-pattern. The API should return 202 Accepted with a Location header for polling, or use webhooks."
+},
+{
+"user_input": "I can securely store the user's password hash and private API keys inside the JWT payload since JWTs are encrypted.",
+"has_misconception": true,
+"affected_concept": "api-security",
+"explanation": "The user believes JWT payloads are encrypted. JWT payloads are only Base64 encoded and can be read by anyone, so secrets must never be placed inside them."
+},
+{
+"user_input": "When calling the LLM, my API blocks synchronously for 45 seconds and returns the full text in one JSON response once it's done.",
+"has_misconception": true,
+"affected_concept": "ai-and-streaming-apis",
+"explanation": "Blocking synchronously for slow LLM generation is bad practice. The API should stream replies using Server-Sent Events (SSE) or return 202 Accepted for background processing."
+},
+{
+"user_input": "If we switch to GraphQL, we won't need to write any backend logic or database queries anymore since it handles everything automatically.",
+"has_misconception": true,
+"affected_concept": "api-architectures",
+"explanation": "The user thinks GraphQL eliminates backend work. GraphQL solves over-fetching and provides flexible data shapes for frontends, but backend logic, resolvers, and DB queries are still required."
+},
+{
+"user_input": "POST requests are safe to retry automatically because creating a resource twice has the exact same effect as creating it once.",
+"has_misconception": true,
+"affected_concept": "http-methods",
+"explanation": "POST is explicitly neither safe nor idempotent. Repeating it without an idempotency key can cause duplicate creations."
+},
+{
+"user_input": "If a user tries to access a private enterprise repository they aren't invited to, we should return 403 Forbidden so they know they don't have access.",
+"has_misconception": true,
+"affected_concept": "status-codes-and-errors",
+"explanation": "Returning 403 leaks the existence of a private resource. The cheat sheet advises returning 404 instead of 403 when revealing existence is a security leak."
+},
+{
+"user_input": "My URL structure is really specific and clean: GET /users/1/orders/2/items/3/details.",
+"has_misconception": true,
+"affected_concept": "resource-naming",
+"explanation": "Deeply nested paths are an anti-pattern. The cheat sheet recommends nesting one level at most and using filters for deeper relationships."
+},
+{
+"user_input": "To make things easy during development, I set CORS allow_origins to '*' and allow_credentials to True.",
+"has_misconception": true,
+"affected_concept": "api-security",
+"explanation": "Combining a wildcard origin ('*') with credentials is a severe security risk and is explicitly warned against in the cheat sheet."
+},
+{
+"user_input": "I failed my API test and I'm so lost right now. I don't even know if I belong in this major. But I do know that I should use 422 Unprocessable Content if the JSON is valid but the values like an email format are wrong.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user is expressing severe frustration and self-doubt, but their technical understanding of the 422 status code is entirely correct."
+},
+{
+"user_input": "I'm so frustrated with this assignment! I've been crying for an hour. Why do I have to use a cursor like ?after=ord_982 for my fast live feed instead of offset?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "Despite the emotional breakdown, the user correctly identifies that cursor pagination is the right tool for a fast live feed over offset pagination."
+},
+{
+"user_input": "My boss yelled at me today and I feel awful. At least I finally learned that we should return 202 Accepted and a location header for long-running report generation instead of holding the connection open.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user is emotionally distressed from a workplace interaction, but perfectly understands the pattern for asynchronous long-running jobs."
+},
+{
+"user_input": "I'm about to give up on programming entirely. I spent all night fixing my endpoints to use plural nouns like /orders instead of /getOrders just like the cheat sheet says, and I'm exhausted.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user is venting extreme fatigue and frustration, yet their refactoring to use plural nouns instead of verbs in URIs is exactly correct."
+},
+{
+"user_input": "I am having a nervous breakdown over CORS errors. But I understand that CORS protects browsers, not the API, and server-side auth still decides access.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user expresses high anxiety regarding CORS, but their statement summarizing the actual purpose and limitations of CORS is completely accurate."
+},
+{
+"user_input": "Is it a good practice to use Server-Sent Events (SSE) and return Content-Type: text/event-stream for streaming LLM replies?",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user is asking a valid question and correctly stating the standard approach for streaming LLM outputs."
+},
+{
+"user_input": "For my payment API, I'm requiring clients to send an Idempotency-Key header with a UUID on POST requests.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly implements idempotency keys for non-idempotent operations like payments."
+},
+{
+"user_input": "I'm storing money as integer minor units, so 149.00 INR is represented as {\\\"amount\\\": 14900, \\\"currency\\\": \\\"INR\\\"}.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly follows the best practice of using integer minor units for monetary values."
+},
+{
+"user_input": "If a user isn't logged in, I return a 401 Unauthorized, but if they are logged in and don't have access to a specific order, I return 403 Forbidden.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user perfectly distinguishes between 401 (authentication) and 403 (authorization)."
+},
+{
+"user_input": "I use PUT when I want to replace the entire resource and PATCH when I only want to update specific fields.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly differentiates the intended use cases for PUT and PATCH."
+},
+{
+"user_input": "To handle caching and concurrent edits, I return an ETag header, and clients use If-Match to prevent overwriting others' changes.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly understands how to use ETags and If-Match headers for optimistic locking."
+},
+{
+"user_input": "I use ISO 8601 strings with a time zone for all dates in my JSON payloads, like 2026-10-15T09:30:00Z.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly formats dates according to the ISO 8601 standard."
+},
+{
+"user_input": "If the upstream server times out while processing the request, returning a 504 Gateway Timeout is the correct approach.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly identifies the appropriate status code for an upstream timeout."
+},
+{
+"user_input": "I am using gRPC for high-throughput service-to-service communication on the backend, but sticking to REST for the public-facing API.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user correctly scopes architectural styles to their strengths: gRPC for internal speed, REST for public compatibility."
+},
+{
+"user_input": "When a resource is successfully deleted, returning 204 No Content is the standard practice since there is no body to return.",
+"has_misconception": false,
+"affected_concept": null,
+"explanation": "The user accurately maps the DELETE operation to the standard 204 No Content status code."
+}
+]

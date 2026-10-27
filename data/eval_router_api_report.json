@@ -1,0 +1,498 @@
+{
+  "total_queries": 50,
+  "accuracy_pct": 88.0,
+  "macro_f1": 0.8726,
+  "weighted_f1": 0.8788,
+  "cohens_kappa": 0.7458,
+  "confusion_matrix": {
+    "labels": [
+      "diagnose",
+      "retrieve"
+    ],
+    "matrix": [
+      [
+        16,
+        4
+      ],
+      [
+        2,
+        28
+      ]
+    ],
+    "note": "rows=true, cols=predicted"
+  },
+  "per_class": {
+    "diagnose": {
+      "precision": 0.8889,
+      "recall": 0.8,
+      "f1": 0.8421,
+      "support": 20
+    },
+    "retrieve": {
+      "precision": 0.875,
+      "recall": 0.9333,
+      "f1": 0.9032,
+      "support": 30
+    }
+  },
+  "latency": {
+    "avg_ms": 1828.2,
+    "p50_ms": 1809.08,
+    "p95_ms": 2210.1,
+    "p99_ms": 2606.48,
+    "min_ms": 775.54,
+    "max_ms": 2778.01
+  },
+  "per_query_results": [
+    {
+      "id": 1,
+      "query": "What is the difference between PUT and PATCH?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a comparative explanation of two HTTP methods, which is a factual retrieval request.",
+      "latency_ms": 2778.01
+    },
+    {
+      "id": 2,
+      "query": "How should I format money in a JSON body?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual explanation on how to format money in JSON, indicating a request for information.",
+      "latency_ms": 1717.42
+    },
+    {
+      "id": 3,
+      "query": "Can you show me an example of an error response in problem+json format?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for an example of a specific format, which is a factual retrieval request.",
+      "latency_ms": 1780.22
+    },
+    {
+      "id": 4,
+      "query": "What status code is returned for a validation error?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual definition regarding a specific status code related to validation errors.",
+      "latency_ms": 1741.14
+    },
+    {
+      "id": 5,
+      "query": "Explain how cursor pagination works.",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for an explanation of a specific concept \u2014 factual retrieval.",
+      "latency_ms": 1595.65
+    },
+    {
+      "id": 6,
+      "query": "How do I pass an API version in the URL?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual explanation on how to pass an API version in the URL, indicating a request for information.",
+      "latency_ms": 2035.15
+    },
+    {
+      "id": 7,
+      "query": "What does the If-None-Match header do?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual explanation of a specific HTTP header.",
+      "latency_ms": 1635.64
+    },
+    {
+      "id": 8,
+      "query": "What status code should be used for rate limiting?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a specific factual definition related to HTTP status codes.",
+      "latency_ms": 1779.01
+    },
+    {
+      "id": 9,
+      "query": "How should I store dates in my REST API?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for guidance on a specific technical aspect of REST API design, which is a factual retrieval question.",
+      "latency_ms": 1920.2
+    },
+    {
+      "id": 10,
+      "query": "Can you show me how to stream tokens with FastAPI?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student is asking for an explanation or example of a specific concept related to FastAPI.",
+      "latency_ms": 1738.34
+    },
+    {
+      "id": 11,
+      "query": "When should I use gRPC instead of REST?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a comparison of when to use gRPC versus REST, which is a factual retrieval question.",
+      "latency_ms": 1821.52
+    },
+    {
+      "id": 12,
+      "query": "What are the recommended fields for a Problem Details error?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual overview of recommended fields for a specific error type, indicating a request for information.",
+      "latency_ms": 1877.74
+    },
+    {
+      "id": 13,
+      "query": "Is the GET method idempotent?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks a factual question about the characteristics of the GET method, which requires a definition or explanation.",
+      "latency_ms": 1708.17
+    },
+    {
+      "id": 14,
+      "query": "How do I allow my frontend domain to access my API using CORS?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for an explanation of how to implement CORS for API access, which is a factual retrieval request.",
+      "latency_ms": 1839.19
+    },
+    {
+      "id": 15,
+      "query": "What is the Location header used for?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "User asked a direct, short factual definition.",
+      "latency_ms": 775.54
+    },
+    {
+      "id": 16,
+      "query": "What is the difference between the 502, 503, and 504 status codes?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a comparative explanation of specific HTTP status codes, which is a factual retrieval request.",
+      "latency_ms": 1737.25
+    },
+    {
+      "id": 17,
+      "query": "How should I name a resource endpoint for fetching a list of orders?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for guidance on naming a resource endpoint, which is a factual retrieval question.",
+      "latency_ms": 1909.76
+    },
+    {
+      "id": 18,
+      "query": "What is the primary purpose of an idempotency key?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual definition and explanation of a concept.",
+      "latency_ms": 1960.31
+    },
+    {
+      "id": 19,
+      "query": "Should I use 200 or 204 for a successful DELETE operation?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual explanation regarding HTTP status codes for a DELETE operation.",
+      "latency_ms": 1744.37
+    },
+    {
+      "id": 20,
+      "query": "How do you securely sign a webhook payload?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for an explanation of a specific technical process related to webhooks, indicating a request for factual information.",
+      "latency_ms": 1822.76
+    },
+    {
+      "id": 21,
+      "query": "I'm completely stuck and have been crying for an hour, could you just tell me th",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student is asking for a factual comparison between two HTTP status codes.",
+      "latency_ms": 1960.59
+    },
+    {
+      "id": 22,
+      "query": "I'm so confused and my brain is melting. What is the correct HTTP method to part",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "Low-confidence LLM (0.50) overridden by diagnose cue.",
+      "latency_ms": 1838.11
+    },
+    {
+      "id": 23,
+      "query": "I feel stupid asking this, but how exactly do you format a date using ISO 8601?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual explanation on how to format a date according to ISO 8601.",
+      "latency_ms": 1935.09
+    },
+    {
+      "id": 24,
+      "query": "I am so lost on this assignment. Can you just list the fields I need for the sta",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student is asking for a specific factual request regarding the fields needed for a standard error format.",
+      "latency_ms": 1810.15
+    },
+    {
+      "id": 25,
+      "query": "I failed my midterm and I'm freaking out. Please tell me what status code to ret",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "Low-confidence LLM (0.50) overridden by diagnose cue.",
+      "latency_ms": 1762.25
+    },
+    {
+      "id": 26,
+      "query": "This is driving me absolutely insane. Can you give me the syntax for a cursor pa",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student is asking for a specific syntax related to a concept, indicating a request for factual retrieval.",
+      "latency_ms": 1842.28
+    },
+    {
+      "id": 27,
+      "query": "I'm literally pulling my hair out. Is POST considered idempotent or not?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student is asking for a factual explanation regarding the idempotency of POST, which is a concept.",
+      "latency_ms": 1734.57
+    },
+    {
+      "id": 28,
+      "query": "I am terrified of failing this class. What header do I use to send a JWT token?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a factual definition regarding the specific header used for sending a JWT token.",
+      "latency_ms": 1762.6
+    },
+    {
+      "id": 29,
+      "query": "I'm having a total breakdown right now. Could you please show me the FastAPI cod",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student is asking for specific code examples related to a concept, indicating a request for factual retrieval.",
+      "latency_ms": 1780.09
+    },
+    {
+      "id": 30,
+      "query": "I just got yelled at by my boss and feel worthless. What is the difference betwe",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "Student asks for a comparison between REST and GraphQL, which is a factual retrieval request.",
+      "latency_ms": 1809.54
+    },
+    {
+      "id": 31,
+      "query": "I created a GET endpoint called /getOrders to fetch the data.",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "Student is providing information about their implementation without indicating a problem or asking for clarification.",
+      "latency_ms": 1805.61
+    },
+    {
+      "id": 32,
+      "query": "I'm returning a 200 OK status code but my JSON payload says {\\\"error\\\": \\\"invali",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports unexpected behavior in their API response, indicating a potential issue with their implementation.",
+      "latency_ms": 1779.25
+    },
+    {
+      "id": 33,
+      "query": "I used a float to store the price of the item so it looks like {\\\"amount\\\": 19.9",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student indicates a potential issue with using a float for storing price, suggesting they may be encountering an error or misconception.",
+      "latency_ms": 1750.06
+    },
+    {
+      "id": 34,
+      "query": "I'm trying to use offset pagination for my high-frequency trading feed, but it's",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports unexpected behavior in their implementation of offset pagination, indicating a potential issue to troubleshoot.",
+      "latency_ms": 1742.04
+    },
+    {
+      "id": 35,
+      "query": "My backend takes 3 minutes to generate the PDF, so I just hold the HTTP connecti",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student describes a potential issue with their backend performance related to holding an HTTP connection open, indicating a need for troubleshooting.",
+      "latency_ms": 1828.13
+    },
+    {
+      "id": 36,
+      "query": "I put the user's password in the JWT payload so I can easily verify it on the fr",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reveals a potential security misconception about storing sensitive information in JWT payloads.",
+      "latency_ms": 1808.62
+    },
+    {
+      "id": 37,
+      "query": "I am using CORS allow_origins=[\\\"*\\\"] and allow_credentials=True but the browser",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports an issue with their code configuration related to CORS, indicating a problem that needs troubleshooting.",
+      "latency_ms": 1806.79
+    },
+    {
+      "id": 38,
+      "query": "I nested my URLs deeply like /users/1/orders/5/items/12/details/3 to be precise ",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "Student is providing a specific example of URL structure, likely seeking clarification or explanation about routing.",
+      "latency_ms": 1898.52
+    },
+    {
+      "id": 39,
+      "query": "I am returning a 403 Forbidden when an unauthenticated user tries to access the ",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports an unexpected behavior (403 Forbidden) in their project, indicating a potential issue with access control.",
+      "latency_ms": 1780.56
+    },
+    {
+      "id": 40,
+      "query": "I thought GraphQL completely replaces the need for database queries and backend ",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reveals a confirmed misconception about GraphQL's role in relation to database queries and backend logic.",
+      "latency_ms": 1831.4
+    },
+    {
+      "id": 41,
+      "query": "I am returning a full stack trace in the API response when there is a 500 error ",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports unexpected behavior in their API response related to error handling, indicating a potential issue with their implementation.",
+      "latency_ms": 1872.39
+    },
+    {
+      "id": 42,
+      "query": "I used the PUT method, but I only sent the updated email field instead of the wh",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports an issue with their implementation of the PUT method, indicating a potential misunderstanding of how it should be used.",
+      "latency_ms": 1857.01
+    },
+    {
+      "id": 43,
+      "query": "My API blocks synchronously for 45 seconds while the LLM generates the text befo",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports unexpected behavior in their API, indicating a potential issue that needs troubleshooting.",
+      "latency_ms": 1682.39
+    },
+    {
+      "id": 44,
+      "query": "I didn't add pagination to my /users list because I just want the client to get ",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reveals a design choice that may lead to performance issues, indicating a potential misconception about best practices in API design.",
+      "latency_ms": 1732.08
+    },
+    {
+      "id": 45,
+      "query": "I put my API key directly in the URL query string like /v1/orders?api_key=secret",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reports a potential security issue in their implementation, indicating a misunderstanding of best practices for API key usage.",
+      "latency_ms": 2353.24
+    },
+    {
+      "id": 46,
+      "query": "Since POST is idempotent, we can safely retry failed credit card charges without",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Low-confidence LLM (0.50) overridden by diagnose cue.",
+      "latency_ms": 2427.95
+    },
+    {
+      "id": 47,
+      "query": "ETags are exclusively used to make downloads faster and save bandwidth, which is",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "Student provides a statement about ETags and their use, indicating a request for clarification or further information about the concept.",
+      "latency_ms": 1856.86
+    },
+    {
+      "id": 48,
+      "query": "The best way to secure my API is to just check if the user is logged in, that co",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reveals a misconception about API security, indicating a misunderstanding of authorization practices.",
+      "latency_ms": 1836.57
+    },
+    {
+      "id": 49,
+      "query": "To delete a resource, it's a best practice to send a POST request to /users/123/",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "Student is stating a best practice regarding HTTP requests, which implies a request for clarification or explanation of the concept.",
+      "latency_ms": 1820.69
+    },
+    {
+      "id": 50,
+      "query": "Since JWTs are encrypted, it's perfectly fine to store sensitive customer PII ri",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "Student reveals a misconception about the security of JWTs and the implications of storing sensitive information in the payload.",
+      "latency_ms": 1787.29
+    }
+  ]
+}

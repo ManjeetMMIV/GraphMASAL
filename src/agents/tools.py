@@ -100,6 +100,15 @@ def hybrid_retrieval_tool(query: str, student_id: str) -> str:
             # Bug 1 fix: include actual description text, not just concept name
             description = result.get("description") or "(no description)"
 
+            # ── Contextual Compression: compress description to remove noise ──
+            try:
+                from src.retrieval.compressor import compress_context
+                compressed_desc = compress_context(query, description)
+                if compressed_desc.strip():
+                    description = compressed_desc
+            except Exception:
+                pass  # Fall back to full description
+
             # Bug 2 fix: attempt to fetch top PDF chunk via the concept's own embedding
             chunk_text = ""
             embedding = result.get("embedding")
@@ -117,8 +126,15 @@ def hybrid_retrieval_tool(query: str, student_id: str) -> str:
                         {"emb": embedding},
                     )
                     if chunk_rows and chunk_rows[0].get("content"):
-                        snippet = chunk_rows[0]["content"][:500].strip()
-                        chunk_text = f'\n  📄 Relevant document excerpt: "{snippet}"'
+                        raw_snippet = chunk_rows[0]["content"][:500].strip()
+                        # ── Compress the PDF chunk too ──
+                        try:
+                            compressed_snippet = compress_context(query, raw_snippet)
+                            if compressed_snippet.strip():
+                                raw_snippet = compressed_snippet
+                        except Exception:
+                            pass
+                        chunk_text = f'\n  📄 Relevant document excerpt: "{raw_snippet}"'
                 except Exception:
                     pass  # pdf_chunk_embedding index may not exist yet — skip gracefully
 

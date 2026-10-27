@@ -1,0 +1,498 @@
+{
+  "total_queries": 50,
+  "accuracy_pct": 78.0,
+  "macro_f1": 0.7688,
+  "weighted_f1": 0.779,
+  "cohens_kappa": 0.5378,
+  "confusion_matrix": {
+    "labels": [
+      "diagnose",
+      "retrieve"
+    ],
+    "matrix": [
+      [
+        14,
+        6
+      ],
+      [
+        5,
+        25
+      ]
+    ],
+    "note": "rows=true, cols=predicted"
+  },
+  "per_class": {
+    "diagnose": {
+      "precision": 0.7368,
+      "recall": 0.7,
+      "f1": 0.7179,
+      "support": 20
+    },
+    "retrieve": {
+      "precision": 0.8065,
+      "recall": 0.8333,
+      "f1": 0.8197,
+      "support": 30
+    }
+  },
+  "latency": {
+    "avg_ms": 1799.46,
+    "p50_ms": 1746.2,
+    "p95_ms": 3019.58,
+    "p99_ms": 4533.44,
+    "min_ms": 774.66,
+    "max_ms": 5689.34
+  },
+  "per_query_results": [
+    {
+      "id": 1,
+      "query": "What is the primary difference between a process and a thread in a modern operat",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual explanation of a concept.",
+      "latency_ms": 5689.34
+    },
+    {
+      "id": 2,
+      "query": "Can you explain the concept of a Translation Lookaside Buffer (TLB) and how it i",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 2242.57
+    },
+    {
+      "id": 3,
+      "query": "Describe the four necessary conditions for a deadlock to occur.",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual explanation.",
+      "latency_ms": 2232.4
+    },
+    {
+      "id": 4,
+      "query": "How does the Completely Fair Scheduler (CFS) in Linux assign CPU time to differe",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 1749.24
+    },
+    {
+      "id": 5,
+      "query": "What are the advantages of using a microkernel architecture over a monolithic ke",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of advantages, which requires factual information.",
+      "latency_ms": 3330.36
+    },
+    {
+      "id": 6,
+      "query": "Define thrashing in the context of virtual memory management.",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a definition.",
+      "latency_ms": 1585.3
+    },
+    {
+      "id": 7,
+      "query": "Explain the concept of priority inversion and how the priority inheritance proto",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 2722.84
+    },
+    {
+      "id": 8,
+      "query": "What is a page fault, and what are the steps the OS takes to handle it?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation and factual information about page faults.",
+      "latency_ms": 1790.11
+    },
+    {
+      "id": 9,
+      "query": "Compare and contrast First-In-First-Out (FIFO) and Least Recently Used (LRU) pag",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation and comparison of two algorithms.",
+      "latency_ms": 1712.65
+    },
+    {
+      "id": 10,
+      "query": "What is the purpose of the dirty bit in a page table entry?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual explanation about the dirty bit in a page table entry.",
+      "latency_ms": 3223.95
+    },
+    {
+      "id": 11,
+      "query": "I keep getting a 'Segmentation fault (core dumped)' error in my C program when I",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 819.69
+    },
+    {
+      "id": 12,
+      "query": "I'm struggling to understand why my multithreaded program is producing different",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student is confused about their program's behavior and suspects a race condition, indicating a need for remediation.",
+      "latency_ms": 1787.4
+    },
+    {
+      "id": 13,
+      "query": "I failed the midterm question on Belady's anomaly. I thought adding more frames ",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 777.31
+    },
+    {
+      "id": 14,
+      "query": "My implementation of the producer-consumer problem using semaphores keeps deadlo",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 1317.98
+    },
+    {
+      "id": 15,
+      "query": "I don't get why my CPU utilization is so low even though I have many processes r",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student appears confused about CPU utilization and its relationship with process types.",
+      "latency_ms": 1664.0
+    },
+    {
+      "id": 16,
+      "query": "I am so confused about virtual addresses. If every process has its own virtual a",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 781.45
+    },
+    {
+      "id": 17,
+      "query": "I thought a system call and a function call were the same thing, but my professo",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student appears confused about the difference between system calls and function calls.",
+      "latency_ms": 2109.46
+    },
+    {
+      "id": 18,
+      "query": "Whenever I try to use fork(), my program creates way more processes than I expec",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 796.31
+    },
+    {
+      "id": 19,
+      "query": "I'm having trouble seeing the difference between a mutex and a binary semaphore.",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student is confused about the concepts and needs clarification on mutexes and semaphores.",
+      "latency_ms": 1683.71
+    },
+    {
+      "id": 20,
+      "query": "Why did I lose points on this assignment? I implemented shortest job first sched",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student appears confused about the scheduling algorithm's behavior and may need clarification or remediation.",
+      "latency_ms": 1588.44
+    },
+    {
+      "id": 21,
+      "query": "I'm a bit confused about the terminology. Could you just define what a 'context ",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 774.66
+    },
+    {
+      "id": 22,
+      "query": "Even though I got the last question wrong, I just want a straightforward explana",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 779.47
+    },
+    {
+      "id": 23,
+      "query": "I'm struggling to remember the exact syntax. What is the system call used to cre",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual answer regarding a system call.",
+      "latency_ms": 1657.9
+    },
+    {
+      "id": 24,
+      "query": "I failed to understand this in class. Can you provide a high-level summary of th",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 819.05
+    },
+    {
+      "id": 25,
+      "query": "My friend said I'm wrong, but can you give me the textbook definition of a zombi",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 811.19
+    },
+    {
+      "id": 26,
+      "query": "I'm trying to optimize my code for cache performance. Can you explain the differ",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a concept.",
+      "latency_ms": 1671.17
+    },
+    {
+      "id": 27,
+      "query": "I don't know why, but I need to know the default time quantum for the Linux sche",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual answer regarding the Linux scheduler.",
+      "latency_ms": 1726.18
+    },
+    {
+      "id": 28,
+      "query": "I'm stuck on my homework. Can you list the three main requirements for a solutio",
+      "expected": "retrieve",
+      "predicted": "diagnose",
+      "correct": false,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 881.74
+    },
+    {
+      "id": 29,
+      "query": "Can you explain how a multi-level feedback queue works? I'm having a hard time g",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a concept they find difficult to understand.",
+      "latency_ms": 2306.69
+    },
+    {
+      "id": 30,
+      "query": "I am so lost. Please just tell me what DMA (Direct Memory Access) stands for and",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a definition and explanation of DMA.",
+      "latency_ms": 1620.12
+    },
+    {
+      "id": 31,
+      "query": "Explain why my specific code snippet `int *p; *p = 5;` causes a crash. What is t",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "The student is asking for an explanation of a specific code snippet.",
+      "latency_ms": 1814.87
+    },
+    {
+      "id": 32,
+      "query": "I understand the concept of a TLB, but in my simulation, the hit rate is only 10",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student is confused about the low hit rate and is seeking remediation for potential thrashing issues.",
+      "latency_ms": 1644.3
+    },
+    {
+      "id": 33,
+      "query": "Provide a breakdown of why a system might experience high page fault rates even ",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "The student is asking for an explanation regarding high page fault rates.",
+      "latency_ms": 2057.48
+    },
+    {
+      "id": 34,
+      "query": "Define the terms in my own context: I have 3 threads writing to a shared queue. ",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "The student is asking for an explanation regarding thread behavior and shared resources.",
+      "latency_ms": 1743.17
+    },
+    {
+      "id": 35,
+      "query": "Give me an example of how my specific implementation of a spinlock using `test_a",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "The student is asking for an explanation and example regarding spinlock inefficiency.",
+      "latency_ms": 1763.05
+    },
+    {
+      "id": 36,
+      "query": "How can I improve my grasp of memory management? I read the chapter on paging, b",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student is struggling with understanding and solving problems related to memory management, indicating a need for remediation.",
+      "latency_ms": 1897.26
+    },
+    {
+      "id": 37,
+      "query": "What are the key properties I missed in my design document? The reviewer said my",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "The student appears confused about the concepts of deadlock prevention and avoidance, indicating a need for clarification and remediation.",
+      "latency_ms": 2057.62
+    },
+    {
+      "id": 38,
+      "query": "Can you summarize what I did wrong in the last lab? My file system implementatio",
+      "expected": "diagnose",
+      "predicted": "diagnose",
+      "correct": true,
+      "reason": "User signaled confusion, struggle, or a request for remediation.",
+      "latency_ms": 1972.83
+    },
+    {
+      "id": 39,
+      "query": "I know what a context switch is, but why does my real-time application miss its ",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "The student is asking for an explanation regarding a specific concept related to context switches and real-time applications.",
+      "latency_ms": 1801.58
+    },
+    {
+      "id": 40,
+      "query": "Can you define the exact reason my implementation of Dekker's algorithm fails to",
+      "expected": "diagnose",
+      "predicted": "retrieve",
+      "correct": false,
+      "reason": "The student is asking for an explanation regarding a specific failure in Dekker's algorithm.",
+      "latency_ms": 1710.62
+    },
+    {
+      "id": 41,
+      "query": "What is an inode and what metadata does it store?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a definition and explanation of an inode and its metadata.",
+      "latency_ms": 2769.8
+    },
+    {
+      "id": 42,
+      "query": "Describe the structure of a typical hard disk drive, including platters, tracks,",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific topic.",
+      "latency_ms": 2002.82
+    },
+    {
+      "id": 43,
+      "query": "How does the elevator algorithm (SCAN) for disk scheduling work?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific algorithm.",
+      "latency_ms": 1754.57
+    },
+    {
+      "id": 44,
+      "query": "What is the difference between a symbolic link and a hard link in Unix?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual explanation of concepts.",
+      "latency_ms": 1560.63
+    },
+    {
+      "id": 45,
+      "query": "Explain the concept of memory-mapped files.",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 1837.54
+    },
+    {
+      "id": 46,
+      "query": "What are the common attributes associated with a file?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a factual answer regarding file attributes.",
+      "latency_ms": 1838.86
+    },
+    {
+      "id": 47,
+      "query": "Describe the File Allocation Table (FAT) file system structure.",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 1763.55
+    },
+    {
+      "id": 48,
+      "query": "What is the role of the Virtual File System (VFS) layer in Linux?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 1635.15
+    },
+    {
+      "id": 49,
+      "query": "How does a journaling file system like ext4 handle crash recovery?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for an explanation of a specific concept.",
+      "latency_ms": 1688.42
+    },
+    {
+      "id": 50,
+      "query": "What is the principle of least privilege in the context of OS security?",
+      "expected": "retrieve",
+      "predicted": "retrieve",
+      "correct": true,
+      "reason": "The student is asking for a definition and explanation of a specific concept.",
+      "latency_ms": 2006.36
+    }
+  ]
+}

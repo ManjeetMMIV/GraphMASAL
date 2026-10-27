@@ -41,14 +41,20 @@ def get_neo4j_connection() -> Optional[Neo4jConnection]:
     pwd = os.getenv("NEO4J_PASSWORD", "")
     if not (uri and user and pwd):
         return None
-    return Neo4jConnection(uri, user, pwd)
+    conn = Neo4jConnection(uri, user, pwd)
+    if not conn.driver:
+        return None
+    return conn
 
 def bootstrap_student(student_id: str) -> None:
-    conn = get_neo4j_connection()
-    if not conn:
-        return
     try:
-        manager = StudentManager(conn)
-        manager.create_student_from_dict(student_id, student_id, {})
-    finally:
-        conn.close()
+        conn = get_neo4j_connection()
+        if not conn:
+            return
+        try:
+            manager = StudentManager(conn)
+            manager.create_student_from_dict(student_id, student_id, {})
+        finally:
+            conn.close()
+    except Exception as e:
+        print(f"Warning: could not bootstrap student in Neo4j: {e}")

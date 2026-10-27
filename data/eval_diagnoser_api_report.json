@@ -1,0 +1,370 @@
+{
+  "total_cases": 30,
+  "accuracy_pct": 83.33,
+  "precision": 0.9167,
+  "recall": 0.7333,
+  "f1_score": 0.8148,
+  "concept_attribution_accuracy": 0.8182,
+  "confusion": {
+    "TP": 11,
+    "FP": 1,
+    "TN": 14,
+    "FN": 4
+  },
+  "per_case_results": [
+    {
+      "id": 1,
+      "input": "I want to update just the email field of a user, so I should use PUT /users/123 ",
+      "expected_misconception": true,
+      "expected_concept": "http-methods",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "http-methods"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 4966.19
+    },
+    {
+      "id": 2,
+      "input": "To get the active orders, I should create an endpoint GET /getOrders.",
+      "expected_misconception": true,
+      "expected_concept": "resource-naming",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "resource-naming"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1935.38
+    },
+    {
+      "id": 3,
+      "input": "If validation fails, I return a 200 OK status but include an error message in th",
+      "expected_misconception": true,
+      "expected_concept": "status-codes-and-errors",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "status-codes-and-errors"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1896.84
+    },
+    {
+      "id": 4,
+      "input": "I'll store the price of the item as a float in the JSON body like {\"amount\": 19.",
+      "expected_misconception": true,
+      "expected_concept": "request-response-design",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "request-response-design"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1855.44
+    },
+    {
+      "id": 5,
+      "input": "My live feed table is huge and constantly changing, so I'll just use offset and ",
+      "expected_misconception": true,
+      "expected_concept": "pagination-and-filtering",
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "FN",
+      "concept_correct": null,
+      "latency_ms": 2210.51
+    },
+    {
+      "id": 6,
+      "input": "If a POST request to /payments times out, the client should just blindly retry i",
+      "expected_misconception": true,
+      "expected_concept": "idempotency-and-retries",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "idempotency-and-retries"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1860.63
+    },
+    {
+      "id": 7,
+      "input": "I don't need ETags because my JSON responses are small, and I don't really care ",
+      "expected_misconception": true,
+      "expected_concept": "caching-and-etags",
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "FN",
+      "concept_correct": null,
+      "latency_ms": 1830.15
+    },
+    {
+      "id": 8,
+      "input": "For generating a massive PDF report, the client should just keep the HTTP connec",
+      "expected_misconception": true,
+      "expected_concept": "long-running-jobs",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "long-running-jobs"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1946.61
+    },
+    {
+      "id": 9,
+      "input": "I can securely store the user's password hash and private API keys inside the JW",
+      "expected_misconception": true,
+      "expected_concept": "api-security",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "api-security"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1820.99
+    },
+    {
+      "id": 10,
+      "input": "When calling the LLM, my API blocks synchronously for 45 seconds and returns the",
+      "expected_misconception": true,
+      "expected_concept": "ai-and-streaming-apis",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "long-running-jobs"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 3216.9
+    },
+    {
+      "id": 11,
+      "input": "If we switch to GraphQL, we won't need to write any backend logic or database qu",
+      "expected_misconception": true,
+      "expected_concept": "api-architectures",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "api-architectures"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1841.77
+    },
+    {
+      "id": 12,
+      "input": "POST requests are safe to retry automatically because creating a resource twice ",
+      "expected_misconception": true,
+      "expected_concept": "http-methods",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "idempotency-and-retries"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 1853.14
+    },
+    {
+      "id": 13,
+      "input": "If a user tries to access a private enterprise repository they aren't invited to",
+      "expected_misconception": true,
+      "expected_concept": "status-codes-and-errors",
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "FN",
+      "concept_correct": null,
+      "latency_ms": 1110.07
+    },
+    {
+      "id": 14,
+      "input": "My URL structure is really specific and clean: GET /users/1/orders/2/items/3/det",
+      "expected_misconception": true,
+      "expected_concept": "resource-naming",
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "FN",
+      "concept_correct": null,
+      "latency_ms": 1850.72
+    },
+    {
+      "id": 15,
+      "input": "To make things easy during development, I set CORS allow_origins to '*' and allo",
+      "expected_misconception": true,
+      "expected_concept": "api-security",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "api-security"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 3180.98
+    },
+    {
+      "id": 16,
+      "input": "I failed my API test and I'm so lost right now. I don't even know if I belong in",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "status-codes-and-errors"
+      ],
+      "classification": "FP",
+      "concept_correct": null,
+      "latency_ms": 1886.5
+    },
+    {
+      "id": 17,
+      "input": "I'm so frustrated with this assignment! I've been crying for an hour. Why do I h",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1907.38
+    },
+    {
+      "id": 18,
+      "input": "My boss yelled at me today and I feel awful. At least I finally learned that we ",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1293.02
+    },
+    {
+      "id": 19,
+      "input": "I'm about to give up on programming entirely. I spent all night fixing my endpoi",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1446.39
+    },
+    {
+      "id": 20,
+      "input": "I am having a nervous breakdown over CORS errors. But I understand that CORS pro",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1894.83
+    },
+    {
+      "id": 21,
+      "input": "Is it a good practice to use Server-Sent Events (SSE) and return Content-Type: t",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1703.44
+    },
+    {
+      "id": 22,
+      "input": "For my payment API, I'm requiring clients to send an Idempotency-Key header with",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1268.71
+    },
+    {
+      "id": 23,
+      "input": "I'm storing money as integer minor units, so 149.00 INR is represented as {\\\"amo",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1159.21
+    },
+    {
+      "id": 24,
+      "input": "If a user isn't logged in, I return a 401 Unauthorized, but if they are logged i",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1437.61
+    },
+    {
+      "id": 25,
+      "input": "I use PUT when I want to replace the entire resource and PATCH when I only want ",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1166.43
+    },
+    {
+      "id": 26,
+      "input": "To handle caching and concurrent edits, I return an ETag header, and clients use",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1136.56
+    },
+    {
+      "id": 27,
+      "input": "I use ISO 8601 strings with a time zone for all dates in my JSON payloads, like ",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1447.39
+    },
+    {
+      "id": 28,
+      "input": "If the upstream server times out while processing the request, returning a 504 G",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1277.73
+    },
+    {
+      "id": 29,
+      "input": "I am using gRPC for high-throughput service-to-service communication on the back",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1332.15
+    },
+    {
+      "id": 30,
+      "input": "When a resource is successfully deleted, returning 204 No Content is the standar",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1355.66
+    }
+  ]
+}

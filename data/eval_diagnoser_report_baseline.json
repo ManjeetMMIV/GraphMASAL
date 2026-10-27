@@ -1,0 +1,389 @@
+{
+  "total_cases": 30,
+  "accuracy_pct": 83.33,
+  "precision": 0.75,
+  "recall": 1.0,
+  "f1_score": 0.8571,
+  "concept_attribution_accuracy": 0.2667,
+  "confusion": {
+    "TP": 15,
+    "FP": 5,
+    "TN": 10,
+    "FN": 0
+  },
+  "per_case_results": [
+    {
+      "id": 1,
+      "input": "The CPU executes programs directly from the hard drive because it's non-volatile",
+      "expected_misconception": true,
+      "expected_concept": "computer-architecture",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "file-systems"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 5420.64
+    },
+    {
+      "id": 2,
+      "input": "The OS creates a separate physical CPU for every single program running at the s",
+      "expected_misconception": true,
+      "expected_concept": "cpu-virtualization",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "cpu-scheduling"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 1878.82
+    },
+    {
+      "id": 3,
+      "input": "When a process forks, the child process shares the exact same memory space as th",
+      "expected_misconception": true,
+      "expected_concept": "processes",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "forking"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 2500.89
+    },
+    {
+      "id": 4,
+      "input": "Round robin scheduling guarantees that the shortest jobs will always finish firs",
+      "expected_misconception": true,
+      "expected_concept": "scheduling",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "round-robin-scheduling",
+        "round-robin-scheduling"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 3056.13
+    },
+    {
+      "id": 5,
+      "input": "Virtual memory means every program uses the exact same physical memory addresses",
+      "expected_misconception": true,
+      "expected_concept": "memory-virtualization",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "virtual-memory"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 3961.25
+    },
+    {
+      "id": 6,
+      "input": "Paging suffers from terrible external fragmentation because the pages are all di",
+      "expected_misconception": true,
+      "expected_concept": "paging",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "paging"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 2685.65
+    },
+    {
+      "id": 7,
+      "input": "If we have a multi-core processor, we don't need to worry about race conditions ",
+      "expected_misconception": true,
+      "expected_concept": "concurrency",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "locks"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 2220.59
+    },
+    {
+      "id": 8,
+      "input": "Threads in the same process each have their own separate heap.",
+      "expected_misconception": true,
+      "expected_concept": "threads",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "threads"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1973.35
+    },
+    {
+      "id": 9,
+      "input": "A spinlock is always better than a yielding lock because it immediately puts the",
+      "expected_misconception": true,
+      "expected_concept": "locks",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "locks"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1708.65
+    },
+    {
+      "id": 10,
+      "input": "When a process terminates, all its local variables are automatically saved to th",
+      "expected_misconception": true,
+      "expected_concept": "persistence",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "process-termination"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 1705.3
+    },
+    {
+      "id": 11,
+      "input": "An inode stores the actual file data, like the text of a document or pixels of a",
+      "expected_misconception": true,
+      "expected_concept": "file-systems",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "file-systems"
+      ],
+      "classification": "TP",
+      "concept_correct": true,
+      "latency_ms": 1799.21
+    },
+    {
+      "id": 12,
+      "input": "A file system checksum guarantees that a file can be completely recovered if the",
+      "expected_misconception": true,
+      "expected_concept": "data-integrity",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "file-systems"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 2668.76
+    },
+    {
+      "id": 13,
+      "input": "Context switching has zero overhead because it's just a single magical hardware ",
+      "expected_misconception": true,
+      "expected_concept": "cpu-virtualization",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "context-switching"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 3319.24
+    },
+    {
+      "id": 14,
+      "input": "The TLB is a massive cache located on the hard drive used to store all page tabl",
+      "expected_misconception": true,
+      "expected_concept": "memory-virtualization",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "paging"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 1696.29
+    },
+    {
+      "id": 15,
+      "input": "The Multi-Level Feedback Queue is a great scheduler because it knows exactly how",
+      "expected_misconception": true,
+      "expected_concept": "scheduling",
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "multi-level-feedback-queue"
+      ],
+      "classification": "TP",
+      "concept_correct": false,
+      "latency_ms": 1739.53
+    },
+    {
+      "id": 16,
+      "input": "I'm having trouble understanding how the TLB gets updated on a context switch, c",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 2784.87
+    },
+    {
+      "id": 17,
+      "input": "Wait, so processes really do have their own isolated virtual address space?",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1639.88
+    },
+    {
+      "id": 18,
+      "input": "The textbook says paging eliminates external fragmentation \u00e2\u20ac\u201d is that right?",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1629.59
+    },
+    {
+      "id": 19,
+      "input": "Can you give me an example of a race condition in C++?",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 4375.61
+    },
+    {
+      "id": 20,
+      "input": "So a thread has its own stack and program counter, but shares the heap with othe",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1267.19
+    },
+    {
+      "id": 21,
+      "input": "I understand that journaling file systems write intent to a log before updating ",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1037.86
+    },
+    {
+      "id": 22,
+      "input": "Is round-robin scheduling just giving each job a time slice and then moving to t",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1617.5
+    },
+    {
+      "id": 23,
+      "input": "Does the OS use a trap handler to switch from user mode to kernel mode during a ",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1642.43
+    },
+    {
+      "id": 24,
+      "input": "If I use a mutex, only one thread can be in the critical section at a time, righ",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1298.72
+    },
+    {
+      "id": 25,
+      "input": "I want to make sure I get this: does an inode map file offsets to the physical d",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "file-systems"
+      ],
+      "classification": "FP",
+      "concept_correct": null,
+      "latency_ms": 4141.28
+    },
+    {
+      "id": 26,
+      "input": "I am so stuck and confused. Does this mean that even if we use paging, we can st",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "paging"
+      ],
+      "classification": "FP",
+      "concept_correct": null,
+      "latency_ms": 5068.42
+    },
+    {
+      "id": 27,
+      "input": "This is probably completely wrong, but isn't a context switch actually really ex",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "context-switching",
+        "context-switching"
+      ],
+      "classification": "FP",
+      "concept_correct": null,
+      "latency_ms": 3481.19
+    },
+    {
+      "id": 28,
+      "input": "I'm totally lost. If threads share the same address space, doesn't that mean the",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "locks",
+        "locks-in-multithreading"
+      ],
+      "classification": "FP",
+      "concept_correct": null,
+      "latency_ms": 3047.83
+    },
+    {
+      "id": 29,
+      "input": "My brain is melting. Is it true that the shortest-job-first scheduler can actual",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": false,
+      "predicted_concepts": [],
+      "classification": "TN",
+      "concept_correct": null,
+      "latency_ms": 1642.65
+    },
+    {
+      "id": 30,
+      "input": "I don't know what I'm doing anymore. Wait, if a hard drive uses a checksum and f",
+      "expected_misconception": false,
+      "expected_concept": null,
+      "predicted_misconception": true,
+      "predicted_concepts": [
+        "file-systems"
+      ],
+      "classification": "FP",
+      "concept_correct": null,
+      "latency_ms": 1857.29
+    }
+  ]
+}

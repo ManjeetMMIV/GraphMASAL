@@ -1,0 +1,80 @@
+{
+  "hybrid_results": [
+    {
+      "question": "What is computer architecture and why is it important?",
+      "ground_truth": "Computer architecture is the basic structure of computers, including CPU, memory, and I/O systems. It forms the foundation for understanding how operating systems interact with hardware.",
+      "answer": "Computer architecture refers to the basic structure of computers, including the CPU, memory, and I/O systems. It is important because it defines how these components interact and function together, which ultimately affects the performance and efficiency of computing systems. Understanding computer architecture is essential for designing and optimizing hardware and software systems.",
+      "contexts": [
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "Processes: The abstraction of a running program.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs."
+      ],
+      "retrieval_time_ms": 1184.02,
+      "generation_time_ms": 1855.45
+    },
+    {
+      "question": "How does CPU virtualization work in modern operating systems?",
+      "ground_truth": "CPU virtualization provides the illusion of many CPUs by time-sharing the physical CPU among multiple processes. The OS manages context switching and scheduling to give each process its own virtual CPU.",
+      "answer": "CPU virtualization in modern operating systems works by providing the illusion of many CPUs to applications. This is achieved through techniques that allow multiple processes to share the physical CPU resources effectively. The operating system manages the scheduling of these processes, ensuring that each one gets a fair amount of CPU time, thus creating the appearance that there are multiple CPUs available for execution. This abstraction allows for better resource utilization and multitasking capabilities within the system.",
+      "contexts": [
+        "CPU Virtualization: How the OS provides the illusion of many CPUs.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Processes: The abstraction of a running program."
+      ],
+      "retrieval_time_ms": 1016.35,
+      "generation_time_ms": 1824.79
+    }
+  ],
+  "vector_only_results": [
+    {
+      "question": "What is computer architecture and why is it important?",
+      "ground_truth": "Computer architecture is the basic structure of computers, including CPU, memory, and I/O systems. It forms the foundation for understanding how operating systems interact with hardware.",
+      "answer": "Computer architecture refers to the basic structure of computers, including the CPU, memory, and I/O systems. It is important because it defines how these components interact and function together, which ultimately affects the performance and efficiency of computing systems. Understanding computer architecture is essential for optimizing software and hardware design, ensuring that programs run effectively on the underlying hardware.",
+      "contexts": [
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O.",
+        "CPU Virtualization: How the OS provides the illusion of many CPUs.",
+        "Processes: The abstraction of a running program."
+      ],
+      "retrieval_time_ms": 205.11,
+      "generation_time_ms": 1310.13
+    },
+    {
+      "question": "How does CPU virtualization work in modern operating systems?",
+      "ground_truth": "CPU virtualization provides the illusion of many CPUs by time-sharing the physical CPU among multiple processes. The OS manages context switching and scheduling to give each process its own virtual CPU.",
+      "answer": "CPU virtualization in modern operating systems works by providing the illusion of many CPUs to applications. This is achieved through techniques such as time-sharing, where the OS rapidly switches between processes, giving each one a small time slice of CPU time. This allows multiple processes to run concurrently, even on a single physical CPU. The OS manages these processes and schedules their execution, ensuring that they appear to have their own dedicated CPU resources, thus creating the illusion of multiple CPUs.",
+      "contexts": [
+        "CPU Virtualization: How the OS provides the illusion of many CPUs.",
+        "Memory Virtualization: How the OS provides the illusion of infinite memory.",
+        "Computer Architecture: Basic structure of computers, CPU, Memory, I/O."
+      ],
+      "retrieval_time_ms": 97.68,
+      "generation_time_ms": 2524.43
+    }
+  ],
+  "hybrid_ragas": {
+    "faithfulness": 0.4554,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0,
+    "context_recall": 0.5,
+    "answer_correctness": 0.7708
+  },
+  "vector_only_ragas": {
+    "faithfulness": 0.5417,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0,
+    "context_recall": 0.5,
+    "answer_correctness": 0.9526
+  },
+  "delta_hybrid_minus_vector": {
+    "faithfulness": -0.0863,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "answer_correctness": -0.1818
+  },
+  "latency_comparison": {
+    "avg_retrieval_ms_hybrid": 1100.18,
+    "avg_retrieval_ms_vector_only": 151.4,
+    "overhead_ms": 948.79
+  }
+}

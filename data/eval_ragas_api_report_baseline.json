@@ -1,0 +1,512 @@
+{
+  "hybrid_results": [
+    {
+      "question": "How should I name my API endpoints? Are verbs allowed in the URL?",
+      "ground_truth": "Endpoints should use plural nouns, lowercase letters, and hyphens (e.g., /orders or /order-items) instead of actions. A verb should only be used for real actions at the end of a path, such as POST /orders/42/cancel.",
+      "answer": "You should name your API endpoints using plural lowercase nouns and kebab-case. Verbs are not allowed in the URL.",
+      "contexts": [
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update."
+      ],
+      "retrieval_time_ms": 2219.42,
+      "generation_time_ms": 4670.42
+    },
+    {
+      "question": "What is the difference between PUT and PATCH, and which methods are considered safe and idempotent?",
+      "ground_truth": "PUT replaces the whole resource and is idempotent, while PATCH changes only some fields and is not always idempotent. GET is both safe and idempotent. POST is neither safe nor idempotent, and DELETE is idempotent but not safe.",
+      "answer": "The difference between PUT and PATCH lies in how they update resources. PUT is used for full resource replacement, meaning it replaces the entire resource with the provided data. In contrast, PATCH is used for partial updates, allowing you to modify only specific fields of a resource without affecting the entire resource.\n\nRegarding safety and idempotency, both PUT and PATCH are considered idempotent methods, meaning that making the same request multiple times will have the same effect as making it once. However, neither PUT nor PATCH is classified as safe methods, as they both modify resources. Safe methods are those that do not change the state of the resource, such as GET.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter."
+      ],
+      "retrieval_time_ms": 1121.63,
+      "generation_time_ms": 1765.67
+    },
+    {
+      "question": "When should my API return a 401 Unauthorized versus a 403 Forbidden?",
+      "ground_truth": "A 401 Unauthorized should be used when there is no token, an expired token, or a bad signature. A 403 Forbidden is used when there is a valid user, but they do not own the resource or their plan does not include the requested feature.",
+      "answer": "Your API should return a 401 Unauthorized status code when the request lacks valid authentication credentials. This indicates that the user must authenticate to access the resource. On the other hand, a 403 Forbidden status code should be returned when the user is authenticated but does not have permission to access the requested resource. In summary, use 401 for missing or invalid credentials and 403 for insufficient permissions despite valid authentication.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies."
+      ],
+      "retrieval_time_ms": 963.09,
+      "generation_time_ms": 2752.04
+    },
+    {
+      "question": "What is the recommended format for error responses in a REST API?",
+      "ground_truth": "APIs should use one error format based on RFC 9457 (Problem Details) and return a Content-Type of application/problem+json. The JSON payload should include fields like type, title, status, detail, an array of specific errors, and a request_id for support logs.",
+      "answer": "The recommended format for error responses in a REST API is to follow the RFC 9457 Problem Details specification. This provides a standardized way to convey error information, allowing clients to understand the nature of the error more effectively.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs."
+      ],
+      "retrieval_time_ms": 1057.72,
+      "generation_time_ms": 1173.78
+    },
+    {
+      "question": "How should I format monetary values in my JSON request and response bodies?",
+      "ground_truth": "Money should be represented as integer minor units (such as cents) or a decimal string. You should never use a float for monetary values to avoid precision issues.",
+      "answer": "You should represent monetary values in your JSON request and response bodies in minor units, such as cents or paise.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs."
+      ],
+      "retrieval_time_ms": 2639.17,
+      "generation_time_ms": 1093.78
+    },
+    {
+      "question": "What are the trade-offs between offset and cursor pagination?",
+      "ground_truth": "Offset pagination is simple and allows jumping to any page, but it is slow on large tables and suffers from row-shift problems when data changes. Cursor pagination is fast and stable for feeds and live data, utilizing a next_cursor to fetch subsequent records, but does not allow jumping to a specific page number.",
+      "answer": "The knowledge context does not provide specific details about the trade-offs between offset and cursor pagination. Therefore, I cannot provide an answer based on the provided information.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Pagination, Filtering, and Sorting: Offset vs cursor pagination trade-offs, query filtering (?status=paid), sorting (?sort=-created_at), and sparse fieldsets.",
+        "AI APIs and Event Streaming: Server-Sent Events (SSE) with text/event-stream for LLM token streaming, token-based rate limits, RAG API architecture, and /health vs /ready endpoints."
+      ],
+      "retrieval_time_ms": 1667.06,
+      "generation_time_ms": 1198.78
+    },
+    {
+      "question": "What are the different ways to version a REST API?",
+      "ground_truth": "The most common and visible strategy is to put the version in the URL path, like /v1/orders. Alternatively, you can use clean URLs and pass dated versions via a header, such as API-Version: 2026-10-01, which is the Stripe style.",
+      "answer": "The provided knowledge context does not include specific information on the different ways to version a REST API. Therefore, I cannot provide an answer based on the given context.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs.",
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation."
+      ],
+      "retrieval_time_ms": 959.07,
+      "generation_time_ms": 851.31
+    },
+    {
+      "question": "How can I safely retry a failed POST request, such as a payment, without double-charging?",
+      "ground_truth": "Clients should send an Idempotency-Key header containing a UUID. The server stores this key with the result, so retrying the same key returns the identical result instead of charging the user twice.",
+      "answer": "To safely retry a failed POST request, such as a payment, without double-charging, you should implement an idempotency mechanism. This involves generating a unique identifier for each payment request (e.g., a string ID) and including it in the request payload. \n\nWhen the server receives a POST request with this unique ID, it should check if a payment with that ID has already been processed. If it has, the server should return the original response instead of processing the payment again. This way, even if the client retries the request due to a failure, the server will not create a duplicate transaction, thus preventing double-charging. \n\nAdditionally, ensure that your error handling is robust, using appropriate HTTP status codes (like 409 for conflict) to indicate issues with the request.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update."
+      ],
+      "retrieval_time_ms": 1063.79,
+      "generation_time_ms": 2209.62
+    },
+    {
+      "question": "How can caching headers prevent lost updates during concurrent edits?",
+      "ground_truth": "Servers can return an ETag header with a resource. Clients can send If-None-Match to check if a cached copy is still valid, receiving a 304 Not Modified if so. For concurrent edits, clients send If-Match on a PATCH request, and the server returns a 412 if the resource was changed by someone else.",
+      "answer": "The provided knowledge context does not contain information specifically about caching headers or how they can prevent lost updates during concurrent edits. Therefore, I cannot answer your question based on the given context.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter.",
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks."
+      ],
+      "retrieval_time_ms": 1843.35,
+      "generation_time_ms": 1040.12
+    },
+    {
+      "question": "What is the best way to design endpoints for long-running work like generating a report?",
+      "ground_truth": "Do not hold the request open; instead, return a 202 Accepted status with a Location header pointing to a job endpoint (e.g., /jobs/51) that the client can poll for status updates. Alternatively, let the client register a webhook to be called when the job finishes.",
+      "answer": "The best way to design endpoints for long-running work like generating a report is to use the following approach:\n\n1. **Initial Request**: When a client requests the report generation, respond with a `202 Accepted` status to indicate that the request has been received and is being processed.\n\n2. **Job Status Polling**: Provide an endpoint for clients to check the status of the report generation, such as `/jobs/{id}`. This endpoint should return the current status of the job (e.g., pending, in progress, completed, failed).\n\n3. **Webhooks**: Optionally, implement HMAC-SHA256 signed webhooks to notify clients when the report generation is complete. This allows clients to receive updates without continuously polling the status.\n\nBy following this design, you can effectively manage long-running tasks while providing clients with a clear way to track progress and receive notifications.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks.",
+        "AI APIs and Event Streaming: Server-Sent Events (SSE) with text/event-stream for LLM token streaming, token-based rate limits, RAG API architecture, and /health vs /ready endpoints."
+      ],
+      "retrieval_time_ms": 955.31,
+      "generation_time_ms": 2109.26
+    },
+    {
+      "question": "What are the best practices for building secure and reliable webhooks?",
+      "ground_truth": "You should sign each payload using HMAC-SHA256 and verify the signature before reading it. Send event IDs so receivers can ignore duplicates, retry with exponential backoff until a 2xx response is received, and have receivers reply quickly (200 OK) while processing work in the background.",
+      "answer": "The best practices for building secure and reliable webhooks include:\n\n1. **HMAC-SHA256 Signing**: Sign your webhook payloads using HMAC-SHA256 to ensure the integrity and authenticity of the messages. This allows the receiver to verify that the payload has not been tampered with.\n\n2. **Use of ISO 8601 Timestamps**: Include timestamps in your webhook payloads formatted according to ISO 8601 to help recipients validate the timing of events.\n\n3. **Idempotency Keys**: Implement idempotency keys to prevent duplicate processing of webhook events. This ensures that if a webhook is received multiple times, it will only be processed once.\n\n4. **Job Status Polling**: For long-running tasks, return a 202 Accepted status and provide an endpoint for job status polling (e.g., `/jobs/{id}`) to allow clients to check the status of the operation.\n\n5. **Client Exponential Backoff with Jitter**: Encourage clients to implement exponential backoff with jitter for retries in case of failures, which helps to reduce the load on your server during high traffic or failure scenarios.\n\nThese practices help ensure that webhooks are both secure and reliable.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter."
+      ],
+      "retrieval_time_ms": 1406.62,
+      "generation_time_ms": 3265.26
+    },
+    {
+      "question": "What is Broken Object-Level Authorization and how do I prevent it?",
+      "ground_truth": "Broken object-level authorization is the #1 API vulnerability according to OWASP, and it occurs when an API checks if a user is logged in but fails to check resource ownership. You must check authorization on every request to ensure the authenticated user actually owns the specific object they are trying to access.",
+      "answer": "The provided knowledge context does not contain information about Broken Object-Level Authorization or how to prevent it. Therefore, I cannot provide an answer based on the given context.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter."
+      ],
+      "retrieval_time_ms": 2735.27,
+      "generation_time_ms": 1115.74
+    },
+    {
+      "question": "What are the main security pitfalls to avoid when using JSON Web Tokens (JWT)?",
+      "ground_truth": "You must verify the signature, pin the algorithm, and reject 'alg: none'. The payload is encoded, not encrypted, so never store secrets inside it. In browsers, keep JWTs securely in HttpOnly cookies rather than localStorage.",
+      "answer": "The provided knowledge context does not include information about the security pitfalls to avoid when using JSON Web Tokens (JWT). Therefore, I cannot answer your question based on the given context.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter."
+      ],
+      "retrieval_time_ms": 1386.58,
+      "generation_time_ms": 1044.89
+    },
+    {
+      "question": "How should I configure CORS for my API safely?",
+      "ground_truth": "You should only allow your own front-end origins. You must never combine allow_origins=[\\\"*\\\"] with allow_credentials=True. Remember that CORS protects browsers, not your API, so server-side authentication still decides access.",
+      "answer": "To configure CORS (Cross-Origin Resource Sharing) for your API safely, you should implement strict origin policies. This means specifying a limited set of trusted origins that are allowed to access your API. Avoid using wildcard (`*`) for the `Access-Control-Allow-Origin` header, as it can expose your API to security risks. Additionally, ensure that your CORS configuration aligns with your authentication and authorization mechanisms to prevent unauthorized access.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies."
+      ],
+      "retrieval_time_ms": 1436.26,
+      "generation_time_ms": 1730.95
+    },
+    {
+      "question": "How should an API return streamed replies for LLM text generation features?",
+      "ground_truth": "APIs should stream replies using Server-Sent Events (SSE) by setting the Content-Type to text/event-stream. The server should yield data tokens as they are generated and close with a final done token.",
+      "answer": "An API should return streamed replies for LLM text generation features using Server-Sent Events (SSE) with the `text/event-stream` content type. This allows for real-time streaming of tokens as they are generated. Additionally, it is important to implement token-based rate limits to manage the flow of data effectively.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "AI APIs and Event Streaming: Server-Sent Events (SSE) with text/event-stream for LLM token streaming, token-based rate limits, RAG API architecture, and /health vs /ready endpoints."
+      ],
+      "retrieval_time_ms": 957.48,
+      "generation_time_ms": 1131.22
+    },
+    {
+      "question": "When should I choose GraphQL or gRPC over standard REST?",
+      "ground_truth": "REST is best for simple public APIs, CRUD, and HTTP caching. GraphQL is ideal when many front-ends need different data shapes, as it prevents over-fetching. gRPC is fast, typed, and best for high-throughput service-to-service communication, but it is not intended for browsers.",
+      "answer": "The provided knowledge context does not contain specific information about when to choose GraphQL or gRPC over standard REST. Therefore, I cannot provide an answer based on the given context.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs."
+      ],
+      "retrieval_time_ms": 2554.64,
+      "generation_time_ms": 1291.43
+    },
+    {
+      "question": "What is the difference between a /health endpoint and a /ready endpoint?",
+      "ground_truth": "A /health endpoint is a cheap check with no dependencies to verify the process is alive. A /ready endpoint checks if dependencies like the database, cache, and models are reachable, indicating the service is ready for traffic.",
+      "answer": "The provided knowledge context does not contain specific information about the differences between a /health endpoint and a /ready endpoint. Therefore, I cannot provide a clear answer based on the given context.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs."
+      ],
+      "retrieval_time_ms": 1067.41,
+      "generation_time_ms": 1180.25
+    },
+    {
+      "question": "Which HTTP status code and headers are used to implement rate limits?",
+      "ground_truth": "When rate-limited, the API should return a 429 Too Many Requests status code. The response should include a Retry-After header telling the client when to try again, alongside RateLimit-Limit and RateLimit-Remaining headers.",
+      "answer": "The provided knowledge context does not include specific information about HTTP status codes and headers used to implement rate limits. Therefore, I cannot provide an answer based on the given context.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update."
+      ],
+      "retrieval_time_ms": 2216.05,
+      "generation_time_ms": 1149.32
+    },
+    {
+      "question": "How should an API client handle timeouts and failing requests?",
+      "ground_truth": "Clients should retry idempotent requests using exponential backoff with jitter (e.g., waiting 1s, 2s, 4s plus a random factor) before giving up. They should also implement a circuit breaker pattern to stop calling a service that continuously fails.",
+      "answer": "The provided knowledge context does not specifically address how an API client should handle timeouts and failing requests. Therefore, I cannot provide a clear answer based on the given information.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks."
+      ],
+      "retrieval_time_ms": 1378.56,
+      "generation_time_ms": 1277.04
+    },
+    {
+      "question": "How can I test the API contract for a POST request using FastAPI?",
+      "ground_truth": "You can test the contract using FastAPI's TestClient to assert responses. For example, asserting that a valid JSON body returns a 201 status code with a Location header, or that sending bad data (like an invalid quantity) is rejected with a 422 status code.",
+      "answer": "To test the API contract for a POST request using FastAPI, you can utilize the `TestClient` provided by FastAPI. This allows you to simulate requests to your API and verify that the responses conform to the expected structure and data types defined in your API contract.\n\nHere\u2019s a concise approach:\n\n1. **Set up the TestClient**: Import `TestClient` from `fastapi.testclient` and create an instance of it with your FastAPI app.\n\n2. **Send a POST request**: Use the `client.post()` method to send a request to your API endpoint, including the necessary JSON payload.\n\n3. **Validate the response**: Check the response status code and the response payload to ensure it matches the expected format and data types.\n\n4. **Use Pydantic validation**: If you have defined Pydantic models for your request and response, you can leverage them to validate the response data against the expected schema.\n\nThis process ensures that your API contract is upheld during testing.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation."
+      ],
+      "retrieval_time_ms": 1795.41,
+      "generation_time_ms": 2275.51
+    }
+  ],
+  "vector_only_results": [
+    {
+      "question": "How should I name my API endpoints? Are verbs allowed in the URL?",
+      "ground_truth": "Endpoints should use plural nouns, lowercase letters, and hyphens (e.g., /orders or /order-items) instead of actions. A verb should only be used for real actions at the end of a path, such as POST /orders/42/cancel.",
+      "answer": "You should name your API endpoints using plural lowercase nouns and kebab-case. Verbs are not allowed in the URL.",
+      "contexts": [
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation."
+      ],
+      "retrieval_time_ms": 130.51,
+      "generation_time_ms": 1234.59
+    },
+    {
+      "question": "What is the difference between PUT and PATCH, and which methods are considered safe and idempotent?",
+      "ground_truth": "PUT replaces the whole resource and is idempotent, while PATCH changes only some fields and is not always idempotent. GET is both safe and idempotent. POST is neither safe nor idempotent, and DELETE is idempotent but not safe.",
+      "answer": "The difference between PUT and PATCH lies in how they update resources. PUT is used for full resource replacement, meaning it replaces the entire resource with the new data provided. In contrast, PATCH is used for partial updates, allowing you to modify only specific fields of a resource without affecting the entire resource.\n\nRegarding safety and idempotency: \n- Safe methods are those that do not modify the resource and are typically read-only, such as GET.\n- Idempotent methods are those that can be called multiple times without changing the result beyond the initial application. Both PUT and DELETE are considered idempotent, while PATCH is also idempotent but may not be safe if it modifies the resource. POST is neither safe nor idempotent.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection."
+      ],
+      "retrieval_time_ms": 100.75,
+      "generation_time_ms": 1874.69
+    },
+    {
+      "question": "When should my API return a 401 Unauthorized versus a 403 Forbidden?",
+      "ground_truth": "A 401 Unauthorized should be used when there is no token, an expired token, or a bad signature. A 403 Forbidden is used when there is a valid user, but they do not own the resource or their plan does not include the requested feature.",
+      "answer": "Your API should return a 401 Unauthorized status code when the request lacks valid authentication credentials. This indicates that the user must authenticate to access the resource. On the other hand, a 403 Forbidden status code should be returned when the user is authenticated but does not have permission to access the requested resource. In summary, use 401 for missing or invalid authentication and 403 for insufficient authorization.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection."
+      ],
+      "retrieval_time_ms": 97.92,
+      "generation_time_ms": 1427.54
+    },
+    {
+      "question": "What is the recommended format for error responses in a REST API?",
+      "ground_truth": "APIs should use one error format based on RFC 9457 (Problem Details) and return a Content-Type of application/problem+json. The JSON payload should include fields like type, title, status, detail, an array of specific errors, and a request_id for support logs.",
+      "answer": "The recommended format for error responses in a REST API includes using standard HTTP status codes (such as 400, 401, 403, 404, 409, 422, 500) and following the RFC 9457 Problem Details specification. This ensures that error responses are consistent and informative.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs."
+      ],
+      "retrieval_time_ms": 97.89,
+      "generation_time_ms": 1637.3
+    },
+    {
+      "question": "How should I format monetary values in my JSON request and response bodies?",
+      "ground_truth": "Money should be represented as integer minor units (such as cents) or a decimal string. You should never use a float for monetary values to avoid precision issues.",
+      "answer": "You should represent monetary values in your JSON request and response bodies in minor units, such as cents or paise.",
+      "contexts": [
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403."
+      ],
+      "retrieval_time_ms": 531.01,
+      "generation_time_ms": 1105.85
+    },
+    {
+      "question": "What are the trade-offs between offset and cursor pagination?",
+      "ground_truth": "Offset pagination is simple and allows jumping to any page, but it is slow on large tables and suffers from row-shift problems when data changes. Cursor pagination is fast and stable for feeds and live data, utilizing a next_cursor to fetch subsequent records, but does not allow jumping to a specific page number.",
+      "answer": "The knowledge context does not provide specific details about the trade-offs between offset and cursor pagination. Therefore, I cannot provide a clear answer based on the provided information.",
+      "contexts": [
+        "Pagination, Filtering, and Sorting: Offset vs cursor pagination trade-offs, query filtering (?status=paid), sorting (?sort=-created_at), and sparse fieldsets.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "AI APIs and Event Streaming: Server-Sent Events (SSE) with text/event-stream for LLM token streaming, token-based rate limits, RAG API architecture, and /health vs /ready endpoints."
+      ],
+      "retrieval_time_ms": 571.09,
+      "generation_time_ms": 935.4
+    },
+    {
+      "question": "What are the different ways to version a REST API?",
+      "ground_truth": "The most common and visible strategy is to put the version in the URL path, like /v1/orders. Alternatively, you can use clean URLs and pass dated versions via a header, such as API-Version: 2026-10-01, which is the Stripe style.",
+      "answer": "The provided knowledge context does not include specific information on the different ways to version a REST API. Therefore, I cannot provide an answer based on the given context.",
+      "contexts": [
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs."
+      ],
+      "retrieval_time_ms": 97.4,
+      "generation_time_ms": 1003.72
+    },
+    {
+      "question": "How can I safely retry a failed POST request, such as a payment, without double-charging?",
+      "ground_truth": "Clients should send an Idempotency-Key header containing a UUID. The server stores this key with the result, so retrying the same key returns the identical result instead of charging the user twice.",
+      "answer": "To safely retry a failed POST request, such as a payment, without double-charging, you can use an Idempotency-Key header. This key should be unique for each request and can be reused for retries. When the server receives a request with the same Idempotency-Key, it will recognize it as a duplicate and will not process the payment again, thus preventing double charges. Additionally, implement client exponential backoff with jitter to manage the timing of retries effectively.",
+      "contexts": [
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation."
+      ],
+      "retrieval_time_ms": 510.66,
+      "generation_time_ms": 1459.35
+    },
+    {
+      "question": "How can caching headers prevent lost updates during concurrent edits?",
+      "ground_truth": "Servers can return an ETag header with a resource. Clients can send If-None-Match to check if a cached copy is still valid, receiving a 304 Not Modified if so. For concurrent edits, clients send If-Match on a PATCH request, and the server returns a 412 if the resource was changed by someone else.",
+      "answer": "Caching headers can help prevent lost updates during concurrent edits by utilizing ETags and conditional HTTP requests. Specifically, the `If-Match` header can be used to ensure that a resource is only updated if it matches the current version (indicated by its ETag). If another client has modified the resource since it was last fetched, the server will respond with a `412 Precondition Failed` status, indicating that the update cannot proceed. This mechanism protects against overwriting changes made by other clients, thereby preventing lost updates.",
+      "contexts": [
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update."
+      ],
+      "retrieval_time_ms": 100.43,
+      "generation_time_ms": 1941.48
+    },
+    {
+      "question": "What is the best way to design endpoints for long-running work like generating a report?",
+      "ground_truth": "Do not hold the request open; instead, return a 202 Accepted status with a Location header pointing to a job endpoint (e.g., /jobs/51) that the client can poll for status updates. Alternatively, let the client register a webhook to be called when the job finishes.",
+      "answer": "The best way to design endpoints for long-running work like generating a report is to use the following approach:\n\n1. **Initial Request**: When a client requests the report generation, respond with a `202 Accepted` status code to indicate that the request has been accepted for processing but is not yet complete.\n\n2. **Job Status Polling**: Provide an endpoint for clients to check the status of the report generation using a job status polling mechanism, such as `/jobs/{id}`. This allows clients to query the status of their request.\n\n3. **Webhooks (Optional)**: If real-time notifications are preferred, implement HMAC-SHA256 signed webhooks to notify clients when the report is ready. This allows clients to receive updates without continuously polling the status.\n\nBy following this approach, you can effectively manage long-running tasks while providing a responsive experience for clients.",
+      "contexts": [
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation.",
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation."
+      ],
+      "retrieval_time_ms": 101.81,
+      "generation_time_ms": 2118.97
+    },
+    {
+      "question": "What are the best practices for building secure and reliable webhooks?",
+      "ground_truth": "You should sign each payload using HMAC-SHA256 and verify the signature before reading it. Send event IDs so receivers can ignore duplicates, retry with exponential backoff until a 2xx response is received, and have receivers reply quickly (200 OK) while processing work in the background.",
+      "answer": "The provided context does not contain specific best practices for building secure and reliable webhooks. However, it does mention the use of HMAC-SHA256 signed webhooks, which is a common practice for ensuring the integrity and authenticity of the webhook payload. For a comprehensive answer, additional information on webhook security practices would be needed.",
+      "contexts": [
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks.",
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection."
+      ],
+      "retrieval_time_ms": 114.56,
+      "generation_time_ms": 1075.14
+    },
+    {
+      "question": "What is Broken Object-Level Authorization and how do I prevent it?",
+      "ground_truth": "Broken object-level authorization is the #1 API vulnerability according to OWASP, and it occurs when an API checks if a user is logged in but fails to check resource ownership. You must check authorization on every request to ensure the authenticated user actually owns the specific object they are trying to access.",
+      "answer": "Broken Object-Level Authorization (BOLA) refers to a security vulnerability where an attacker can access or manipulate objects (like data records) that they should not have permission to access. This typically occurs when the API does not properly enforce authorization checks for each object being accessed.\n\nTo prevent BOLA, you should implement strict authorization checks for every object-level request. This includes validating that the user has the appropriate permissions to access or modify the specific object they are trying to interact with. Additionally, following OWASP API security guidelines can help mitigate the risks associated with BOLA.",
+      "contexts": [
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies.",
+        "Idempotency Keys and Safe Retries: Using Idempotency-Key headers for safe POST retries, preventing duplicate charges, and client exponential backoff with jitter.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403."
+      ],
+      "retrieval_time_ms": 528.03,
+      "generation_time_ms": 1498.05
+    },
+    {
+      "question": "What are the main security pitfalls to avoid when using JSON Web Tokens (JWT)?",
+      "ground_truth": "You must verify the signature, pin the algorithm, and reject 'alg: none'. The payload is encoded, not encrypted, so never store secrets inside it. In browsers, keep JWTs securely in HttpOnly cookies rather than localStorage.",
+      "answer": "The main security pitfalls to avoid when using JSON Web Tokens (JWT) include:\n\n1. **Using \"alg: none\"**: This allows the token to be accepted without any signature verification, making it vulnerable to tampering.\n2. **Not validating the token properly**: Ensure that the token is correctly validated to prevent unauthorized access.\n3. **Inadequate expiration handling**: Tokens should have a reasonable expiration time to limit the window of opportunity for misuse.\n\nThese pitfalls can compromise the security of your API, so it's crucial to implement proper validation and handling of JWTs.",
+      "contexts": [
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection."
+      ],
+      "retrieval_time_ms": 933.71,
+      "generation_time_ms": 1736.65
+    },
+    {
+      "question": "How should I configure CORS for my API safely?",
+      "ground_truth": "You should only allow your own front-end origins. You must never combine allow_origins=[\\\"*\\\"] with allow_credentials=True. Remember that CORS protects browsers, not your API, so server-side authentication still decides access.",
+      "answer": "To configure CORS (Cross-Origin Resource Sharing) safely for your API, you should implement strict origin policies. This means specifying allowed origins explicitly rather than using wildcards (e.g., `*`). By doing so, you limit access to your API to only trusted domains, reducing the risk of unauthorized access and potential security vulnerabilities. Additionally, ensure that your CORS configuration aligns with your authentication and authorization mechanisms to maintain overall API security.",
+      "contexts": [
+        "API Authentication, Authorization, and Security: Auth mechanisms (API Keys, OAuth2/OIDC, JWT), OWASP API security, preventing BOLA, JWT pitfalls (alg: none), and strict CORS origin policies.",
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403."
+      ],
+      "retrieval_time_ms": 98.23,
+      "generation_time_ms": 1263.26
+    },
+    {
+      "question": "How should an API return streamed replies for LLM text generation features?",
+      "ground_truth": "APIs should stream replies using Server-Sent Events (SSE) by setting the Content-Type to text/event-stream. The server should yield data tokens as they are generated and close with a final done token.",
+      "answer": "An API should return streamed replies for LLM text generation features using Server-Sent Events (SSE) with the `text/event-stream` content type. This allows for real-time streaming of tokens as they are generated. Additionally, it is important to implement token-based rate limits to manage the flow of data effectively. The API should also ensure that the streamed data adheres to consistent JSON styling for the payload design.",
+      "contexts": [
+        "AI APIs and Event Streaming: Server-Sent Events (SSE) with text/event-stream for LLM token streaming, token-based rate limits, RAG API architecture, and /health vs /ready endpoints.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation."
+      ],
+      "retrieval_time_ms": 100.62,
+      "generation_time_ms": 2049.95
+    },
+    {
+      "question": "When should I choose GraphQL or gRPC over standard REST?",
+      "ground_truth": "REST is best for simple public APIs, CRUD, and HTTP caching. GraphQL is ideal when many front-ends need different data shapes, as it prevents over-fetching. gRPC is fast, typed, and best for high-throughput service-to-service communication, but it is not intended for browsers.",
+      "answer": "You should consider choosing GraphQL over standard REST when you need to allow clients to request exactly the data they need, reducing over-fetching or under-fetching of data. GraphQL is particularly beneficial for complex systems and microservices where clients may require different data structures.\n\nOn the other hand, gRPC may be a better choice when you need high performance and efficiency, especially in scenarios involving real-time communication or when working with large volumes of data. gRPC uses HTTP/2, which allows for multiplexing and can improve latency.\n\nUltimately, the choice between GraphQL, gRPC, and REST depends on your specific use case, including the complexity of data interactions and performance requirements.",
+      "contexts": [
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation.",
+        "Resource Naming and URI Design: Naming REST resources using plural lowercase nouns, kebab-case, sub-resources, and avoiding verbs in URIs.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update."
+      ],
+      "retrieval_time_ms": 97.29,
+      "generation_time_ms": 2429.9
+    },
+    {
+      "question": "What is the difference between a /health endpoint and a /ready endpoint?",
+      "ground_truth": "A /health endpoint is a cheap check with no dependencies to verify the process is alive. A /ready endpoint checks if dependencies like the database, cache, and models are reachable, indicating the service is ready for traffic.",
+      "answer": "The context does not provide specific definitions or differences between a /health endpoint and a /ready endpoint. Therefore, I cannot provide a clear answer based on the provided knowledge context.",
+      "contexts": [
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update.",
+        "AI APIs and Event Streaming: Server-Sent Events (SSE) with text/event-stream for LLM token streaming, token-based rate limits, RAG API architecture, and /health vs /ready endpoints."
+      ],
+      "retrieval_time_ms": 99.14,
+      "generation_time_ms": 961.19
+    },
+    {
+      "question": "Which HTTP status code and headers are used to implement rate limits?",
+      "ground_truth": "When rate-limited, the API should return a 429 Too Many Requests status code. The response should include a Retry-After header telling the client when to try again, alongside RateLimit-Limit and RateLimit-Remaining headers.",
+      "answer": "The provided knowledge context does not include specific information about HTTP status codes and headers used to implement rate limits. Therefore, I cannot provide an answer based on the given context.",
+      "contexts": [
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection.",
+        "HTTP Methods and Idempotency: Semantics of GET, POST, PUT, PATCH, and DELETE; safe vs idempotent methods; full resource replacement vs partial update."
+      ],
+      "retrieval_time_ms": 100.93,
+      "generation_time_ms": 946.29
+    },
+    {
+      "question": "How should an API client handle timeouts and failing requests?",
+      "ground_truth": "Clients should retry idempotent requests using exponential backoff with jitter (e.g., waiting 1s, 2s, 4s plus a random factor) before giving up. They should also implement a circuit breaker pattern to stop calling a service that continuously fails.",
+      "answer": "The provided knowledge context does not contain specific information on how an API client should handle timeouts and failing requests. Therefore, I cannot provide a clear answer based on the given context.",
+      "contexts": [
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection.",
+        "Asynchronous Operations and Webhooks: Handling long-running background tasks with 202 Accepted, job status polling (/jobs/{id}), and HMAC-SHA256 signed webhooks.",
+        "HTTP Status Codes and Error Handling: Standard status codes (200, 201, 204, 400, 401, 403, 404, 409, 422, 500), RFC 9457 Problem Details, and distinguishing 401 vs 403."
+      ],
+      "retrieval_time_ms": 901.41,
+      "generation_time_ms": 1031.14
+    },
+    {
+      "question": "How can I test the API contract for a POST request using FastAPI?",
+      "ground_truth": "You can test the contract using FastAPI's TestClient to assert responses. For example, asserting that a valid JSON body returns a 201 status code with a Location header, or that sending bad data (like an invalid quantity) is rejected with a 422 status code.",
+      "answer": "To test the API contract for a POST request using FastAPI, you can utilize contract testing with a tool like TestClient. This allows you to send requests to your FastAPI application and validate the responses against the expected output defined in your API contract. \n\nYou would typically define your expected request and response payloads, ensuring they adhere to your design guidelines (like consistent JSON styling and Pydantic validation). Then, using TestClient, you can perform the POST request and assert that the response matches your expectations.\n\nUnfortunately, the provided context does not include specific examples or detailed steps for using TestClient with FastAPI, so you may need to refer to FastAPI documentation for implementation details.",
+      "contexts": [
+        "API Architecture Comparison and Testing: Architectural trade-offs between REST, GraphQL, and gRPC; contract testing with TestClient; and automated OpenAPI specification generation.",
+        "Request and Response Payload Design: Consistent JSON styling, ISO 8601 timestamps, money representation in minor units (cents/paise), string IDs, and Pydantic validation.",
+        "HTTP Caching and Optimistic Locking: Conditional HTTP requests using ETags, If-None-Match for 304 cache validation, and If-Match for 412 concurrent edit protection."
+      ],
+      "retrieval_time_ms": 98.62,
+      "generation_time_ms": 1707.37
+    }
+  ],
+  "hybrid_ragas": {
+    "faithfulness": 0.7589,
+    "answer_relevancy": 0.4918,
+    "context_precision": 0.325,
+    "context_recall": 0.4292,
+    "answer_correctness": 0.4129
+  },
+  "vector_only_ragas": {
+    "faithfulness": 0.7567,
+    "answer_relevancy": 0.5205,
+    "context_precision": 0.6491,
+    "context_recall": 0.4958,
+    "answer_correctness": 0.5591
+  },
+  "delta_hybrid_minus_vector": {
+    "faithfulness": 0.0022,
+    "answer_relevancy": -0.0287,
+    "context_precision": -0.3241,
+    "context_recall": -0.0666,
+    "answer_correctness": -0.1462
+  },
+  "latency_comparison": {
+    "avg_retrieval_ms_hybrid": 1571.19,
+    "avg_retrieval_ms_vector_only": 270.6,
+    "overhead_ms": 1300.59
+  }
+}

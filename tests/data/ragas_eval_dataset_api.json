@@ -1,0 +1,82 @@
+[
+{
+"question": "How should I name my API endpoints? Are verbs allowed in the URL?",
+"ground_truth": "Endpoints should use plural nouns, lowercase letters, and hyphens (e.g., /orders or /order-items) instead of actions. A verb should only be used for real actions at the end of a path, such as POST /orders/42/cancel."
+},
+{
+"question": "What is the difference between PUT and PATCH, and which methods are considered safe and idempotent?",
+"ground_truth": "PUT replaces the whole resource and is idempotent, while PATCH changes only some fields and is not always idempotent. GET is both safe and idempotent. POST is neither safe nor idempotent, and DELETE is idempotent but not safe."
+},
+{
+"question": "When should my API return a 401 Unauthorized versus a 403 Forbidden?",
+"ground_truth": "A 401 Unauthorized should be used when there is no token, an expired token, or a bad signature. A 403 Forbidden is used when there is a valid user, but they do not own the resource or their plan does not include the requested feature."
+},
+{
+"question": "What is the recommended format for error responses in a REST API?",
+"ground_truth": "APIs should use one error format based on RFC 9457 (Problem Details) and return a Content-Type of application/problem+json. The JSON payload should include fields like type, title, status, detail, an array of specific errors, and a request_id for support logs."
+},
+{
+"question": "How should I format monetary values in my JSON request and response bodies?",
+"ground_truth": "Money should be represented as integer minor units (such as cents) or a decimal string. You should never use a float for monetary values to avoid precision issues."
+},
+{
+"question": "What are the trade-offs between offset and cursor pagination?",
+"ground_truth": "Offset pagination is simple and allows jumping to any page, but it is slow on large tables and suffers from row-shift problems when data changes. Cursor pagination is fast and stable for feeds and live data, utilizing a next_cursor to fetch subsequent records, but does not allow jumping to a specific page number."
+},
+{
+"question": "What are the different ways to version a REST API?",
+"ground_truth": "The most common and visible strategy is to put the version in the URL path, like /v1/orders. Alternatively, you can use clean URLs and pass dated versions via a header, such as API-Version: 2026-10-01, which is the Stripe style."
+},
+{
+"question": "How can I safely retry a failed POST request, such as a payment, without double-charging?",
+"ground_truth": "Clients should send an Idempotency-Key header containing a UUID. The server stores this key with the result, so retrying the same key returns the identical result instead of charging the user twice."
+},
+{
+"question": "How can caching headers prevent lost updates during concurrent edits?",
+"ground_truth": "Servers can return an ETag header with a resource. Clients can send If-None-Match to check if a cached copy is still valid, receiving a 304 Not Modified if so. For concurrent edits, clients send If-Match on a PATCH request, and the server returns a 412 if the resource was changed by someone else."
+},
+{
+"question": "What is the best way to design endpoints for long-running work like generating a report?",
+"ground_truth": "Do not hold the request open; instead, return a 202 Accepted status with a Location header pointing to a job endpoint (e.g., /jobs/51) that the client can poll for status updates. Alternatively, let the client register a webhook to be called when the job finishes."
+},
+{
+"question": "What are the best practices for building secure and reliable webhooks?",
+"ground_truth": "You should sign each payload using HMAC-SHA256 and verify the signature before reading it. Send event IDs so receivers can ignore duplicates, retry with exponential backoff until a 2xx response is received, and have receivers reply quickly (200 OK) while processing work in the background."
+},
+{
+"question": "What is Broken Object-Level Authorization and how do I prevent it?",
+"ground_truth": "Broken object-level authorization is the #1 API vulnerability according to OWASP, and it occurs when an API checks if a user is logged in but fails to check resource ownership. You must check authorization on every request to ensure the authenticated user actually owns the specific object they are trying to access."
+},
+{
+"question": "What are the main security pitfalls to avoid when using JSON Web Tokens (JWT)?",
+"ground_truth": "You must verify the signature, pin the algorithm, and reject 'alg: none'. The payload is encoded, not encrypted, so never store secrets inside it. In browsers, keep JWTs securely in HttpOnly cookies rather than localStorage."
+},
+{
+"question": "How should I configure CORS for my API safely?",
+"ground_truth": "You should only allow your own front-end origins. You must never combine allow_origins=[\\\"*\\\"] with allow_credentials=True. Remember that CORS protects browsers, not your API, so server-side authentication still decides access."
+},
+{
+"question": "How should an API return streamed replies for LLM text generation features?",
+"ground_truth": "APIs should stream replies using Server-Sent Events (SSE) by setting the Content-Type to text/event-stream. The server should yield data tokens as they are generated and close with a final done token."
+},
+{
+"question": "When should I choose GraphQL or gRPC over standard REST?",
+"ground_truth": "REST is best for simple public APIs, CRUD, and HTTP caching. GraphQL is ideal when many front-ends need different data shapes, as it prevents over-fetching. gRPC is fast, typed, and best for high-throughput service-to-service communication, but it is not intended for browsers."
+},
+{
+"question": "What is the difference between a /health endpoint and a /ready endpoint?",
+"ground_truth": "A /health endpoint is a cheap check with no dependencies to verify the process is alive. A /ready endpoint checks if dependencies like the database, cache, and models are reachable, indicating the service is ready for traffic."
+},
+{
+"question": "Which HTTP status code and headers are used to implement rate limits?",
+"ground_truth": "When rate-limited, the API should return a 429 Too Many Requests status code. The response should include a Retry-After header telling the client when to try again, alongside RateLimit-Limit and RateLimit-Remaining headers."
+},
+{
+"question": "How should an API client handle timeouts and failing requests?",
+"ground_truth": "Clients should retry idempotent requests using exponential backoff with jitter (e.g., waiting 1s, 2s, 4s plus a random factor) before giving up. They should also implement a circuit breaker pattern to stop calling a service that continuously fails."
+},
+{
+"question": "How can I test the API contract for a POST request using FastAPI?",
+"ground_truth": "You can test the contract using FastAPI's TestClient to assert responses. For example, asserting that a valid JSON body returns a 201 status code with a Location header, or that sending bad data (like an invalid quantity) is rejected with a 422 status code."
+}
+]

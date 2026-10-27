@@ -197,7 +197,14 @@ onboardingForm.addEventListener('submit', async (e) => {
                 learning_pace: onboardPace?.value || 'normal',
             }),
         });
-        if (!res.ok) throw new Error('Session creation failed');
+        if (!res.ok) {
+            let errorMsg = 'Session creation failed';
+            try {
+                const errData = await res.json();
+                if (errData && errData.detail) errorMsg = errData.detail;
+            } catch (_) {}
+            throw new Error(errorMsg);
+        }
         const session = await res.json();
 
         state.studentId = studentId;
@@ -213,7 +220,7 @@ onboardingForm.addEventListener('submit', async (e) => {
         updateQuickPlanDropdown();
 
     } catch (err) {
-        studentAuthError.textContent = 'Could not connect to backend. Is the server running?';
+        studentAuthError.textContent = err?.message || 'Could not connect to backend. Is the server running?';
         studentAuthError.classList.remove('hidden');
     } finally {
         startBtn.disabled = false;

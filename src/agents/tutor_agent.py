@@ -254,6 +254,26 @@ TEACHING RULES — follow these strictly at ALL TIMES:
             final_content = followup.content
 
     # ------------------------------------------------------------------ #
+    # CRAG Self-Correction: verify answer is grounded in context
+    # ------------------------------------------------------------------ #
+    if final_content and retrieval_context and len(final_content) > 100:
+        try:
+            from src.retrieval.crag import verify_and_correct
+            crag_result = verify_and_correct(
+                question=user_input,
+                answer=final_content,
+                context=retrieval_context,
+                max_retries=1,
+            )
+            if crag_result["was_corrected"]:
+                print(f"CRAG: Answer was corrected (verification: {crag_result['verification'][:80]}...)")
+                final_content = crag_result["answer"]
+            else:
+                print("CRAG: Answer verified as grounded.")
+        except Exception as _crag_err:
+            print(f"CRAG: Verification skipped ({_crag_err})")
+
+    # ------------------------------------------------------------------ #
     # Append YouTube suggestions when a new concept is introduced
     # We detect a concept introduction if the response contains a markdown
     # heading (### ...) — which the tutor always generates for new concepts.

@@ -1,0 +1,215 @@
+{
+  "domain": "REST API Design",
+  "summary": {
+    "msms": {
+      "pathsim": 0.6222,
+      "node_similarity": 0.7222,
+      "edge_similarity": 0.3333,
+      "sequence_similarity": 0.7778,
+      "path_efficiency": 1.1667,
+      "prerequisite_integrity": 1.0,
+      "sink_coverage": 1.0
+    },
+    "bfs": {
+      "pathsim": 0.6222,
+      "node_similarity": 0.7222,
+      "edge_similarity": 0.3333,
+      "sequence_similarity": 0.7778,
+      "path_efficiency": 1.1667,
+      "prerequisite_integrity": 1.0,
+      "sink_coverage": 1.0
+    },
+    "delta_msms_minus_bfs": {
+      "pathsim": 0.0,
+      "node_similarity": 0.0,
+      "edge_similarity": 0.0,
+      "sequence_similarity": 0.0,
+      "path_efficiency": 0.0,
+      "prerequisite_integrity": 0.0
+    }
+  },
+  "msms_per_scenario": [
+    {
+      "scenario": "crud_and_request_design",
+      "method": "msms",
+      "description": "Student knows HTTP Methods -> wants to learn Request & Response Payload Design",
+      "expert_path": [
+        "HTTP Methods and Idempotency",
+        "Resource Naming and URI Design",
+        "Request and Response Payload Design"
+      ],
+      "expert_path_ids": [
+        "http-methods",
+        "resource-naming",
+        "request-response-design"
+      ],
+      "generated_path": [
+        "HTTP Methods and Idempotency",
+        "Request and Response Payload Design"
+      ],
+      "generated_path_ids": [
+        "http-methods",
+        "request-response-design"
+      ],
+      "pathsim": 0.4666666666666667,
+      "node_similarity": 0.6666666666666666,
+      "edge_similarity": 0.0,
+      "sequence_similarity": 0.6666666666666667,
+      "path_efficiency": 1.5,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "safe_retries_and_jobs",
+      "method": "msms",
+      "description": "Student knows HTTP Methods -> wants to learn Asynchronous Long-Running Jobs",
+      "expert_path": [
+        "HTTP Methods and Idempotency",
+        "Idempotency Keys and Safe Retries",
+        "Asynchronous Operations and Webhooks"
+      ],
+      "expert_path_ids": [
+        "http-methods",
+        "idempotency-and-retries",
+        "long-running-jobs"
+      ],
+      "generated_path": [
+        "HTTP Methods and Idempotency",
+        "HTTP Status Codes and Error Handling",
+        "Asynchronous Operations and Webhooks"
+      ],
+      "generated_path_ids": [
+        "http-methods",
+        "status-codes-and-errors",
+        "long-running-jobs"
+      ],
+      "pathsim": 0.4,
+      "node_similarity": 0.5,
+      "edge_similarity": 0.0,
+      "sequence_similarity": 0.6666666666666667,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "ai_streaming_apis",
+      "method": "msms",
+      "description": "Student knows Long-Running Jobs -> wants to learn AI & Event Streaming APIs",
+      "expert_path": [
+        "Asynchronous Operations and Webhooks",
+        "AI APIs and Event Streaming"
+      ],
+      "expert_path_ids": [
+        "long-running-jobs",
+        "ai-and-streaming-apis"
+      ],
+      "generated_path": [
+        "Asynchronous Operations and Webhooks",
+        "AI APIs and Event Streaming"
+      ],
+      "generated_path_ids": [
+        "long-running-jobs",
+        "ai-and-streaming-apis"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    }
+  ],
+  "bfs_per_scenario": [
+    {
+      "scenario": "crud_and_request_design",
+      "method": "bfs",
+      "description": "Student knows HTTP Methods -> wants to learn Request & Response Payload Design",
+      "expert_path": [
+        "HTTP Methods and Idempotency",
+        "Resource Naming and URI Design",
+        "Request and Response Payload Design"
+      ],
+      "expert_path_ids": [
+        "http-methods",
+        "resource-naming",
+        "request-response-design"
+      ],
+      "generated_path": [
+        "HTTP Methods and Idempotency",
+        "Request and Response Payload Design"
+      ],
+      "generated_path_ids": [
+        "http-methods",
+        "request-response-design"
+      ],
+      "pathsim": 0.4666666666666667,
+      "node_similarity": 0.6666666666666666,
+      "edge_similarity": 0.0,
+      "sequence_similarity": 0.6666666666666667,
+      "path_efficiency": 1.5,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "safe_retries_and_jobs",
+      "method": "bfs",
+      "description": "Student knows HTTP Methods -> wants to learn Asynchronous Long-Running Jobs",
+      "expert_path": [
+        "HTTP Methods and Idempotency",
+        "Idempotency Keys and Safe Retries",
+        "Asynchronous Operations and Webhooks"
+      ],
+      "expert_path_ids": [
+        "http-methods",
+        "idempotency-and-retries",
+        "long-running-jobs"
+      ],
+      "generated_path": [
+        "HTTP Methods and Idempotency",
+        "HTTP Status Codes and Error Handling",
+        "Asynchronous Operations and Webhooks"
+      ],
+      "generated_path_ids": [
+        "http-methods",
+        "status-codes-and-errors",
+        "long-running-jobs"
+      ],
+      "pathsim": 0.4,
+      "node_similarity": 0.5,
+      "edge_similarity": 0.0,
+      "sequence_similarity": 0.6666666666666667,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    },
+    {
+      "scenario": "ai_streaming_apis",
+      "method": "bfs",
+      "description": "Student knows Long-Running Jobs -> wants to learn AI & Event Streaming APIs",
+      "expert_path": [
+        "Asynchronous Operations and Webhooks",
+        "AI APIs and Event Streaming"
+      ],
+      "expert_path_ids": [
+        "long-running-jobs",
+        "ai-and-streaming-apis"
+      ],
+      "generated_path": [
+        "Asynchronous Operations and Webhooks",
+        "AI APIs and Event Streaming"
+      ],
+      "generated_path_ids": [
+        "long-running-jobs",
+        "ai-and-streaming-apis"
+      ],
+      "pathsim": 1.0,
+      "node_similarity": 1.0,
+      "edge_similarity": 1.0,
+      "sequence_similarity": 1.0,
+      "path_efficiency": 1.0,
+      "prerequisite_integrity": 1.0,
+      "sink_reached": true
+    }
+  ]
+}

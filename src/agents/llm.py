@@ -3,7 +3,7 @@ import os
 from langchain_openai import ChatOpenAI
 
 
-DEFAULT_OPENAI_MODEL = "gpt-3.5-turbo"
+DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
 
 
 def get_chat_model(*, temperature: float) -> ChatOpenAI:

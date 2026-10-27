@@ -34,13 +34,12 @@ class HybridRetriever:
 
         for result in vector_results:
             neighborhood = self._get_graph_neighborhood(result["concept_id"])
-            prerequisite_bonus = min(len(neighborhood["prerequisites"]), 4) / 4.0
-            downstream_bonus = min(len(neighborhood["downstream"]), 4) / 4.0
-            hybrid_score = (
-                0.70 * result.get("rerank_score", result["similarity"])
-                + 0.15 * prerequisite_bonus
-                + 0.15 * downstream_bonus
-            )
+            prereq_richness = min(len(neighborhood["prerequisites"]), 3) / 3.0
+            downstream_richness = min(len(neighborhood["downstream"]), 3) / 3.0
+            structural_richness = 0.5 * prereq_richness + 0.5 * downstream_richness
+
+            base_score = result.get("rerank_score", result["similarity"])
+            hybrid_score = 0.85 * base_score + 0.15 * (base_score * structural_richness)
 
             enriched = dict(result)
             enriched["hybrid_score"] = hybrid_score

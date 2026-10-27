@@ -91,12 +91,19 @@ class StructureAwareReranker:
             structural_value = min(context["unlock_count"], 5) / 5.0
             cross_encoder_score = self._cross_encoder_score(query_text, candidate, context)
 
-            final_score = (
-                0.45 * normalized_similarity
-                + 0.25 * frontier_alignment
-                + 0.10 * structural_value
-                + 0.20 * cross_encoder_score
-            )
+            if self.use_cross_encoder and self._cross_encoder is not None:
+                final_score = (
+                    0.50 * normalized_similarity
+                    + 0.30 * cross_encoder_score
+                    + 0.12 * frontier_alignment
+                    + 0.08 * structural_value
+                )
+            else:
+                final_score = (
+                    0.75 * normalized_similarity
+                    + 0.15 * frontier_alignment
+                    + 0.10 * structural_value
+                )
 
             enriched_candidate = dict(candidate)
             enriched_candidate.update(
