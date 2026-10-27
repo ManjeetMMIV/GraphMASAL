@@ -1,8 +1,10 @@
 # GraphMASAL — Graph-Based Multi-Agent System for Adaptive Student Learning
 deployed link : https://graphmasal-3.onrender.com/
-An intelligent tutoring system that combines **multi-agent LangGraph orchestration**, **Neo4j knowledge graphs**, and **adaptive learning paths** to personalize Operating Systems education.
+
+An intelligent tutoring system that combines **multi-agent LangGraph orchestration**, **Neo4j knowledge graphs**, and **adaptive learning paths** to personalize education across multiple curricula.
 
 > Built as part of an academic project exploring how graph-based AI agents can detect misconceptions, plan learning sequences, and deliver personalized tutoring at scale.
+> Evaluated across two independent curriculum domains: **Operating Systems (OSTEP)** and **REST API Design**.
 
 ---
 <img width="1535" height="786" alt="image" src="https://github.com/user-attachments/assets/8cc381d1-7df9-4e79-94d2-43270ba3486a" />
@@ -14,8 +16,8 @@ An intelligent tutoring system that combines **multi-agent LangGraph orchestrati
 ## ✨ Features
 
 ### 🤖 Multi-Agent Workflow (LangGraph)
-- **Router Agent** — Classifies student queries into `diagnose` or `retrieve` pathways using LLM analysis and long-term memory recall
-- **Diagnoser Agent** — Detects misconceptions via LLM reasoning, resets affected concept mastery to 0.0
+- **Router Agent** — Classifies student queries into `diagnose` or `retrieve` pathways using structured Chain-of-Thought few-shot prompting with semantic intent analysis
+- **Diagnoser Agent** — Detects misconceptions via LLM reasoning with dynamic Neo4j concept querying, canonical alias resolution, and mastery reset to 0.0
 - **Planner Agent** — Generates mathematically optimal learning paths using the Multi-Source Multi-Sink (MSMS) graph algorithm
 - **Tutor Agent** — Synthesizes context-aware responses adapted to the student's route (gentle correction vs. direct answer)
 
@@ -24,14 +26,18 @@ An intelligent tutoring system that combines **multi-agent LangGraph orchestrati
 - **Student nodes** tracking per-concept mastery scores (0.0–1.0)
 - **Long-term memory** storing and recalling previous interactions per student
 - **Vector similarity index** for semantic search over concept embeddings
+- **Multi-curriculum support** — seed scripts for OS and REST API Design knowledge graphs
 
-### 🔍 Hybrid Retrieval Pipeline
+### 🔍 Advanced Hybrid Retrieval Pipeline
 - **Semantic search** using `all-MiniLM-L6-v2` sentence embeddings
 - **Graph neighborhood expansion** pulling in prerequisite and downstream concepts
-- **Structure-aware reranking** with optional cross-encoder (`ms-marco-MiniLM-L-6-v2`)
+- **Structure-aware reranking** with calibrated similarity-first weights (0.75 semantic, 0.15 frontier, 0.10 structural)
+- **Contextual compression** — LLM-powered context distillation with minimum chunk length protection (`min_chunk_len=250`)
+- **CRAG (Corrective RAG)** — Self-correction loop that detects low-confidence retrievals and synthesizes authoritative fallback answers
+- **Query transformation (HyDE)** — Hypothetical Document Embeddings for improved retrieval on ambiguous queries
 
 ### 📄 PDF Ingestion Pipeline
-- Upload OS textbook PDFs and automatically chunk, embed, and store them in Neo4j
+- Upload textbook PDFs and automatically chunk, embed, and store them in Neo4j
 - LLM-powered concept extraction from PDF chunks
 - Overlapping chunking strategy (900-char chunks, 150-char overlap)
 - Duplicate detection via content hashing
@@ -51,15 +57,63 @@ An intelligent tutoring system that combines **multi-agent LangGraph orchestrati
 - Auto-generated YouTube search links for each concept in the student's active learning plan
 - Categorized by type: Introduction, Full Tutorial, Visual/Animation, Examples & Practice
 
-### 🧪 Evaluation Suite
-- **PathSim** — Evaluates AI-generated learning paths against expert-defined ground truth (node overlap, edge overlap, sequence similarity)
-- **RAGAS Evaluation** — Measures RAG pipeline quality: faithfulness, answer relevancy, context precision, context recall, answer correctness
-- **Router Metrics** — Routing accuracy and latency-per-route benchmarks against ground-truth labeled test cases
+### 🧪 Comprehensive Evaluation Suite
+- **Router Evaluation** — Accuracy, Weighted F1, Macro F1, Cohen's Kappa against 50 ground-truth test cases per domain
+- **Diagnoser Evaluation** — Precision, Recall, F1, and Concept Attribution Accuracy against 30 ground-truth cases per domain
+- **PathSim** — Evaluates AI-generated learning paths against expert-defined ground truth (node overlap, edge overlap, sequence similarity, prerequisite integrity)
+- **RAGAS Ablation** — Measures RAG pipeline quality comparing Hybrid (Vector + KG + Reranker + CRAG) vs. Vector-Only: Faithfulness, Answer Relevancy, Context Precision, Context Recall, Answer Correctness
+- **Cross-domain validation** — All evaluations run independently on OS and REST API Design curricula
+- **Baseline preservation** — All `*_baseline.json` reports maintained for before/after comparison
 
 ### 🔍 LangSmith Tracing
 - Automatic tracing of every LLM call and tool invocation
 - Per-session metadata tags and dashboard visualization
 - Traces all agent state transitions and data flow
+
+---
+
+## 📈 Evaluation Results
+
+All metrics are evaluated across two independent curricula: **Operating Systems (OSTEP, 12 concepts)** and **REST API Design (11 concepts)**. Baseline values represent the initial system before optimization; Optimized values reflect the current architecture with all improvements applied.
+
+### Layer 1: Router Agent
+
+| Metric | OS Baseline | OS Optimized | API Baseline | API Optimized |
+|:---|:---:|:---:|:---:|:---:|
+| **Accuracy** | 78.00% | **98.00%** (+20.00%) | 70.00% | **88.00%** (+18.00%) |
+| **Weighted F1** | 0.7790 | **0.9799** | 0.6950 | **0.8788** |
+| **Cohen's Kappa** | 0.5378 (Moderate) | **0.9580** (Near-perfect) | 0.3590 (Fair) | **0.7458** (Substantial) |
+
+### Layer 2: Diagnoser Agent
+
+| Metric | OS Baseline | OS Optimized | API Baseline | API Optimized |
+|:---|:---:|:---:|:---:|:---:|
+| **Accuracy** | 83.33% | **93.33%** (+10.00%) | 70.00% | **83.33%** (+13.33%) |
+| **Precision** | 0.7500 | **0.8824** | 0.7143 | **0.9167** |
+| **Recall** | 1.0000 | **1.0000** | 0.6667 | **0.7333** |
+| **F1 Score** | 0.8571 | **0.9375** | 0.6897 | **0.8148** |
+| **Concept Attribution** | 26.67% | **80.00%** (+53.33%) | 20.00% | **81.82%** (+61.82%) |
+
+### Layer 3: Planner Agent (MSMS vs BFS)
+
+| Metric | OS (MSMS) | OS (BFS) | API (MSMS) |
+|:---|:---:|:---:|:---:|
+| **PathSim Score** | **1.0000** | 1.0000 | — |
+| **Prerequisite Integrity** | **1.0000** | 1.0000 | **1.0000** |
+| **Sink Coverage** | **1.0000** | 1.0000 | **1.0000** |
+| **Path Efficiency** | — | — | **1.1667** |
+
+### Layer 4: RAGAS Retrieval & Generation Ablation
+
+| Metric | OS Hybrid | OS Vector-Only | API Hybrid | API Vector-Only |
+|:---|:---:|:---:|:---:|:---:|
+| **Context Precision** | **0.5917** | 0.5500 | **0.6250** | 0.6667 |
+| **Context Recall** | **0.4333** | 0.4167 | **0.4417** | 0.4458 |
+| **Answer Correctness** | **0.4867** | 0.4198 | **0.3917** | 0.3861 |
+| **Answer Relevancy** | **0.9148** | 0.9214 | **0.7864** | 0.8534 |
+| **Faithfulness** | **0.7604** | 0.8659 | **0.6936** | 0.7823 |
+
+> **Key gains from baseline:** OS Faithfulness +30.5% (0.4554 → 0.7604), API Context Precision +30.0% (0.3250 → 0.6250), API Answer Relevancy +29.5% (0.4918 → 0.7864)
 
 ---
 
@@ -97,6 +151,38 @@ An intelligent tutoring system that combines **multi-agent LangGraph orchestrati
    │ Neo4j   │   │  MongoDB  │   │  OpenAI   │
    │ (Graph) │   │ (Sessions)│   │  (LLM)    │
    └─────────┘   └───────────┘   └───────────┘
+```
+
+### Retrieval Pipeline Detail
+
+```
+User Query
+    │
+    ▼
+┌──────────────────┐
+│ Query Transform  │ ← Optional HyDE (Hypothetical Document Embeddings)
+│ (query_transform)│
+└────────┬─────────┘
+         ▼
+┌──────────────────┐     ┌──────────────────┐
+│ Semantic Search  │────▶│ Graph Expansion  │ ← Pull prerequisites & downstream
+│ (search.py)      │     │ (hybrid.py)      │   concepts from Neo4j topology
+└──────────────────┘     └────────┬─────────┘
+                                  ▼
+                    ┌──────────────────────┐
+                    │ Structure-Aware      │ ← Weights: 0.75 semantic, 0.15
+                    │ Reranker (reranker)  │   frontier, 0.10 structural
+                    └────────┬─────────────┘
+                             ▼
+                    ┌──────────────────────┐
+                    │ Contextual Compressor│ ← LLM distillation with
+                    │ (compressor.py)      │   min_chunk_len=250 protection
+                    └────────┬─────────────┘
+                             ▼
+                    ┌──────────────────────┐
+                    │ CRAG Self-Correction │ ← Detects low-confidence results,
+                    │ (crag.py)            │   synthesizes fallback answers
+                    └──────────────────────┘
 ```
 
 ---
@@ -146,7 +232,19 @@ LANGCHAIN_API_KEY=lsv2_pt_...
 LANGCHAIN_PROJECT=graphmasal
 ```
 
-### 3. Verify Setup
+### 3. Seed the Knowledge Graph
+
+Seed the Neo4j database with curriculum concepts, prerequisites, PDF chunks, and embeddings:
+
+```bash
+# Operating Systems curriculum (12 concepts, 12 prerequisite edges)
+uv run python scripts/seed_os_knowledge.py
+
+# REST API Design curriculum (11 concepts, 17 prerequisite edges)
+uv run python scripts/seed_api_knowledge.py
+```
+
+### 4. Verify Setup
 
 ```bash
 uv run python test_startup.py
@@ -195,7 +293,7 @@ uv run workflow.py
 
 ## 📡 API Reference
 
-The FastAPI server (`src/api/server.py`) exposes the following endpoints:
+The FastAPI server (`src/api/server.py`) exposes the following endpoints via modular route files:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -229,19 +327,37 @@ The FastAPI server (`src/api/server.py`) exposes the following endpoints:
 ├── README.md
 ├── ARCHITECTURE.md                    # Agent naming conventions
 ├── pyproject.toml                     # Dependencies (uv)
+├── render.yaml                        # Render deployment config
 ├── test_startup.py                    # Quick import smoke test
 ├── test_openAI.py                     # OpenAI connectivity test
 ├── .env                               # Credentials (gitignored)
 │
 ├── public/                            # Static web UI
 │   ├── index.html                     # Main SPA (Tailwind + vanilla JS)
-│   ├── app.js                         # Chat, sessions, roadmap, teacher logic
-│   └── styles.css                     # Custom CSS (blobs, animations)
+│   ├── js/
+│   │   └── app.js                     # Chat, sessions, roadmap, teacher logic
+│   └── css/
+│       └── styles.css                 # Custom CSS (blobs, animations)
 │
-├── data/
-│   ├── qa_sessions.db                 # Legacy SQLite (unused, kept for reference)
-│   ├── ragas_eval_report.json         # RAGAS evaluation results
-│   └── router_eval_report.json        # Router accuracy evaluation results
+├── scripts/                           # Knowledge graph seed scripts
+│   ├── seed_os_knowledge.py           # OS curriculum: 12 concepts, 12 edges, PDF chunks
+│   └── seed_api_knowledge.py          # API curriculum: 11 concepts, 17 edges, PDF chunks
+│
+├── data/                              # Evaluation reports (JSON)
+│   ├── eval_router_report.json        # Router eval (OS) — optimized
+│   ├── eval_router_report_baseline.json
+│   ├── eval_router_api_report.json    # Router eval (API) — optimized
+│   ├── eval_router_api_report_baseline.json
+│   ├── eval_diagnoser_report.json     # Diagnoser eval (OS) — optimized
+│   ├── eval_diagnoser_report_baseline.json
+│   ├── eval_diagnoser_api_report.json # Diagnoser eval (API) — optimized
+│   ├── eval_diagnoser_api_report_baseline.json
+│   ├── eval_pathsim_ablation_report.json  # PathSim MSMS vs BFS (OS)
+│   ├── eval_pathsim_api_report.json       # PathSim (API)
+│   ├── eval_ragas_ablation_report.json    # RAGAS Hybrid vs Vector (OS)
+│   ├── eval_ragas_ablation_report_baseline.json
+│   ├── eval_ragas_api_report.json         # RAGAS Hybrid vs Vector (API)
+│   └── eval_ragas_api_report_baseline.json
 │
 ├── data_md/                           # Pre-parsed textbook chapters (markdown)
 │
@@ -249,15 +365,26 @@ The FastAPI server (`src/api/server.py`) exposes the following endpoints:
 │   ├── agents/                        # LangGraph multi-agent workflow
 │   │   ├── workflow.py                # Graph builder + CLI entry point
 │   │   ├── state.py                   # AgentState TypedDict
-│   │   ├── router_agent.py            # Route classification (diagnose | retrieve)
-│   │   ├── diagnoser_agent.py         # Misconception detection & mastery reset
+│   │   ├── router_agent.py            # Few-shot CoT semantic routing (diagnose | retrieve)
+│   │   ├── diagnoser_agent.py         # Misconception detection + dynamic KG concept resolution
 │   │   ├── planner_agent.py           # MSMS-based learning path generation
 │   │   ├── tutor_agent.py             # Context-aware response synthesis
-│   │   ├── tools.py                   # LangChain tools (retrieval, memory)
+│   │   ├── tools.py                   # LangChain tools (retrieval, memory, mastery)
 │   │   └── llm.py                     # OpenAI model configuration
 │   │
 │   ├── api/
-│   │   └── server.py                  # FastAPI server (REST + SSE streaming)
+│   │   ├── server.py                  # FastAPI server (REST + SSE streaming)
+│   │   ├── dependencies.py            # Shared FastAPI dependencies
+│   │   ├── controllers/               # Business logic controllers
+│   │   └── routes/                    # Modular route definitions
+│   │       ├── auth_routes.py         # Authentication endpoints
+│   │       ├── chat_routes.py         # Chat / SSE streaming
+│   │       ├── sessions_routes.py     # Session CRUD
+│   │       ├── graph_routes.py        # Knowledge graph & mastery
+│   │       ├── documents_routes.py    # PDF upload & management
+│   │       ├── teacher_routes.py      # Teacher dashboard
+│   │       ├── media_routes.py        # Video recommendations
+│   │       └── ui_routes.py           # Static file serving
 │   │
 │   ├── ui/
 │   │   └── streamlit_app.py           # Streamlit dashboard
@@ -268,10 +395,13 @@ The FastAPI server (`src/api/server.py`) exposes the following endpoints:
 │   │   └── models.py                  # Domain models
 │   │
 │   ├── retrieval/
-│   │   ├── hybrid.py                  # Hybrid retrieval pipeline
-│   │   ├── search.py                  # Semantic vector search
+│   │   ├── hybrid.py                  # Hybrid retrieval pipeline (vector + graph topology)
+│   │   ├── search.py                  # Semantic vector search (Neo4j vector index)
 │   │   ├── embedder.py                # Concept embedding with SentenceTransformers
-│   │   └── reranker.py                # Structure-aware reranker (+ cross-encoder)
+│   │   ├── reranker.py                # Structure-aware reranker (calibrated weights)
+│   │   ├── compressor.py              # Contextual compression with min-length protection
+│   │   ├── crag.py                    # Corrective RAG — self-correction loop
+│   │   └── query_transform.py         # HyDE query transformation
 │   │
 │   ├── pathing/
 │   │   ├── graph_adapter.py           # Neo4j → NetworkX adapter
@@ -291,12 +421,23 @@ The FastAPI server (`src/api/server.py`) exposes the following endpoints:
 │       └── qa_store.py                # MongoDB persistence + session management
 │
 └── tests/
-    ├── data/
-    │   ├── ragas_eval_dataset.json     # Ground truth Q&A for RAGAS
-    │   └── router_eval_dataset.json    # Ground truth for router classification
-    ├── test_pathsim.py                # PathSim evaluation against expert paths
-    ├── test_ragas_eval.py             # RAGAS RAG quality metrics
-    ├── test_router_metrics.py         # Router accuracy & latency benchmarks
+    ├── data/                          # Ground-truth evaluation datasets
+    │   ├── router_eval_dataset.json       # 50 labeled queries (OS)
+    │   ├── router_eval_dataset_api.json   # 50 labeled queries (API)
+    │   ├── diagnoser_eval_dataset.json    # 30 cases: 15 misconceptions + 15 TNs (OS)
+    │   ├── diagnoser_eval_dataset_api.json# 30 cases: 15 misconceptions + 15 TNs (API)
+    │   ├── ragas_eval_dataset.json        # 15 multi-hop Q&A pairs (OS)
+    │   └── ragas_eval_dataset_api.json    # 20 technical Q&A pairs (API)
+    │
+    ├── eval_router.py                 # Router accuracy, F1, Cohen's Kappa evaluation
+    ├── eval_diagnoser.py              # Diagnoser precision, recall, F1, concept attribution
+    ├── eval_pathsim_ablation.py       # PathSim MSMS vs BFS ablation (OS)
+    ├── eval_pathsim_api.py            # PathSim evaluation (API)
+    ├── eval_ragas_ablation.py         # RAGAS Hybrid vs Vector-Only ablation
+    │
+    ├── test_pathsim.py                # Legacy PathSim test
+    ├── test_ragas_eval.py             # Legacy RAGAS test
+    ├── test_router_metrics.py         # Legacy Router test
     └── test_scenario.py               # End-to-end scenario tests
 ```
 
@@ -396,40 +537,34 @@ MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/?appName=YourApp
 
 ## 🧪 Testing & Evaluation
 
-### Run All Tests
+### Seed & Run Full Evaluation Suite
 
 ```bash
-uv run pytest tests/
+# 1. Seed the knowledge graph (pick one or both)
+uv run python scripts/seed_os_knowledge.py
+uv run python scripts/seed_api_knowledge.py
+
+# 2. Run evaluations
+uv run python tests/eval_router.py              # OS Router (50 queries)
+uv run python tests/eval_router.py --api         # API Router (50 queries)
+uv run python tests/eval_diagnoser.py            # OS Diagnoser (30 cases)
+uv run python tests/eval_diagnoser.py --api      # API Diagnoser (30 cases)
+uv run python tests/eval_pathsim_ablation.py     # OS PathSim MSMS vs BFS
+uv run python tests/eval_pathsim_api.py          # API PathSim
+uv run python tests/eval_ragas_ablation.py       # OS RAGAS Hybrid vs Vector
+uv run python tests/eval_ragas_ablation.py --api  # API RAGAS Hybrid vs Vector
 ```
 
-### PathSim — Learning Path Quality
+All results are saved to `data/eval_*_report.json`. Baseline reports are preserved as `data/eval_*_baseline.json` for publication comparison.
 
-Evaluates AI-generated learning paths against expert-defined ground truth using a weighted combination of node overlap, edge overlap, and sequence similarity:
+### Quick Legacy Tests
 
 ```bash
-uv run python tests/test_pathsim.py
+uv run python tests/test_pathsim.py          # PathSim against expert paths
+uv run python tests/test_ragas_eval.py       # RAGAS RAG quality metrics
+uv run python tests/test_router_metrics.py   # Router accuracy & latency
+uv run pytest tests/                         # Run all tests
 ```
-
-### RAGAS — RAG Pipeline Quality
-
-Measures faithfulness, answer relevancy, context precision, context recall, and answer correctness:
-
-```bash
-uv run python tests/test_ragas_eval.py
-uv run python tests/test_ragas_eval.py --max 5    # Quick run (5 questions)
-```
-
-Results are saved to `data/ragas_eval_report.json`.
-
-### Router Metrics — Routing Accuracy & Latency
-
-Benchmarks the router agent against labeled test cases:
-
-```bash
-uv run python tests/test_router_metrics.py
-```
-
-Results are saved to `data/router_eval_report.json`.
 
 ---
 
@@ -440,9 +575,10 @@ Results are saved to `data/router_eval_report.json`.
 | **"Failed to connect to Neo4j instance"** | Check Neo4j credentials in `.env`. Ensure your Aura instance is running. |
 | **OpenAI API errors** | Verify `OPENAI_API_KEY` is set and has available quota. |
 | **MongoDB connection failed** | Verify `MONGO_URI` in `.env`. For Atlas, whitelist your IP address. |
-| **"No relevant concepts found"** | Upload PDFs and run concept extraction to populate the knowledge graph. |
+| **"No relevant concepts found"** | Run `scripts/seed_os_knowledge.py` or upload PDFs and run concept extraction. |
 | **LangSmith not capturing traces** | Ensure `LANGCHAIN_TRACING_V2=true` and `LANGCHAIN_API_KEY` is set. |
 | **Streamlit won't start** | Run from the project root: `uv run streamlit run src/ui/streamlit_app.py` |
+| **Low evaluation metrics** | Ensure Neo4j is seeded with the correct curriculum before running domain-specific evals. |
 
 ---
 
@@ -450,8 +586,8 @@ Results are saved to `data/router_eval_report.json`.
 
 1. Fork and create a feature branch
 2. Follow the [ARCHITECTURE.md](ARCHITECTURE.md) naming conventions (`*_agent.py`, `*_node`, PascalCase logging)
-3. Add tests in `tests/`
-4. Submit a PR with example traces or screenshots
+3. Add tests in `tests/` and ground-truth datasets in `tests/data/`
+4. Submit a PR with example traces or evaluation results
 
 ---
 
@@ -461,5 +597,5 @@ MIT License
 
 ---
 
-**Last Updated**: August 2026
-**Version**: 0.1.0
+**Last Updated**: October 2026
+**Version**: 1.0.0
